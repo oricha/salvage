@@ -37,8 +37,8 @@ dependencies {
     implementation 'org.flywaydb:flyway-database-postgresql:10.10.0'
     
     // Lombok
-    compileOnly 'org.projectlombok:lombok'
-    annotationProcessor 'org.projectlombok:lombok'
+    compileOnly 'org.projectlombok:lombok:1.18.36'
+    annotationProcessor 'org.projectlombok:lombok:1.18.36'
     
     // DevTools
     developmentOnly 'org.springframework.boot:spring-boot-devtools'

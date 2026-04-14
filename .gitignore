@@ -79,3 +79,8 @@ application-dev.properties
 .kiro/
 .claude/
 .agent/
+
+# Claude
+.claude/
+CLAUDE.md
+AGENTS.md
