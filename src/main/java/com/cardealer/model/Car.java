@@ -68,6 +68,8 @@ public class Car {
     @Column(columnDefinition = "TEXT")
     private String description;
 
+    @Column(nullable = false, length = 5)
+    private String locale = "es";
 
     @ElementCollection
     @CollectionTable(name = "car_features", joinColumns = @JoinColumn(name = "car_id"))

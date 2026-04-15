@@ -3,6 +3,7 @@ package com.cardealer.controller;
 import com.cardealer.dto.ContactFormDTO;
 import com.cardealer.model.enums.BodyType;
 import com.cardealer.service.CarService;
+import com.cardealer.service.SEOService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -10,12 +11,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 @Controller
 @RequiredArgsConstructor
 public class HomeController {
 
     private final CarService carService;
+    private final SEOService seoService;
 
     @GetMapping("/")
     public String home(Model model) {
@@ -27,9 +30,10 @@ public class HomeController {
         // Load body type categories
         List<BodyType> bodyTypes = Arrays.asList(BodyType.values());
         model.addAttribute("bodyTypes", bodyTypes);
-        model.addAttribute("pageDescription", "Portal de compra y venta de coches con inventario actualizado, búsqueda rápida y contacto directo.");
-        model.addAttribute("pageKeywords", "portal coches, comprar coche, vender coche, inventario");
-        model.addAttribute("ogTitle", "Portal de Coches");
+        model.addAllAttributes(seoService.toModelAttributes(
+            seoService.generatePageMetadata("home", Locale.forLanguageTag("es")),
+            "/"
+        ));
         
         return "index";
     }

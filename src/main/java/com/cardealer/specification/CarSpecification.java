@@ -6,6 +6,7 @@ import com.cardealer.model.enums.BodyType;
 import com.cardealer.model.enums.CarCondition;
 import com.cardealer.model.enums.FuelType;
 import com.cardealer.model.enums.TransmissionType;
+import com.cardealer.model.enums.VehicleCategory;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -76,9 +77,28 @@ public class CarSpecification {
                 }
             }
 
+            if (filters.getConditions() != null && !filters.getConditions().isEmpty()) {
+                predicates.add(root.get("condition").in(filters.getConditions()));
+            }
+
+            if (filters.getCategories() != null && !filters.getCategories().isEmpty()) {
+                predicates.add(root.get("category").in(filters.getCategories()));
+            }
+
+            if (filters.getMinMileage() != null) {
+                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("mileage"), filters.getMinMileage()));
+            }
+
+            if (filters.getMaxMileage() != null) {
+                predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("mileage"), filters.getMaxMileage()));
+            }
+
             // Filter by search text (brand, model, description)
-            if (filters.getSearchText() != null && !filters.getSearchText().isEmpty()) {
-                String searchPattern = "%" + filters.getSearchText().toLowerCase() + "%";
+            String queryText = filters.getSearchQuery() != null && !filters.getSearchQuery().isEmpty()
+                ? filters.getSearchQuery()
+                : filters.getSearchText();
+            if (queryText != null && !queryText.isEmpty()) {
+                String searchPattern = "%" + queryText.toLowerCase() + "%";
                 Predicate brandMatch = criteriaBuilder.like(
                     criteriaBuilder.lower(root.get("make")), searchPattern);
                 Predicate modelMatch = criteriaBuilder.like(
@@ -87,6 +107,10 @@ public class CarSpecification {
                     criteriaBuilder.lower(root.get("description")), searchPattern);
                 
                 predicates.add(criteriaBuilder.or(brandMatch, modelMatch, descriptionMatch));
+            }
+
+            if (filters.getLocale() != null && !filters.getLocale().isBlank()) {
+                predicates.add(criteriaBuilder.equal(criteriaBuilder.lower(root.get("locale")), filters.getLocale().toLowerCase()));
             }
 
             // Filter by features (car must have all selected features)

@@ -1,163 +1,109 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
-
-<head th:replace="~{fragments/header :: head('Inventario en Lista - Portal de Coches')}"></head>
-
+<head th:replace="~{fragments/header :: head('Inventario en Lista | Portal de Coches')}"></head>
 <body>
-    <nav th:replace="~{fragments/header :: navbar}"></nav>
-
-    <main class="main">
-        <div class="site-breadcrumb" style="background: url(/img/breadcrumb/01.jpg)">
-            <div class="container">
-                <h2 class="breadcrumb-title">Inventario</h2>
-                <ul class="breadcrumb-menu">
-                    <li><a th:href="@{/}">Inicio</a></li>
-                    <li class="active">Vista lista</li>
-                </ul>
-            </div>
+<nav th:replace="~{fragments/header :: navbar}"></nav>
+<main class="main">
+    <div class="site-breadcrumb" style="background: url(/img/breadcrumb/01.jpg)">
+        <div class="container">
+            <h1 class="breadcrumb-title">Inventario en Lista</h1>
+            <ul class="breadcrumb-menu">
+                <li><a th:href="@{/}">Inicio</a></li>
+                <li class="active">Vista lista</li>
+            </ul>
         </div>
-
-        <div class="car-area list bg py-120">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-3">
-                        <div class="car-sidebar">
-                            <form th:action="@{/cars/list}" method="get">
-                                <div class="car-widget">
-                                    <div class="car-search-form">
-                                        <h4 class="car-widget-title">Buscar</h4>
-                                        <div class="form-group">
-                                            <input type="text" name="searchText" class="form-control"
-                                                   th:value="${filters.searchText}" placeholder="Marca, modelo o descripción">
-                                            <button type="submit"><i class="far fa-search"></i></button>
+    </div>
+    <section class="car-area list bg py-120">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-3">
+                    <div class="car-sidebar">
+                        <form th:action="@{/cars/list}" method="get">
+                            <div class="car-widget">
+                                <h4 class="car-widget-title">Búsqueda</h4>
+                                <input class="form-control" type="text" name="searchQuery" th:value="${filters.searchQuery ?: filters.searchText}" placeholder="Marca, modelo o descripción">
+                            </div>
+                            <div class="car-widget">
+                                <h4 class="car-widget-title">Categorías</h4>
+                                <ul>
+                                    <li th:each="category, iterStat : ${categories}">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="categories" th:id="'list-category-' + ${iterStat.index}" th:value="${category}" th:checked="${filters.categories != null && filters.categories.contains(category)}">
+                                            <label class="form-check-label" th:for="'list-category-' + ${iterStat.index}" th:text="${category}">PASSENGER_CAR</label>
                                         </div>
-                                    </div>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="car-widget">
+                                <h4 class="car-widget-title">Condiciones</h4>
+                                <ul>
+                                    <li th:each="condition, iterStat : ${conditions}">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="conditions" th:id="'list-condition-' + ${iterStat.index}" th:value="${condition}" th:checked="${filters.conditions != null && filters.conditions.contains(condition)}">
+                                            <label class="form-check-label" th:for="'list-condition-' + ${iterStat.index}" th:text="${condition}">OCASION</label>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="car-widget">
+                                <h4 class="car-widget-title">Kilometraje</h4>
+                                <input class="form-control mb-2" type="number" name="minMileage" th:value="${filters.minMileage}" placeholder="Mínimo">
+                                <input class="form-control" type="number" name="maxMileage" th:value="${filters.maxMileage}" placeholder="Máximo">
+                            </div>
+                            <div class="car-widget">
+                                <button class="theme-btn w-100" type="submit">Aplicar filtros</button>
+                                <a th:href="@{/cars/list}" class="theme-btn theme-btn2 w-100 mt-2">Limpiar</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="col-lg-9">
+                    <div class="car-sort mb-4">
+                        <h6 th:text="'Mostrando ' + ${cars.numberOfElements} + ' de ' + ${totalItems} + ' resultados'">Mostrando resultados</h6>
+                        <div class="car-sort-list-grid">
+                            <a class="car-sort-grid" th:href="@{/cars}"><i class="far fa-grid-2"></i></a>
+                            <a class="car-sort-list active" th:href="@{/cars/list}"><i class="far fa-list-ul"></i></a>
+                        </div>
+                    </div>
+                    <div th:if="${cars.isEmpty()}" class="alert alert-light border text-center">No hay vehículos que coincidan con los filtros seleccionados.</div>
+                    <article class="car-item car-list-item mb-30" th:each="car : ${cars}">
+                        <div class="row g-0 align-items-center">
+                            <div class="col-md-4">
+                                <div class="car-img">
+                                    <img loading="lazy" th:src="@{${car.images != null && !car.images.isEmpty()} ? '/uploads/' + ${car.images[0]} : '/img/car/01.jpg'}" th:alt="${car.make + ' ' + car.model}">
                                 </div>
-                                <div class="car-widget">
-                                    <h4 class="car-widget-title">Marcas</h4>
-                                    <ul>
-                                        <li th:each="brand, iterStat : ${availableBrands}">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox"
-                                                       name="brands" th:value="${brand}"
-                                                       th:id="'list-brand-' + ${iterStat.index}"
-                                                       th:checked="${filters.brands != null && filters.brands.contains(brand)}">
-                                                <label class="form-check-label" th:for="'list-brand-' + ${iterStat.index}"
-                                                       th:text="${brand}">Brand</label>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="car-content p-4">
+                                    <div class="d-flex justify-content-between gap-3 flex-wrap">
+                                        <div>
+                                            <div class="d-flex gap-2 mb-2">
+                                                <span class="badge bg-dark" th:text="${car.category}">PASSENGER_CAR</span>
+                                                <span class="badge bg-secondary" th:text="${car.condition}">OCASION</span>
                                             </div>
-                                        </li>
+                                            <h3><a th:href="@{/cars/{id}(id=${car.id})}" th:text="${car.make + ' ' + car.model}">Vehículo</a></h3>
+                                            <p class="mb-0 text-muted" th:text="${car.description} ?: 'Vehículo disponible.'">Descripción</p>
+                                        </div>
+                                        <span class="car-price" th:text="${#numbers.formatDecimal(car.price, 0, 'COMMA', 2, 'POINT')} + ' €'">0 €</span>
+                                    </div>
+                                    <ul class="car-list mt-3">
+                                        <li><i class="far fa-car"></i><span th:text="${car.year}">2024</span></li>
+                                        <li><i class="far fa-road"></i><span th:text="${car.mileage + ' km'}">0 km</span></li>
+                                        <li><i class="far fa-gas-pump"></i><span th:text="${car.fuelType}">Fuel</span></li>
+                                        <li><i class="far fa-steering-wheel"></i><span th:text="${car.transmission}">Transmission</span></li>
                                     </ul>
-                                </div>
-                                <div class="car-widget">
-                                    <h4 class="car-widget-title">Precio</h4>
-                                    <div class="form-group">
-                                        <label>Mínimo</label>
-                                        <input type="number" name="minPrice" class="form-control" th:value="${filters.minPrice}">
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Máximo</label>
-                                        <input type="number" name="maxPrice" class="form-control" th:value="${filters.maxPrice}">
-                                    </div>
-                                </div>
-                                <div class="car-widget">
-                                    <h4 class="car-widget-title">Carrocería</h4>
-                                    <select name="bodyType" class="form-control">
-                                        <option value="">Todas</option>
-                                        <option th:each="bodyType : ${bodyTypes}"
-                                                th:value="${bodyType.name()}"
-                                                th:selected="${filters.bodyType == bodyType.name()}"
-                                                th:text="${bodyType}">SUV</option>
-                                    </select>
-                                </div>
-                                <div class="car-widget">
-                                    <button type="submit" class="theme-btn w-100">Aplicar filtros</button>
-                                    <a th:href="@{/cars/list}" class="theme-btn theme-btn2 w-100 mt-2">Limpiar</a>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-
-                    <div class="col-lg-9">
-                        <div class="car-sort">
-                            <h6 th:text="'Mostrando ' + ${cars.numberOfElements} + ' de ' + ${totalItems} + ' resultados'">Mostrando resultados</h6>
-                            <div class="car-sort-list-grid">
-                                <a class="car-sort-grid"
-                                   th:href="@{/cars(brands=${filters.brands}, minPrice=${filters.minPrice}, maxPrice=${filters.maxPrice}, transmission=${filters.transmission}, fuelType=${filters.fuelType}, bodyType=${filters.bodyType}, condition=${filters.condition}, searchText=${filters.searchText}, sortBy=${filters.sortBy})}">
-                                    <i class="far fa-grid-2"></i>
-                                </a>
-                                <a class="car-sort-list active"
-                                   th:href="@{/cars/list(brands=${filters.brands}, minPrice=${filters.minPrice}, maxPrice=${filters.maxPrice}, transmission=${filters.transmission}, fuelType=${filters.fuelType}, bodyType=${filters.bodyType}, condition=${filters.condition}, searchText=${filters.searchText}, sortBy=${filters.sortBy})}">
-                                    <i class="far fa-list-ul"></i>
-                                </a>
-                            </div>
-                        </div>
-
-                        <div th:if="${cars.isEmpty()}" class="alert alert-light border text-center">
-                            No hay coches que coincidan con los filtros seleccionados.
-                        </div>
-
-                        <div class="car-item car-list-item mb-30" th:each="car : ${cars}">
-                            <div class="row g-0 align-items-center">
-                                <div class="col-md-4">
-                                    <div class="car-img">
-                                        <img th:src="@{${car.images != null && !car.images.isEmpty()} ? '/uploads/' + ${car.images[0]} : '/img/car/01.jpg'}"
-                                             th:alt="${car.make + ' ' + car.model}">
-                                    </div>
-                                </div>
-                                <div class="col-md-8">
-                                    <div class="car-content p-4">
-                                        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
-                                            <div>
-                                                <h4>
-                                                    <a th:href="@{/cars/{id}(id=${car.id})}"
-                                                       th:text="${car.make + ' ' + car.model}">Vehículo</a>
-                                                </h4>
-                                                <p class="mb-2 text-muted" th:text="${car.description} ?: 'Vehículo disponible para entrega inmediata.'"></p>
-                                            </div>
-                                            <span class="car-price" th:text="${#numbers.formatDecimal(car.price, 0, 'COMMA', 2, 'POINT')} + ' €'">20.000 €</span>
-                                        </div>
-                                        <ul class="car-list">
-                                            <li><i class="far fa-car"></i><span th:text="${car.year}">2024</span></li>
-                                            <li><i class="far fa-steering-wheel"></i><span th:text="${car.transmission}">Automático</span></li>
-                                            <li><i class="far fa-road"></i><span th:text="${car.mileage + ' km'}">10.000 km</span></li>
-                                            <li><i class="far fa-gas-pump"></i><span th:text="${car.fuelType}">Híbrido</span></li>
-                                        </ul>
-                                        <a th:href="@{/cars/{id}(id=${car.id})}" class="theme-btn mt-3">Ver detalle</a>
-                                    </div>
+                                    <a th:href="@{/cars/{id}(id=${car.id})}" class="theme-btn mt-3">Ver detalle</a>
                                 </div>
                             </div>
                         </div>
-
-                        <div class="pagination-area" th:if="${totalPages > 1}">
-                            <ul class="pagination">
-                                <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
-                                    <a class="page-link"
-                                       th:href="@{/cars/list(page=${currentPage - 1}, size=12, brands=${filters.brands}, minPrice=${filters.minPrice}, maxPrice=${filters.maxPrice}, transmission=${filters.transmission}, fuelType=${filters.fuelType}, bodyType=${filters.bodyType}, condition=${filters.condition}, searchText=${filters.searchText}, sortBy=${filters.sortBy})}">
-                                        <i class="far fa-arrow-left"></i>
-                                    </a>
-                                </li>
-                                <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}" th:classappend="${i == currentPage} ? 'active'">
-                                    <a class="page-link"
-                                       th:href="@{/cars/list(page=${i}, size=12, brands=${filters.brands}, minPrice=${filters.minPrice}, maxPrice=${filters.maxPrice}, transmission=${filters.transmission}, fuelType=${filters.fuelType}, bodyType=${filters.bodyType}, condition=${filters.condition}, searchText=${filters.searchText}, sortBy=${filters.sortBy})}"
-                                       th:text="${i + 1}">1</a>
-                                </li>
-                                <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
-                                    <a class="page-link"
-                                       th:href="@{/cars/list(page=${currentPage + 1}, size=12, brands=${filters.brands}, minPrice=${filters.minPrice}, maxPrice=${filters.maxPrice}, transmission=${filters.transmission}, fuelType=${filters.fuelType}, bodyType=${filters.bodyType}, condition=${filters.condition}, searchText=${filters.searchText}, sortBy=${filters.sortBy})}">
-                                        <i class="far fa-arrow-right"></i>
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
+                    </article>
                 </div>
             </div>
         </div>
-    </main>
-
-    <footer th:replace="~{fragments/footer :: footer}"></footer>
-    <div th:replace="~{fragments/footer :: scroll-top}"></div>
-    <div th:replace="~{fragments/header :: scripts}"></div>
+    </section>
+</main>
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+<div th:replace="~{fragments/footer :: scroll-top}"></div>
+<div th:replace="~{fragments/header :: scripts}"></div>
 </body>
-
 </html>

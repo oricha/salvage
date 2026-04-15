@@ -3,6 +3,7 @@ package com.cardealer.dto;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -43,7 +44,10 @@ public class CarDTO {
     
     @NotBlank(message = "La condición es obligatoria")
     private String condition;
-    
+
+    @NotBlank(message = "La categoría es obligatoria")
+    private String category;
+
     private String color;
     
     @Min(value = 2, message = "El número de puertas debe ser al menos 2")
@@ -54,9 +58,12 @@ public class CarDTO {
     private String description;
     
     private List<String> features;
-    
+
+    @Size(min = 20, max = 25, message = "Debe subir entre 20 y 25 imágenes")
     private List<MultipartFile> imageFiles;
-    
+
     // For editing - existing image URLs
     private List<String> existingImages;
+
+    private String locale;
 }

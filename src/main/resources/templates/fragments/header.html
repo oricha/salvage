@@ -1,9 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head th:fragment="head(title)">
-    <!-- meta tags -->
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,16 +8,15 @@
     <meta name="keywords" th:content="${pageKeywords} ?: 'coches, venta, ocasión, accidentados, concesionario'">
     <meta property="og:type" content="website">
     <meta property="og:title" th:content="${ogTitle} ?: (${title} ?: 'Portal de Coches')">
-    <meta property="og:description" th:content="${pageDescription} ?: 'Portal de venta de coches de ocasión y accidentados'">
+    <meta property="og:description" th:content="${ogDescription} ?: (${pageDescription} ?: 'Portal de venta de coches de ocasión y accidentados')">
     <meta property="og:image" th:content="${ogImage} ?: '/img/logo/logo-full-light.png'">
-
-    <!-- title -->
+    <meta property="og:url" th:content="${ogUrl} ?: (${currentUrl} ?: '/')">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" th:content="${ogTitle} ?: (${title} ?: 'Portal de Coches')">
+    <meta name="twitter:description" th:content="${ogDescription} ?: (${pageDescription} ?: 'Portal de venta de coches de ocasión y accidentados')">
+    <meta name="twitter:image" th:content="${ogImage} ?: '/img/logo/logo-full-light.png'">
     <title th:text="${title} ?: 'Portal de Coches'">Portal de Coches</title>
-
-    <!-- favicon -->
     <link rel="icon" type="image/x-icon" href="/img/logo/favicon.png">
-
-    <!-- css -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
     <link rel="stylesheet" href="/css/all-fontawesome.min.css">
     <link rel="stylesheet" href="/css/flaticon.css">
@@ -30,205 +26,133 @@
     <link rel="stylesheet" href="/css/jquery-ui.min.css">
     <link rel="stylesheet" href="/css/nice-select.min.css">
     <link rel="stylesheet" href="/css/style.css">
+    <script type="application/ld+json" th:if="${structuredData != null}" th:utext="${structuredData}"></script>
 </head>
-
 <body>
-    <!-- Navigation Bar Fragment -->
-    <header th:fragment="navbar" class="header">
-        <!-- top header -->
-        <div class="header-top">
-            <div class="container">
-                <div class="header-top-wrapper">
-                    <div class="header-top-left">
-                        <div class="header-top-contact">
-                            <ul>
-                                <li><a href="mailto:info@portalcoches.com"><i class="far fa-envelopes"></i> info@portalcoches.com</a></li>
-                                <li><a href="tel:+34912345678"><i class="far fa-phone-volume"></i> +34 912 345 678</a></li>
-                                <li><a href="#"><i class="far fa-alarm-clock"></i> Lun - Vie (09:00 - 20:00)</a></li>
-                            </ul>
-                        </div>
+<header th:fragment="navbar" class="header">
+    <div class="header-top">
+        <div class="container">
+            <div class="header-top-wrapper">
+                <div class="header-top-left">
+                    <div class="header-top-contact">
+                        <ul>
+                            <li><a href="mailto:info@portalcoches.com"><i class="far fa-envelopes"></i> info@portalcoches.com</a></li>
+                            <li><a href="tel:+34912345678"><i class="far fa-phone-volume"></i> +34 912 345 678</a></li>
+                            <li><a href="#"><i class="far fa-alarm-clock"></i> <span th:text="#{common.businessHours}">Lun - Vie (09:00 - 20:00)</span></a></li>
+                        </ul>
                     </div>
-                    <div class="header-top-right">
-                        <div class="header-top-link">
-                            <a th:href="@{/login}" sec:authorize="!isAuthenticated()"><i class="far fa-arrow-right-to-arc"></i> Iniciar Sesión</a>
-                            <a th:href="@{/register}" sec:authorize="!isAuthenticated()"><i class="far fa-user-vneck"></i> Registrarse</a>
-                            <span sec:authorize="isAuthenticated()">
-                                <i class="far fa-user"></i> <span sec:authentication="name">Usuario</span>
-                            </span>
-                        </div>
-                        <div class="header-top-social">
-                            <span>Síguenos: </span>
-                            <a href="#"><i class="fab fa-facebook"></i></a>
-                            <a href="#"><i class="fab fa-twitter"></i></a>
-                            <a href="#"><i class="fab fa-instagram"></i></a>
-                            <a href="#"><i class="fab fa-linkedin"></i></a>
-                        </div>
+                </div>
+                <div class="header-top-right">
+                    <div class="header-top-link">
+                        <a th:href="@{/login}" sec:authorize="!isAuthenticated()"><i class="far fa-arrow-right-to-arc"></i> <span th:text="#{nav.login}">Iniciar sesión</span></a>
+                        <a th:href="@{/register}" sec:authorize="!isAuthenticated()"><i class="far fa-user-vneck"></i> <span th:text="#{nav.register}">Registrarse</span></a>
+                        <span sec:authorize="isAuthenticated()"><i class="far fa-user"></i> <span sec:authentication="name">Usuario</span></span>
+                    </div>
+                    <div class="header-top-social">
+                        <span th:text="#{common.followUs} + ':'">Síguenos:</span>
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
                     </div>
                 </div>
             </div>
         </div>
-        
-        <!-- main navigation -->
-        <div class="main-navigation">
-            <nav class="navbar navbar-expand-lg">
-                <div class="container position-relative">
-                    <a class="navbar-brand" th:href="@{/}">
-                        <img src="/img/logo/logo.png" alt="logo">
-                    </a>
-                    <div class="mobile-menu-right">
+    </div>
+
+    <div class="main-navigation">
+        <nav class="navbar navbar-expand-lg">
+            <div class="container position-relative">
+                <a class="navbar-brand" th:href="@{/}">
+                    <img src="/img/logo/logo.png" alt="logo">
+                </a>
+                <div class="mobile-menu-right">
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#main_nav" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-mobile-icon"><i class="far fa-bars"></i></span>
+                    </button>
+                </div>
+                <div class="collapse navbar-collapse" id="main_nav">
+                    <ul class="navbar-nav">
+                        <li class="nav-item"><a class="nav-link" th:href="@{/}" th:text="#{nav.home}">Inicio</a></li>
+                        <li class="nav-item"><a class="nav-link" th:href="@{/cars}" th:text="#{nav.inventory}">Inventario</a></li>
+                        <li class="nav-item"><a class="nav-link" th:href="@{/dealers}" th:text="#{nav.dealers}">Concesionarios</a></li>
+                        <li class="nav-item"><a class="nav-link" th:href="@{/about}" th:text="#{nav.about}">Acerca de</a></li>
+                        <li class="nav-item"><a class="nav-link" th:href="@{/contact}" th:text="#{nav.contact}">Contacto</a></li>
+                    </ul>
+                    <div class="nav-right">
+                        <div class="dropdown nav-language-dropdown me-3">
+                            <a class="nav-right-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="far fa-globe"></i>
+                                <span th:text="${currentLocale != null ? #strings.toUpperCase(currentLocale.language) : 'ES'}">ES</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li th:each="localeOption : ${supportedLocales}">
+                                    <a class="dropdown-item" th:href="${currentUrl + '?lang=' + localeOption.language}" th:text="${#strings.toUpperCase(localeOption.language)}">ES</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <a th:href="@{/dashboard/messages}" class="nav-right-link position-relative" sec:authorize="isAuthenticated()">
+                            <i class="far fa-envelope"></i>
+                            <span th:if="${unreadMessageCount > 0}" class="badge bg-danger position-absolute top-0 start-100 translate-middle rounded-pill" th:text="${unreadMessageCount}">0</span>
+                        </a>
                         <div class="nav-right-account" sec:authorize="isAuthenticated()">
                             <div class="dropdown">
                                 <div data-bs-toggle="dropdown" aria-expanded="false">
                                     <img src="/img/account/user.jpg" alt="">
                                 </div>
                                 <ul class="dropdown-menu dropdown-menu-end">
-                                    <li sec:authorize="hasRole('VENDEDOR')">
-                                        <a class="dropdown-item" th:href="@{/dashboard}">
-                                            <i class="far fa-gauge-high"></i> Dashboard
-                                        </a>
-                                    </li>
+                                    <li sec:authorize="hasRole('VENDEDOR')"><a class="dropdown-item" th:href="@{/dashboard}"><i class="far fa-gauge-high"></i> <span th:text="#{nav.dashboard}">Dashboard</span></a></li>
+                                    <li><a class="dropdown-item" th:href="@{/profile}"><i class="far fa-user"></i> <span th:text="#{nav.profile}">Mi perfil</span></a></li>
+                                    <li><a class="dropdown-item" th:href="@{/dashboard/favorites}"><i class="far fa-heart"></i> <span th:text="#{nav.favorites}">Favoritos</span></a></li>
+                                    <li><a class="dropdown-item" th:href="@{/profile/settings}"><i class="far fa-cog"></i> <span th:text="#{nav.settings}">Configuración</span></a></li>
                                     <li>
-                                        <a class="dropdown-item" th:href="@{/profile}">
-                                            <i class="far fa-user"></i> Mi Perfil
-                                        </a>
-                                    </li>
-                                    <li sec:authorize="hasRole('VENDEDOR')">
-                                        <a class="dropdown-item" th:href="@{/dashboard/listings}">
-                                            <i class="far fa-layer-group"></i> Mis Listados
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" th:href="@{/dashboard/favorites}">
-                                            <i class="far fa-heart"></i> Mis Favoritos
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" th:href="@{/profile/settings}">
-                                            <i class="far fa-cog"></i> Configuración
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <form th:action="@{/logout}" method="post" style="margin: 0;">
-                                            <button type="submit" class="dropdown-item" style="background: none; border: none; width: 100%; text-align: left; cursor: pointer;">
-                                                <i class="far fa-sign-out"></i> Cerrar Sesión
+                                        <form th:action="@{/logout}" method="post" style="margin:0;">
+                                            <button type="submit" class="dropdown-item" style="background:none;border:none;width:100%;text-align:left;cursor:pointer;">
+                                                <i class="far fa-sign-out"></i> <span th:text="#{nav.logout}">Cerrar sesión</span>
                                             </button>
                                         </form>
                                     </li>
                                 </ul>
                             </div>
                         </div>
-                        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                            data-bs-target="#main_nav" aria-expanded="false" aria-label="Toggle navigation">
-                            <span class="navbar-toggler-mobile-icon"><i class="far fa-bars"></i></span>
-                        </button>
-                    </div>
-                    <div class="collapse navbar-collapse" id="main_nav">
-                        <ul class="navbar-nav">
-                            <li class="nav-item">
-                                <a class="nav-link" th:href="@{/}">Inicio</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" th:href="@{/cars}">Inventario</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" th:href="@{/dealers}">Concesionarios</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" th:href="@{/about}">Acerca de</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" th:href="@{/contact}">Contacto</a>
-                            </li>
-                        </ul>
-                        <div class="nav-right">
-                            <a th:href="@{/dashboard/messages}" class="nav-right-link position-relative" sec:authorize="isAuthenticated()">
-                                <i class="far fa-envelope"></i>
-                                <span th:if="${unreadMessageCount > 0}"
-                                      class="badge bg-danger position-absolute top-0 start-100 translate-middle rounded-pill"
-                                      th:text="${unreadMessageCount}">0</span>
-                            </a>
-                            <div class="nav-right-account" sec:authorize="isAuthenticated()">
-                                <div class="dropdown">
-                                    <div data-bs-toggle="dropdown" aria-expanded="false">
-                                        <img src="/img/account/user.jpg" alt="">
-                                    </div>
-                                    <ul class="dropdown-menu dropdown-menu-end">
-                                        <li sec:authorize="hasRole('VENDEDOR')">
-                                            <a class="dropdown-item" th:href="@{/dashboard}">
-                                                <i class="far fa-gauge-high"></i> Dashboard
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item" th:href="@{/profile}">
-                                                <i class="far fa-user"></i> Mi Perfil
-                                            </a>
-                                        </li>
-                                        <li sec:authorize="hasRole('VENDEDOR')">
-                                            <a class="dropdown-item" th:href="@{/dashboard/listings}">
-                                                <i class="far fa-layer-group"></i> Mis Listados
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item" th:href="@{/dashboard/favorites}">
-                                                <i class="far fa-heart"></i> Mis Favoritos
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item" th:href="@{/profile/settings}">
-                                                <i class="far fa-cog"></i> Configuración
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <form th:action="@{/logout}" method="post" style="margin: 0;">
-                                                <button type="submit" class="dropdown-item" style="background: none; border: none; width: 100%; text-align: left; cursor: pointer;">
-                                                    <i class="far fa-sign-out"></i> Cerrar Sesión
-                                                </button>
-                                            </form>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <div class="nav-right-btn mt-2" sec:authorize="hasRole('VENDEDOR')">
-                                <a th:href="@{/dashboard/listings/add}" class="theme-btn">
-                                    <span class="far fa-plus-circle"></span> Añadir Listado
-                                </a>
-                            </div>
+                        <div class="nav-right-btn mt-2" sec:authorize="hasRole('VENDEDOR')">
+                            <a th:href="@{/dashboard/listings/add}" class="theme-btn"><span class="far fa-plus-circle"></span> <span th:text="#{nav.add-listing}">Añadir listado</span></a>
                         </div>
                     </div>
                 </div>
-            </nav>
-        </div>
-    </header>
+            </div>
+        </nav>
+    </div>
+</header>
 
-    <div th:fragment="breadcrumb(title, items)" class="site-breadcrumb" style="background: url(/img/breadcrumb/01.jpg)">
-        <div class="container">
-            <h2 class="breadcrumb-title" th:text="${title}">Page Title</h2>
-            <ul class="breadcrumb-menu">
-                <li th:each="item : ${items}">
-                    <a th:if="${!item.current}" th:href="${item.url}" th:text="${item.label}">Breadcrumb</a>
-                    <span th:if="${item.current}" class="active" th:text="${item.label}">Current</span>
-                </li>
-            </ul>
-        </div>
+<div th:fragment="breadcrumb(title, items)" class="site-breadcrumb" style="background: url(/img/breadcrumb/01.jpg)">
+    <div class="container">
+        <h2 class="breadcrumb-title" th:text="${title}">Page Title</h2>
+        <ul class="breadcrumb-menu">
+            <li th:each="item : ${items}">
+                <a th:if="${!item.current}" th:href="${item.url}" th:text="${item.label}">Breadcrumb</a>
+                <span th:if="${item.current}" class="active" th:text="${item.label}">Current</span>
+            </li>
+        </ul>
     </div>
-    
-    <!-- Scripts Fragment -->
-    <div th:fragment="scripts">
-        <!-- js -->
-        <script src="/js/jquery-3.6.0.min.js"></script>
-        <script src="/js/modernizr.min.js"></script>
-        <script src="/js/bootstrap.bundle.min.js"></script>
-        <script src="/js/imagesloaded.pkgd.min.js"></script>
-        <script src="/js/jquery.magnific-popup.min.js"></script>
-        <script src="/js/isotope.pkgd.min.js"></script>
-        <script src="/js/jquery.appear.min.js"></script>
-        <script src="/js/jquery.easing.min.js"></script>
-        <script src="/js/owl.carousel.min.js"></script>
-        <script src="/js/counter-up.js"></script>
-        <script src="/js/jquery-ui.min.js"></script>
-        <script src="/js/jquery.nice-select.min.js"></script>
-        <script src="/js/wow.min.js"></script>
-        <script src="/js/main.js"></script>
-    </div>
+</div>
+
+<div th:fragment="scripts">
+    <script src="/js/jquery-3.6.0.min.js"></script>
+    <script src="/js/modernizr.min.js"></script>
+    <script src="/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/imagesloaded.pkgd.min.js"></script>
+    <script src="/js/jquery.magnific-popup.min.js"></script>
+    <script src="/js/isotope.pkgd.min.js"></script>
+    <script src="/js/jquery.appear.min.js"></script>
+    <script src="/js/jquery.easing.min.js"></script>
+    <script src="/js/owl.carousel.min.js"></script>
+    <script src="/js/counter-up.js"></script>
+    <script src="/js/jquery-ui.min.js"></script>
+    <script src="/js/jquery.nice-select.min.js"></script>
+    <script src="/js/wow.min.js"></script>
+    <script src="/js/image-gallery.js"></script>
+    <script src="/js/main.js"></script>
+</div>
 </body>
 </html>
