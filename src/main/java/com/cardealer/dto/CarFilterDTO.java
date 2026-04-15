@@ -15,6 +15,8 @@ import java.util.List;
 public class CarFilterDTO {
     
     private List<String> brands;
+    private Integer yearFrom;
+    private Integer yearTo;
     private BigDecimal minPrice;
     private BigDecimal maxPrice;
     private String transmission;

@@ -13,56 +13,13 @@
             </ul>
         </div>
     </div>
-    <section class="car-area grid bg py-120">
+    <section class="car-area grid bg py-120 inventory-page-shell">
         <div class="container">
-            <div class="row">
-                <div class="col-lg-3">
-                    <div class="car-sidebar">
-                        <form th:action="@{/cars}" method="get">
-                            <div class="car-widget">
-                                <h4 class="car-widget-title">Búsqueda</h4>
-                                <input class="form-control" type="text" name="searchQuery" th:value="${filters.searchQuery ?: filters.searchText}" placeholder="Marca, modelo o descripción">
-                            </div>
-                            <div class="car-widget">
-                                <h4 class="car-widget-title">Categorías</h4>
-                                <ul>
-                                    <li th:each="category, iterStat : ${categories}">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" name="categories" th:id="'category-' + ${iterStat.index}" th:value="${category}" th:checked="${filters.categories != null && filters.categories.contains(category)}">
-                                            <label class="form-check-label" th:for="'category-' + ${iterStat.index}" th:text="${category}">PASSENGER_CAR</label>
-                                        </div>
-                                    </li>
-                                </ul>
-                            </div>
-                            <div class="car-widget">
-                                <h4 class="car-widget-title">Condiciones</h4>
-                                <ul>
-                                    <li th:each="condition, iterStat : ${conditions}">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" name="conditions" th:id="'condition-' + ${iterStat.index}" th:value="${condition}" th:checked="${filters.conditions != null && filters.conditions.contains(condition)}">
-                                            <label class="form-check-label" th:for="'condition-' + ${iterStat.index}" th:text="${condition}">OCASION</label>
-                                        </div>
-                                    </li>
-                                </ul>
-                            </div>
-                            <div class="car-widget">
-                                <h4 class="car-widget-title">Precio</h4>
-                                <input class="form-control mb-2" type="number" name="minPrice" th:value="${filters.minPrice}" placeholder="Desde">
-                                <input class="form-control" type="number" name="maxPrice" th:value="${filters.maxPrice}" placeholder="Hasta">
-                            </div>
-                            <div class="car-widget">
-                                <h4 class="car-widget-title">Kilometraje</h4>
-                                <input class="form-control mb-2" type="number" name="minMileage" th:value="${filters.minMileage}" placeholder="Mínimo">
-                                <input class="form-control" type="number" name="maxMileage" th:value="${filters.maxMileage}" placeholder="Máximo">
-                            </div>
-                            <div class="car-widget">
-                                <button class="theme-btn w-100" type="submit">Aplicar filtros</button>
-                                <a th:href="@{/cars}" class="theme-btn theme-btn2 w-100 mt-2">Limpiar</a>
-                            </div>
-                        </form>
-                    </div>
+            <div class="row g-4">
+                <div class="col-lg-4 col-xl-3">
+                    <div th:replace="~{fragments/inventory-sidebar :: sidebar(@{/cars}, ${filters}, ${availableBrands}, ${modelsByMake}, ${sidebarFuelOptions}, ${sidebarTransmissionOptions}, ${vehicleTypeOptions}, ${categories})}"></div>
                 </div>
-                <div class="col-lg-9">
+                <div class="col-lg-8 col-xl-9">
                     <div class="car-sort mb-4">
                         <h6 th:text="'Mostrando ' + ${cars.numberOfElements} + ' de ' + ${totalItems} + ' resultados'">Mostrando resultados</h6>
                         <div class="car-sort-list-grid">
@@ -103,5 +60,9 @@
 <footer th:replace="~{fragments/footer :: footer}"></footer>
 <div th:replace="~{fragments/footer :: scroll-top}"></div>
 <div th:replace="~{fragments/header :: scripts}"></div>
+<script th:inline="javascript">
+    window.inventoryModelsByMake = /*[[${modelsByMake}]]*/ {};
+</script>
+<script src="/js/inventory-sidebar.js"></script>
 </body>
 </html>

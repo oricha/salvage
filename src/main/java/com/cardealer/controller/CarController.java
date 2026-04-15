@@ -32,8 +32,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Controller
@@ -203,14 +205,65 @@ public class CarController {
         model.addAttribute("cars", carsPage);
         model.addAttribute("filters", filters);
         model.addAttribute("availableBrands", carService.getAvailableBrands());
+        model.addAttribute("modelsByMake", buildModelsByMake());
         model.addAttribute("fuelTypes", Arrays.asList(FuelType.values()));
         model.addAttribute("transmissionTypes", Arrays.asList(TransmissionType.values()));
         model.addAttribute("bodyTypes", Arrays.asList(BodyType.values()));
         model.addAttribute("conditions", Arrays.asList(CarCondition.values()));
         model.addAttribute("categories", Arrays.asList(VehicleCategory.values()));
+        model.addAttribute("vehicleTypeOptions", List.of(
+            "all vehicle types",
+            "passenger cars",
+            "commercial vehicles",
+            "motor cycles",
+            "campers",
+            "caravans",
+            "trucks",
+            "trailers",
+            "scooters",
+            "microcars",
+            "cab",
+            "bus",
+            "machines",
+            "bicycles",
+            "other"
+        ));
+        model.addAttribute("sidebarFuelOptions", List.of(
+            Map.of("value", "", "label", "all kind of fuels"),
+            Map.of("value", "GASOLINA", "label", "petrol"),
+            Map.of("value", "DIESEL", "label", "diesel"),
+            Map.of("value", "GLP", "label", "lpg"),
+            Map.of("value", "ELECTRICO", "label", "electric"),
+            Map.of("value", "HIBRIDO", "label", "hybride"),
+            Map.of("value", "GAS", "label", "gas"),
+            Map.of("value", "HYDROGEN", "label", "hydrogen"),
+            Map.of("value", "BENZINE_CNG", "label", "benzine-CNG"),
+            Map.of("value", "COMPRESSED_NATURAL_GAS", "label", "compressed natural gas")
+        ));
+        model.addAttribute("sidebarTransmissionOptions", List.of(
+            Map.of("value", "", "label", "all transmissions"),
+            Map.of("value", "AUTOMATICO", "label", "automatic transmission"),
+            Map.of("value", "MANUAL", "label", "manual transmission")
+        ));
+        model.addAttribute("extraStylesheets", List.of("/css/inventory-sidebar.css"));
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", carsPage.getTotalPages());
         model.addAttribute("totalItems", carsPage.getTotalElements());
         return carsPage;
+    }
+
+    private Map<String, List<String>> buildModelsByMake() {
+        Map<String, List<String>> models = new LinkedHashMap<>();
+        models.put("Audi", List.of("A1", "A3", "A4", "A6", "Q2", "Q5", "Q7"));
+        models.put("BMW", List.of("1 Series", "3 Series", "5 Series", "X1", "X3", "X5"));
+        models.put("Volkswagen", List.of("Golf", "Polo", "Passat", "T-Roc", "Tiguan", "Transporter"));
+        models.put("Mercedes", List.of("A-Class", "C-Class", "E-Class", "CLA", "GLA", "Vito"));
+        models.put("Toyota", List.of("Aygo", "Yaris", "Corolla", "C-HR", "RAV4", "Hilux"));
+        models.put("Ford", List.of("Fiesta", "Focus", "Puma", "Kuga", "Transit", "Ranger"));
+        models.put("Hyundai", List.of("i10", "i20", "i30", "IONIQ", "IONIQ 5", "Tucson"));
+        models.put("Opel", List.of("Corsa", "Astra", "Mokka", "Insignia", "Vivaro"));
+        models.put("Peugeot", List.of("208", "308", "3008", "5008", "Partner"));
+        models.put("Renault", List.of("Clio", "Megane", "Captur", "Kadjar", "Trafic"));
+        return models;
     }
 }

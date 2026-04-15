@@ -28,6 +28,13 @@ public class CarSpecification {
             }
 
             // Filter by price range
+            if (filters.getYearFrom() != null) {
+                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("year"), filters.getYearFrom()));
+            }
+            if (filters.getYearTo() != null) {
+                predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("year"), filters.getYearTo()));
+            }
+
             if (filters.getMinPrice() != null) {
                 predicates.add(criteriaBuilder.greaterThanOrEqualTo(
                     root.get("price"), filters.getMinPrice()));

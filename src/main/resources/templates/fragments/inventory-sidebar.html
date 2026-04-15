@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<aside th:fragment="sidebar(formAction, filters, availableBrands, modelsByMake, sidebarFuelOptions, sidebarTransmissionOptions, vehicleTypeOptions, categories)"
+       class="inventory-filter-shell">
+    <button class="inventory-filter-mobile-btn d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#inventoryFilterDrawer" aria-controls="inventoryFilterDrawer">
+        <i class="far fa-magnifying-glass"></i> Filter
+    </button>
+
+    <div class="inventory-filter-desktop d-none d-lg-block">
+        <div th:replace="~{fragments/inventory-sidebar :: sidebarContent(${formAction}, ${filters}, ${availableBrands}, ${modelsByMake}, ${sidebarFuelOptions}, ${sidebarTransmissionOptions}, ${vehicleTypeOptions}, ${categories})}"></div>
+    </div>
+
+    <div class="offcanvas offcanvas-start inventory-filter-offcanvas" tabindex="-1" id="inventoryFilterDrawer" aria-labelledby="inventoryFilterDrawerLabel">
+        <div class="offcanvas-header">
+            <h5 id="inventoryFilterDrawerLabel">Vehicle filters</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <div th:replace="~{fragments/inventory-sidebar :: sidebarContent(${formAction}, ${filters}, ${availableBrands}, ${modelsByMake}, ${sidebarFuelOptions}, ${sidebarTransmissionOptions}, ${vehicleTypeOptions}, ${categories})}"></div>
+        </div>
+    </div>
+</aside>
+
+<div th:fragment="sidebarContent(formAction, filters, availableBrands, modelsByMake, sidebarFuelOptions, sidebarTransmissionOptions, vehicleTypeOptions, categories)"
+     class="inventory-filter-sidebar"
+     th:with="activeCategory=${filters.categories != null && !filters.categories.isEmpty() ? filters.categories[0].name() : 'DAMAGED'}">
+    <div class="inventory-filter-sticky">
+        <h2 class="inventory-filter-title" th:text="${activeCategory == 'SALVAGE' ? 'Salvage' : (activeCategory == 'PASSENGER_CAR' ? 'Occasion' : 'Damaged')}">Damaged</h2>
+
+        <div class="inventory-filter-tabs">
+            <a class="inventory-filter-tab" th:classappend="${activeCategory == 'DAMAGED'} ? ' active' : ''" th:href="@{/cars/damaged}">
+                <i class="far fa-car-burst"></i>
+                <span>Damaged</span>
+            </a>
+            <a class="inventory-filter-tab" th:classappend="${activeCategory == 'SALVAGE'} ? ' active' : ''" th:href="@{/cars/salvage}">
+                <i class="far fa-screwdriver-wrench"></i>
+                <span>Disassembly</span>
+            </a>
+            <a class="inventory-filter-tab" th:classappend="${activeCategory == 'PASSENGER_CAR'} ? ' active' : ''" th:href="@{/cars(categories='PASSENGER_CAR')}">
+                <i class="far fa-car-side"></i>
+                <span>Occasion</span>
+            </a>
+        </div>
+
+        <form th:action="${formAction}" method="get" class="inventory-filter-form" id="inventoryFilterForm">
+            <div class="inventory-form-group">
+                <label for="sidebarBrand">Brand</label>
+                <select id="sidebarBrand" class="form-select" name="brands">
+                    <option value="">choose brand</option>
+                    <option th:each="brand : ${availableBrands}" th:value="${brand}" th:text="${brand}" th:selected="${filters.brands != null && filters.brands.contains(brand)}">Hyundai</option>
+                </select>
+            </div>
+
+            <div class="inventory-form-group">
+                <label for="sidebarModel">Model</label>
+                <select id="sidebarModel" class="form-select" name="searchQuery" th:attr="data-selected=${filters.searchQuery}">
+                    <option value="">choose a model</option>
+                </select>
+            </div>
+
+            <div class="inventory-form-group">
+                <label>ERD</label>
+                <div class="inventory-range-row">
+                    <select class="form-select" name="yearFrom">
+                        <option value="">1996</option>
+                        <option th:each="year : ${#numbers.sequence(1996, 2025)}" th:value="${year}" th:text="${year}" th:selected="${filters.yearFrom == year}">1996</option>
+                    </select>
+                    <span>to</span>
+                    <select class="form-select" name="yearTo">
+                        <option value="">2025</option>
+                        <option th:each="year : ${#numbers.sequence(1996, 2025)}" th:value="${year}" th:text="${year}" th:selected="${filters.yearTo == year}">2025</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="inventory-form-group">
+                <label for="sidebarFuel">fuel</label>
+                <select id="sidebarFuel" class="form-select" name="fuelType">
+                    <option th:each="fuel : ${sidebarFuelOptions}" th:value="${fuel.value}" th:text="${fuel.label}" th:selected="${filters.fuelType == fuel.value}">all kind of fuels</option>
+                </select>
+            </div>
+
+            <div class="inventory-form-group">
+                <label for="sidebarTransmission">transmission</label>
+                <select id="sidebarTransmission" class="form-select" name="transmission">
+                    <option th:each="transmission : ${sidebarTransmissionOptions}" th:value="${transmission.value}" th:text="${transmission.label}" th:selected="${filters.transmission == transmission.value}">all transmissions</option>
+                </select>
+            </div>
+
+            <div class="inventory-price-indicator">
+                <span th:text="|€ ${filters.minPrice != null ? filters.minPrice : '450'} - € ${filters.maxPrice != null ? filters.maxPrice : '33.000'}|">€ 450 - € 33.000</span>
+            </div>
+
+            <button class="inventory-submit-btn" type="submit">Search</button>
+
+            <div class="inventory-advanced">
+                <button type="button" class="inventory-toggle-btn" data-bs-toggle="collapse" data-bs-target="#advancedSearchInventory" aria-expanded="false" aria-controls="advancedSearchInventory">
+                    <span>Advanced search</span>
+                    <i class="far fa-angle-down"></i>
+                </button>
+                <div id="advancedSearchInventory" class="collapse">
+                    <div class="inventory-form-group mt-3">
+                        <label for="priceFrom">Price from</label>
+                        <input id="priceFrom" class="form-control" type="number" name="minPrice" th:value="${filters.minPrice}" placeholder="1000">
+                    </div>
+                    <div class="inventory-form-group">
+                        <label for="priceTo">Price to</label>
+                        <input id="priceTo" class="form-control" type="number" name="maxPrice" th:value="${filters.maxPrice}" placeholder="300000">
+                    </div>
+                    <div class="inventory-form-group">
+                        <label for="minMileage">Location radius / km</label>
+                        <input id="minMileage" class="form-control" type="number" name="minMileage" th:value="${filters.minMileage}" placeholder="0">
+                    </div>
+                    <div class="inventory-form-group">
+                        <label for="maxMileage">Damage details / max km</label>
+                        <input id="maxMileage" class="form-control" type="number" name="maxMileage" th:value="${filters.maxMileage}" placeholder="250000">
+                    </div>
+                    <div class="inventory-form-group">
+                        <label for="bodyType">Body type</label>
+                        <select id="bodyType" class="form-select" name="bodyType">
+                            <option value="">body type</option>
+                            <option value="SEDAN" th:selected="${filters.bodyType == 'SEDAN'}">sedan</option>
+                            <option value="SUV" th:selected="${filters.bodyType == 'SUV'}">suv</option>
+                            <option value="HATCHBACK" th:selected="${filters.bodyType == 'HATCHBACK'}">hatchback</option>
+                            <option value="COUPE" th:selected="${filters.bodyType == 'COUPE'}">coupé</option>
+                            <option value="CONVERTIBLE" th:selected="${filters.bodyType == 'CONVERTIBLE'}">cabriolet</option>
+                            <option value="WAGON" th:selected="${filters.bodyType == 'WAGON'}">wagon</option>
+                            <option value="VAN" th:selected="${filters.bodyType == 'VAN'}">van</option>
+                            <option value="PICKUP" th:selected="${filters.bodyType == 'PICKUP'}">pickup</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="inventory-vehicle-types">
+                <button type="button" class="inventory-toggle-btn" data-bs-toggle="collapse" data-bs-target="#vehicleTypesInventory" aria-expanded="false" aria-controls="vehicleTypesInventory">
+                    <span>vehicle types</span>
+                    <i class="far fa-angle-down"></i>
+                </button>
+                <div id="vehicleTypesInventory" class="collapse show">
+                    <ul class="inventory-vehicle-type-list">
+                        <li th:each="type : ${vehicleTypeOptions}">
+                            <a href="#" th:text="${type}" th:classappend="${type == 'passenger cars' && (activeCategory == 'PASSENGER_CAR' || activeCategory == 'DAMAGED' || activeCategory == 'SALVAGE')} ? ' active' : ''">passenger cars</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="inventory-hidden-category-fields" th:if="${filters.categories != null}">
+                <input th:each="category : ${filters.categories}" type="hidden" name="categories" th:value="${category}">
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>
