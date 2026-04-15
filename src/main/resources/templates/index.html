@@ -1,1080 +1,316 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-
-<head th:replace="~{fragments/header :: head('Portal de Coches - Inicio')}"></head>
-
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/header :: head('Schadeautos Market - Home')}"></head>
 <body>
-    <nav th:replace="~{fragments/header :: navbar}"></nav>
+<nav th:replace="~{fragments/header :: navbar}"></nav>
 
+<main class="main home-salvage-page">
+    <section class="home-salvage-hero">
+        <div class="container">
+            <div class="home-salvage-shell">
+                <div class="hero-heading">
+                    <span class="hero-kicker">Professional salvage marketplace</span>
+                    <h1>Damaged, salvage and occasion vehicles in one structured marketplace</h1>
+                    <p>Only professional companies advertise here. Search export-ready stock, dismantling inventory and occasion vehicles while keeping the original blue and orange visual identity of the platform.</p>
+                </div>
 
-    <!-- sidebar-popup -->
-    <div class="sidebar-popup">
-        <div class="sidebar-wrapper">
-            <div class="sidebar-content">
-                <button type="button" class="close-sidebar-popup"><i class="far fa-xmark"></i></button>
-                <div class="sidebar-logo">
-                    <img src="/img/logo/logo.png" alt="">
+                <div class="hero-tabs">
+                    <a th:each="tab : ${featuredHeroTabs}" class="hero-tab" th:href="${tab.url}">
+                        <strong th:text="${tab.label}">Damaged</strong>
+                        <span th:text="${tab.description}">Repairable vehicles with full listing data</span>
+                    </a>
                 </div>
-                <div class="sidebar-about">
-                    <h4>Sobre Nosotros</h4>
-                    <p>Existen muchas variaciones de pasajes disponibles; la mayoría ha sufrido alteraciones de alguna forma por humor inyectado o palabras aleatorias que no parecen creíbles.</p>
+
+                <div class="vehicle-type-strip">
+                    <a th:each="vehicleType : ${primaryVehicleTypes}" th:href="${vehicleType.url}" class="vehicle-type-chip">
+                        <i th:class="${vehicleType.icon}"></i>
+                        <span th:text="${vehicleType.label}">Passenger Cars</span>
+                    </a>
+                    <button class="vehicle-type-more" type="button" data-bs-toggle="collapse" data-bs-target="#moreVehicleTypes" aria-expanded="false" aria-controls="moreVehicleTypes">
+                        More vehicle types
+                    </button>
                 </div>
-                <div class="sidebar-contact">
-                    <h4>Información de Contacto</h4>
+
+                <div id="moreVehicleTypes" class="collapse">
+                    <div class="vehicle-type-more-grid">
+                        <a th:each="vehicleType : ${extraVehicleTypes}" th:href="${vehicleType.url}" class="vehicle-type-chip secondary">
+                            <span th:text="${vehicleType.label}">Buses</span>
+                        </a>
+                    </div>
+                </div>
+
+                <form class="home-search-panel" th:action="@{/cars}" method="get">
+                    <div class="search-main-grid">
+                        <div class="search-field">
+                            <label for="searchBrand">Make</label>
+                            <select id="searchBrand" name="brands" class="form-select">
+                                <option value="">Select make</option>
+                                <option th:each="brand : ${searchBrands}" th:value="${brand}" th:text="${brand}">Audi</option>
+                            </select>
+                        </div>
+                        <div class="search-field">
+                            <label for="searchModel">Model</label>
+                            <select id="searchModel" name="searchQuery" class="form-select">
+                                <option value="">Select model</option>
+                            </select>
+                        </div>
+                        <div class="search-field">
+                            <label for="yearFrom">Year from</label>
+                            <select id="yearFrom" name="yearFrom" class="form-select">
+                                <option value="">From</option>
+                                <option th:each="year : ${#numbers.sequence(1995, 2026)}" th:value="${year}" th:text="${year}">2020</option>
+                            </select>
+                        </div>
+                        <div class="search-field">
+                            <label for="yearTo">Year to</label>
+                            <select id="yearTo" name="yearTo" class="form-select">
+                                <option value="">To</option>
+                                <option th:each="year : ${#numbers.sequence(1995, 2026)}" th:value="${year}" th:text="${year}">2024</option>
+                            </select>
+                        </div>
+                        <div class="search-field">
+                            <label for="fuelType">Fuel</label>
+                            <select id="fuelType" name="fuelType" class="form-select">
+                                <option value="">Any fuel</option>
+                                <option th:each="fuel : ${fuelOptions}" th:value="${fuel}" th:text="${fuel}">Diesel</option>
+                            </select>
+                        </div>
+                        <div class="search-field">
+                            <label for="transmission">Transmission</label>
+                            <select id="transmission" name="transmission" class="form-select">
+                                <option value="">Any transmission</option>
+                                <option th:each="transmission : ${transmissionOptions}" th:value="${transmission}" th:text="${transmission}">Automatic</option>
+                            </select>
+                        </div>
+                        <div class="search-action">
+                            <button type="submit" class="theme-btn search-btn">Search</button>
+                        </div>
+                    </div>
+
+                    <div class="advanced-search-toggle">
+                        <button type="button" class="advanced-toggle-btn" data-bs-toggle="collapse" data-bs-target="#advancedSearchPanel" aria-expanded="false" aria-controls="advancedSearchPanel">
+                            <span>Advanced search</span>
+                            <i class="far fa-angle-down"></i>
+                        </button>
+                    </div>
+
+                    <div id="advancedSearchPanel" class="collapse advanced-search-panel">
+                        <div class="search-advanced-grid">
+                            <div class="search-field">
+                                <label for="priceFrom">Price from</label>
+                                <select id="priceFrom" name="minPrice" class="form-select">
+                                    <option value="">€1.000</option>
+                                    <option value="1000">€1.000</option>
+                                    <option value="5000">€5.000</option>
+                                    <option value="10000">€10.000</option>
+                                    <option value="25000">€25.000</option>
+                                    <option value="50000">€50.000</option>
+                                </select>
+                            </div>
+                            <div class="search-field">
+                                <label for="priceTo">Price to</label>
+                                <select id="priceTo" name="maxPrice" class="form-select">
+                                    <option value="">€300.000+</option>
+                                    <option value="10000">€10.000</option>
+                                    <option value="25000">€25.000</option>
+                                    <option value="50000">€50.000</option>
+                                    <option value="100000">€100.000</option>
+                                    <option value="300000">€300.000+</option>
+                                </select>
+                            </div>
+                            <div class="search-field">
+                                <label for="colorChoice">Color</label>
+                                <select id="colorChoice" name="color" class="form-select">
+                                    <option value="">Any color</option>
+                                    <option th:each="color : ${advancedColors}" th:value="${color}" th:text="${color}">Black</option>
+                                </select>
+                            </div>
+                            <div class="search-field">
+                                <label for="colorCode">Color code</label>
+                                <select id="colorCode" name="colorCode" class="form-select">
+                                    <option value="">Any code</option>
+                                    <option th:each="code : ${colorCodes}" th:value="${code}" th:text="${code}">BLK</option>
+                                </select>
+                            </div>
+                            <div class="search-field">
+                                <label for="bodyTypeChoice">Body type</label>
+                                <select id="bodyTypeChoice" name="bodyType" class="form-select">
+                                    <option value="">Any body type</option>
+                                    <option th:each="bodyType : ${bodyTypeOptions}" th:value="${bodyType}" th:text="${bodyType}">SUV</option>
+                                </select>
+                            </div>
+                            <div class="search-field">
+                                <label for="originChoice">Origin</label>
+                                <select id="originChoice" name="origin" class="form-select">
+                                    <option value="">Any origin</option>
+                                    <option th:each="origin : ${originOptions}" th:value="${origin}" th:text="${origin}">Netherlands</option>
+                                </select>
+                            </div>
+                            <div class="search-field search-field-wide">
+                                <label for="radiusChoice">Location radius</label>
+                                <div class="radius-row">
+                                    <input id="radiusChoice" type="range" name="radius" min="10" max="500" step="10" value="150">
+                                    <span class="radius-output">150 km</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="advanced-options-columns">
+                            <div class="option-card">
+                                <h5>Details</h5>
+                                <label th:each="detail : ${detailOptions}" class="option-check">
+                                    <input type="checkbox" name="details" th:value="${detail}">
+                                    <span th:text="${detail}">Registration papers available</span>
+                                </label>
+                            </div>
+                            <div class="option-card">
+                                <h5>Damage specifics</h5>
+                                <label th:each="damage : ${damageOptions}" class="option-check">
+                                    <input type="checkbox" name="damageOptions" th:value="${damage}">
+                                    <span th:text="${damage}">Engine damage</span>
+                                </label>
+                            </div>
+                            <div class="option-card">
+                                <h5>Origin & extras</h5>
+                                <label class="option-check"><input type="checkbox" name="exportReady" value="true"><span>Export ready</span></label>
+                                <label class="option-check"><input type="checkbox" name="vatDeductible" value="true"><span>VAT deductible</span></label>
+                                <label class="option-check"><input type="checkbox" name="hasKeys" value="true"><span>All keys included</span></label>
+                                <label class="option-check"><input type="checkbox" name="withManual" value="true"><span>Full manual available</span></label>
+                            </div>
+                        </div>
+
+                        <div class="advanced-submit">
+                            <button type="submit" class="theme-btn">Search</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <section class="home-section arrivals-section">
+        <div class="container">
+            <div class="section-head">
+                <div>
+                    <span class="section-kicker">New arrivals</span>
+                    <h2>Latest added vehicles</h2>
+                </div>
+                <a th:href="@{/cars}" class="section-link">Browse all stock</a>
+            </div>
+            <div class="owl-carousel home-arrivals-carousel">
+                <article class="arrival-card" th:each="car : ${latestCars}">
+                    <div class="arrival-media">
+                        <span class="arrival-badge">new export price</span>
+                        <img loading="lazy" th:if="${car.images != null and !#lists.isEmpty(car.images)}" th:src="@{/uploads/{img}(img=${car.images[0]})}" th:alt="${car.make + ' ' + car.model}">
+                        <img loading="lazy" th:unless="${car.images != null and !#lists.isEmpty(car.images)}" src="/img/car/01.jpg" th:alt="${car.make + ' ' + car.model}">
+                    </div>
+                    <div class="arrival-body">
+                        <h4 th:text="${car.make + ' ' + car.model}">Audi A3</h4>
+                        <div class="arrival-price-row">
+                            <span class="arrival-price" th:text="${#numbers.formatDecimal(car.price, 0, 'COMMA', 2, 'POINT')} + ' €'">€15.900</span>
+                            <span class="arrival-price-old" th:text="${#numbers.formatDecimal(car.price * 1.08, 0, 'COMMA', 2, 'POINT')} + ' €'">€17.172</span>
+                        </div>
+                        <ul class="arrival-specs">
+                            <li><i class="far fa-calendar"></i><span th:text="${car.year}">2024</span></li>
+                            <li><i class="far fa-gas-pump"></i><span th:text="${car.fuelType}">Diesel</span></li>
+                            <li><i class="far fa-road"></i><span th:text="${car.mileage + ' km'}">125.000 km</span></li>
+                        </ul>
+                        <a class="arrival-link" th:href="@{/cars/{id}(id=${car.id})}">View more</a>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <section class="home-section">
+        <div class="container">
+            <div class="section-head">
+                <div>
+                    <span class="section-kicker">Browse per make</span>
+                    <h2>View damaged cars per make</h2>
+                </div>
+            </div>
+            <div class="make-grid">
+                <a th:each="make : ${makesForDamageGrid}" class="make-link" th:href="@{/cars(brands=${make},categories='DAMAGED')}" th:text="${make}">Audi</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="home-section split-visual-section">
+        <div class="container">
+            <div class="split-visual-grid">
+                <img loading="lazy" src="/img/about/01.png" alt="Damaged cars">
+                <img loading="lazy" src="/img/car/01.jpg" alt="Vehicle detail">
+                <img loading="lazy" src="/img/car/02.jpg" alt="Salvage detail">
+            </div>
+        </div>
+    </section>
+
+    <section class="dealer-search-band">
+        <div class="container">
+            <div class="dealer-search-content">
+                <span class="section-kicker">Find a dealer</span>
+                <h2>Search by company name, place of business or province</h2>
+                <form class="dealer-search-form" action="/dealers" method="get">
+                    <input type="text" name="query" list="dealerSearchList" placeholder="Search by company name, place of business or province">
+                    <datalist id="dealerSearchList">
+                        <option th:each="dealerName : ${dealerSearchOptions}" th:value="${dealerName}">A-Team Automotive</option>
+                    </datalist>
+                    <button type="submit" class="theme-btn">Search</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <section class="home-section dealer-directory-section">
+        <div class="container">
+            <div class="section-head">
+                <div>
+                    <span class="section-kicker">Available dealers</span>
+                    <h2>Dealers</h2>
+                </div>
+                <span class="dealer-count" th:text="${dealerDirectoryCount} + ' dealers available'">500+ dealers available</span>
+            </div>
+
+            <div class="dealer-directory-grid">
+                <div class="dealer-letter-group" th:each="entry : ${dealersByLetter}">
+                    <h4 th:text="${entry.key}">A</h4>
                     <ul>
-                        <li>
-                            <h6>Email</h6>
-                            <a href="mailto:info@example.com"><i class="far fa-envelope"></i>info@example.com</a>
-                        </li>
-                        <li>
-                            <h6>Phone</h6>
-                            <a href="tel:+21236547898"><i class="far fa-phone"></i>+2 123 654 7898</a>
-                        </li>
-                        <li>
-                            <h6>Address</h6>
-                            <a href="#"><i class="far fa-location-dot"></i>25/B Milford Road, New York</a>
+                        <li th:each="dealerName : ${entry.value}">
+                            <a th:href="@{/dealers(query=${dealerName})}" th:text="${dealerName}">A &amp; R Schadeautos</a>
                         </li>
                     </ul>
                 </div>
-                <div class="sidebar-social">
-                    <h4>Síguenos</h4>
-                    <a href="#"><i class="fab fa-facebook"></i></a>
-                    <a href="#"><i class="fab fa-twitter"></i></a>
-                    <a href="#"><i class="fab fa-instagram"></i></a>
-                    <a href="#"><i class="fab fa-linkedin"></i></a>
+            </div>
+        </div>
+    </section>
+
+    <section class="home-section about-home-section">
+        <div class="container">
+            <div class="about-home-grid">
+                <div class="about-home-gallery">
+                    <img loading="lazy" src="/img/car/03.jpg" alt="Professional seller stock">
+                    <img loading="lazy" src="/img/car/04.jpg" alt="Damage detail">
+                    <img loading="lazy" src="/img/car/05.jpg" alt="Export ready salvage">
+                </div>
+                <div class="about-home-copy">
+                    <span class="section-kicker">Why choose us</span>
+                    <h2>Only professional companies advertise on schadeautos.nl</h2>
+                    <p>We focus on quality over quantity. Buyers get structured listings, consistent salvage information, dealer transparency and better export-ready search tools. Sellers get a professional environment built around damaged stock, dismantling opportunities and controlled lead quality.</p>
+                    <p>The result is a cleaner marketplace where serious inventory is easier to find, compare and contact.</p>
+                    <a th:href="@{/about}" class="theme-btn">Read more</a>
                 </div>
             </div>
         </div>
-    </div>
-    <!-- sidebar-popup end -->
+    </section>
+</main>
 
-
-    <main class="main">
-
-        <!-- hero slider -->
-        <div class="hero-section">
-            <div class="hero-slider owl-carousel owl-theme">
-                <div class="hero-single" style="background: url(/img/slider/slider-1.jpg)">
-                    <div class="container">
-                        <div class="row align-items-center">
-                            <div class="col-md-12 col-lg-6">
-                                <div class="hero-content">
-                                    <h6 class="hero-sub-title" data-animation="fadeInUp" data-delay=".25s">¡Bienvenido a Motex!</h6>
-                                    <h1 class="hero-title" data-animation="fadeInRight" data-delay=".50s">
-                                        La mejor manera de encontrar tu <span>coche de ensueño</span>
-                                    </h1>
-                                    <p data-animation="fadeInLeft" data-delay=".75s">
-                                        Existen muchas variaciones de pasajes disponibles, pero la mayoría ha sufrido alteraciones de alguna forma por humor inyectado.
-                                    </p>
-                                    <div class="hero-btn" data-animation="fadeInUp" data-delay="1s">
-                                        <a href="#" class="theme-btn">About More<i
-                                                class="fas fa-arrow-right-long"></i></a>
-                                        <a href="#" class="theme-btn theme-btn2">Learn More<i
-                                                class="fas fa-arrow-right-long"></i></a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-12 col-lg-6">
-                                <div class="hero-right">
-                                    <div class="hero-img">
-                                        <img src="/img/slider/hero-1.png" alt="" data-animation="fadeInRight"
-                                            data-delay=".25s">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="hero-single" style="background: url(/img/slider/slider-2.jpg)">
-                    <div class="container">
-                        <div class="row align-items-center">
-                            <div class="col-md-12 col-lg-6">
-                                <div class="hero-content">
-                                    <h6 class="hero-sub-title" data-animation="fadeInUp" data-delay=".25s">¡Bienvenido a Motex!</h6>
-                                    <h1 class="hero-title" data-animation="fadeInRight" data-delay=".50s">
-                                        La mejor manera de encontrar tu <span>coche de ensueño</span>
-                                    </h1>
-                                    <p data-animation="fadeInLeft" data-delay=".75s">
-                                        Existen muchas variaciones de pasajes disponibles, pero la mayoría ha sufrido alteraciones de alguna forma por humor inyectado.
-                                    </p>
-                                    <div class="hero-btn" data-animation="fadeInUp" data-delay="1s">
-                                        <a href="#" class="theme-btn">About More<i
-                                                class="fas fa-arrow-right-long"></i></a>
-                                        <a href="#" class="theme-btn theme-btn2">Learn More<i
-                                                class="fas fa-arrow-right-long"></i></a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-12 col-lg-6">
-                                <div class="hero-right">
-                                    <div class="hero-img">
-                                        <img src="/img/slider/hero-2.png" alt="" data-animation="fadeInRight"
-                                            data-delay=".25s">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="hero-single" style="background: url(/img/slider/slider-3.jpg)">
-                    <div class="container">
-                        <div class="row align-items-center">
-                            <div class="col-md-12 col-lg-6">
-                                <div class="hero-content">
-                                    <h6 class="hero-sub-title" data-animation="fadeInUp" data-delay=".25s">¡Bienvenido a Motex!</h6>
-                                    <h1 class="hero-title" data-animation="fadeInRight" data-delay=".50s">
-                                        La mejor manera de encontrar tu <span>coche de ensueño</span>
-                                    </h1>
-                                    <p data-animation="fadeInLeft" data-delay=".75s">
-                                        Existen muchas variaciones de pasajes disponibles, pero la mayoría ha sufrido alteraciones de alguna forma por humor inyectado.
-                                    </p>
-                                    <div class="hero-btn" data-animation="fadeInUp" data-delay="1s">
-                                        <a href="#" class="theme-btn">About More<i
-                                                class="fas fa-arrow-right-long"></i></a>
-                                        <a href="#" class="theme-btn theme-btn2">Learn More<i
-                                                class="fas fa-arrow-right-long"></i></a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-12 col-lg-6">
-                                <div class="hero-right">
-                                    <div class="hero-img">
-                                        <img src="/img/slider/hero-4.png" alt="" data-animation="fadeInRight"
-                                            data-delay=".25s">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- hero slider end -->
-
-
-        <!-- find car form -->
-        <div class="find-car">
-            <div class="container">
-                <div class="find-car-form">
-                    <h4 class="find-car-title">Vamos a encontrar tu coche perfecto</h4>
-                    <form th:action="@{/cars}" method="get">
-                        <div class="row">
-                            <div class="col-lg-3">
-                                <div class="form-group">
-                                    <label>Marca</label>
-                                    <select class="select" name="brands">
-                                        <option value="">Todas las marcas</option>
-                                        <option th:each="brand : ${availableBrands}"
-                                                th:value="${brand}"
-                                                th:text="${brand}">BMW</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-lg-3">
-                                <div class="form-group">
-                                    <label>Precio mínimo</label>
-                                    <input type="number" class="form-control" name="minPrice" min="0" placeholder="0 €">
-                                </div>
-                            </div>
-                            <div class="col-lg-3">
-                                <div class="form-group">
-                                    <label>Precio máximo</label>
-                                    <input type="number" class="form-control" name="maxPrice" min="0" placeholder="50.000 €">
-                                </div>
-                            </div>
-                            <div class="col-lg-3">
-                                <div class="form-group">
-                                    <label>Tipo de carrocería</label>
-                                    <select class="select" name="bodyType">
-                                        <option value="">Todas</option>
-                                        <option th:each="bodyType : ${bodyTypes}"
-                                                th:value="${bodyType.name()}"
-                                                th:text="${bodyType}">SUV</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-lg-12 align-self-end">
-                                <button class="theme-btn" type="submit"><span class="far fa-search"></span> Find Your
-                                    Car</button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-        <!-- findcar form end -->
-
-
-        <!-- about area -->
-        <div class="about-area py-120">
-            <div class="container">
-                <div class="row align-items-center">
-                    <div class="col-lg-6">
-                        <div class="about-left wow fadeInLeft" data-wow-delay=".25s">
-                            <div class="about-img">
-                                <img src="/img/about/01.png" alt="">
-                            </div>
-                            <div class="about-experience">
-                                <div class="about-experience-icon">
-                                    <i class="flaticon-car"></i>
-                                </div>
-                                <b>30 Years Of <br> Quality Service</b>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-6">
-                        <div class="about-right wow fadeInRight" data-wow-delay=".25s">
-                            <div class="site-heading mb-3">
-                                <span class="site-title-tagline justify-content-start">
-                                    <i class="flaticon-drive"></i> About Us
-                                </span>
-                                <h2 class="site-title">
-                                    El mayor mercado <span>de concesionarios</span> de automóviles del mundo.
-                                </h2>
-                            </div>
-                            <p class="about-text">
-                                Existen muchas variaciones de pasajes de Lorem Ipsum disponibles, pero la mayoría ha
-                                sufrido alteraciones de alguna forma por humor inyectado.
-                            </p>
-                            <div class="about-list-wrapper">
-                                <ul class="about-list list-unstyled">
-                                    <li>
-                                        At vero eos et accusamus et iusto odio.
-                                    </li>
-                                    <li>
-                                        Established fact that a reader will be distracted.
-                                    </li>
-                                    <li>
-                                        Sed ut perspiciatis unde omnis iste natus sit.
-                                    </li>
-                                </ul>
-                            </div>
-                            <a href="about.html" class="theme-btn mt-4">Discover More<i
-                                    class="fas fa-arrow-right-long"></i></a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- about area end -->
-
-
-        <!-- counter area -->
-        <div class="counter-area pt-30 pb-30">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-3 col-sm-6">
-                        <div class="counter-box">
-                            <div class="icon">
-                                <i class="flaticon-car-rental"></i>
-                            </div>
-                            <div>
-                                <span class="counter" data-count="+" data-to="500" data-speed="3000">500</span>
-                                <h6 class="title">+ Available Cars </h6>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-sm-6">
-                        <div class="counter-box">
-                            <div class="icon">
-                                <i class="flaticon-car-key"></i>
-                            </div>
-                            <div>
-                                <span class="counter" data-count="+" data-to="900" data-speed="3000">900</span>
-                                <h6 class="title">+ Happy Clients</h6>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-sm-6">
-                        <div class="counter-box">
-                            <div class="icon">
-                                <i class="flaticon-screwdriver"></i>
-                            </div>
-                            <div>
-                                <span class="counter" data-count="+" data-to="1500" data-speed="3000">1500</span>
-                                <h6 class="title">+ Team Workers</h6>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-sm-6">
-                        <div class="counter-box">
-                            <div class="icon">
-                                <i class="flaticon-review"></i>
-                            </div>
-                            <div>
-                                <span class="counter" data-count="+" data-to="30" data-speed="3000">30</span>
-                                <h6 class="title">+ Years Of Experience</h6>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- counter area end -->
-
-
-        <!-- car area -->
-        <div class="car-area bg py-120">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-6 mx-auto">
-                        <div class="site-heading text-center">
-                            <span class="site-title-tagline"><i class="flaticon-drive"></i> New Arrivals</span>
-                            <h2 class="site-title">Echa un vistazo a los últimos <span>coches</span></h2>
-                            <div class="heading-divider"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-6 col-lg-4 col-xl-3" th:each="car : ${latestCars}">
-                        <div class="car-item wow fadeInUp" data-wow-delay=".25s">
-                            <div class="car-img">
-                                <span class="car-status"
-                                      th:classappend="${car.condition.name() == 'NUEVO'} ? 'status-2' : 'status-1'"
-                                      th:text="${car.condition}">Used</span>
-                                <img loading="lazy" th:if="${car.images != null and !#lists.isEmpty(car.images)}" th:src="@{/uploads/{img}(img=${car.images[0]})}"
-                                     th:alt="${car.make + ' ' + car.model}">
-                                <img loading="lazy" th:unless="${car.images != null and !#lists.isEmpty(car.images)}" src="/img/car/01.jpg"
-                                     th:alt="${car.make + ' ' + car.model}">
-                                <div class="car-btns">
-                                    <a href="#"><i class="far fa-heart"></i></a>
-                                    <a href="#"><i class="far fa-arrows-repeat"></i></a>
-                                </div>
-                            </div>
-                            <div class="car-content">
-                                <div class="car-top">
-                                    <h4><a th:href="@{/cars/{id}(id=${car.id})}" th:text="${car.make + ' ' + car.model}">Coche Mercedes Benz</a></h4>
-                                    <div class="car-rate">
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <span>5.0</span>
-                                    </div>
-                                </div>
-                                <ul class="car-list">
-                                    <li><i class="far fa-steering-wheel"></i><span th:text="${car.transmission}">Automatic</span></li>
-                                    <li><i class="far fa-road"></i><span th:text="${car.mileage + ' km'}">10.15km</span></li>
-                                    <li><i class="far fa-car"></i>Model: <span th:text="${car.year}">2023</span></li>
-                                    <li><i class="far fa-gas-pump"></i><span th:text="${car.fuelType}">Hybrid</span></li>
-                                </ul>
-                                <div class="car-footer">
-                                    <span class="car-price" th:text="${#numbers.formatDecimal(car.price, 0, 'COMMA', 2, 'POINT')} + ' €'">$45,620</span>
-                                    <a th:href="@{/cars/{id}(id=${car.id})}" class="theme-btn"><span class="far fa-eye"></span>Details</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="text-center mt-4">
-                    <a th:href="@{/cars}" class="theme-btn">Ver Más Coches <i class="far fa-arrow-rotate-right"></i> </a>
-                </div>
-            </div>
-        </div>
-        <!-- car area end -->
-
-
-        <!-- car category -->
-        <div class="car-category py-120">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-6 mx-auto">
-                        <div class="site-heading text-center">
-                            <span class="site-title-tagline"><i class="flaticon-drive"></i> Car Category</span>
-                            <h2 class="site-title">Coches por <span>tipo de carrocería</span></h2>
-                            <div class="heading-divider"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-6 col-md-4 col-lg-2">
-                        <a href="#" class="category-item wow fadeInUp" data-wow-delay=".25s">
-                            <div class="category-img">
-                                <img src="/img/category/01.png" alt="">
-                            </div>
-                            <h5>Sedan</h5>
-                        </a>
-                    </div>
-                    <div class="col-6 col-md-4 col-lg-2">
-                        <a href="#" class="category-item wow fadeInUp" data-wow-delay=".50s">
-                            <div class="category-img">
-                                <img src="/img/category/02.png" alt="">
-                            </div>
-                            <h5>Compact</h5>
-                        </a>
-                    </div>
-                    <div class="col-6 col-md-4 col-lg-2">
-                        <a href="#" class="category-item wow fadeInUp" data-wow-delay=".75s">
-                            <div class="category-img">
-                                <img src="/img/category/03.png" alt="">
-                            </div>
-                            <h5>Convertible</h5>
-                        </a>
-                    </div>
-                    <div class="col-6 col-md-4 col-lg-2">
-                        <a href="#" class="category-item wow fadeInUp" data-wow-delay="1s">
-                            <div class="category-img">
-                                <img src="/img/category/04.png" alt="">
-                            </div>
-                            <h5>SUV</h5>
-                        </a>
-                    </div>
-                    <div class="col-6 col-md-4 col-lg-2">
-                        <a href="#" class="category-item wow fadeInUp" data-wow-delay="1.25s">
-                            <div class="category-img">
-                                <img src="/img/category/05.png" alt="">
-                            </div>
-                            <h5>Crossover</h5>
-                        </a>
-                    </div>
-                    <div class="col-6 col-md-4 col-lg-2">
-                        <a href="#" class="category-item wow fadeInUp" data-wow-delay="1.50s">
-                            <div class="category-img">
-                                <img src="/img/category/06.png" alt="">
-                            </div>
-                            <h5>Wagon</h5>
-                        </a>
-                    </div>
-                    <div class="col-6 col-md-4 col-lg-2">
-                        <a href="#" class="category-item wow fadeInUp" data-wow-delay=".25s">
-                            <div class="category-img">
-                                <img src="/img/category/07.png" alt="">
-                            </div>
-                            <h5>Sports</h5>
-                        </a>
-                    </div>
-                    <div class="col-6 col-md-4 col-lg-2">
-                        <a href="#" class="category-item wow fadeInUp" data-wow-delay=".50s">
-                            <div class="category-img">
-                                <img src="/img/category/08.png" alt="">
-                            </div>
-                            <h5>Pickup</h5>
-                        </a>
-                    </div>
-                    <div class="col-6 col-md-4 col-lg-2">
-                        <a href="#" class="category-item wow fadeInUp" data-wow-delay=".75s">
-                            <div class="category-img">
-                                <img src="/img/category/09.png" alt="">
-                            </div>
-                            <h5>Family MPV</h5>
-                        </a>
-                    </div>
-                    <div class="col-6 col-md-4 col-lg-2">
-                        <a href="#" class="category-item wow fadeInUp" data-wow-delay="1s">
-                            <div class="category-img">
-                                <img src="/img/category/10.png" alt="">
-                            </div>
-                            <h5>Coupe</h5>
-                        </a>
-                    </div>
-                    <div class="col-6 col-md-4 col-lg-2">
-                        <a href="#" class="category-item wow fadeInUp" data-wow-delay="1.25s">
-                            <div class="category-img">
-                                <img src="/img/category/11.png" alt="">
-                            </div>
-                            <h5>Electric</h5>
-                        </a>
-                    </div>
-                    <div class="col-6 col-md-4 col-lg-2">
-                        <a href="#" class="category-item wow fadeInUp" data-wow-delay="1.50s">
-                            <div class="category-img">
-                                <img src="/img/category/12.png" alt="">
-                            </div>
-                            <h5>Luxury</h5>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- car category end-->
-
-
-        <!-- video area -->
-        <div class="video-area pb-120">
-            <div class="container-fluid px-0">
-                <div class="video-content" style="background-image: url(/img/video/01.jpg);">
-                    <div class="row align-items-center">
-                        <div class="col-lg-12">
-                            <div class="video-wrapper">
-                                <a class="play-btn popup-youtube" href="https://www.youtube.com/watch?v=ckHzmP1evNU">
-                                    <i class="fas fa-play"></i>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- video area end -->
-
-
-        <!-- car dealer -->
-        <div class="car-dealer pb-120">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-6 mx-auto">
-                        <div class="site-heading text-center">
-                            <span class="site-title-tagline"><i class="flaticon-drive"></i> Car Dealers</span>
-                            <h2 class="site-title">Mejores concesionarios en <span>tu ciudad</span></h2>
-                            <div class="heading-divider"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-6 col-lg-3">
-                        <div class="dealer-item wow fadeInUp" data-wow-delay=".25s">
-                            <div class="dealer-img">
-                                <span class="dealer-listing">25 Listing</span>
-                                <img src="/img/dealer/01.png" alt="">
-                            </div>
-                            <div class="dealer-content">
-                                <h4><a href="#">Automotive Gear</a></h4>
-                                <ul>
-                                    <li><i class="far fa-location-dot"></i> 25/B Milford Road, New York</li>
-                                    <li><i class="far fa-phone"></i> <a href="tel:+21236547898">+2 123 654 7898</a></li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6 col-lg-3">
-                        <div class="dealer-item wow fadeInUp" data-wow-delay=".50s">
-                            <div class="dealer-img">
-                                <span class="dealer-listing">35 Listing</span>
-                                <img src="/img/dealer/02.png" alt="">
-                            </div>
-                            <div class="dealer-content">
-                                <h4><a href="#">Keithson Car</a></h4>
-                                <ul>
-                                    <li><i class="far fa-location-dot"></i> 25/B Milford Road, New York</li>
-                                    <li><i class="far fa-phone"></i> <a href="tel:+21236547898">+2 123 654 7898</a></li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6 col-lg-3">
-                        <div class="dealer-item wow fadeInUp" data-wow-delay=".75s">
-                            <div class="dealer-img">
-                                <span class="dealer-listing">15 Listing</span>
-                                <img src="/img/dealer/03.png" alt="">
-                            </div>
-                            <div class="dealer-content">
-                                <h4><a href="#">Superious Automotive</a></h4>
-                                <ul>
-                                    <li><i class="far fa-location-dot"></i> 25/B Milford Road, New York</li>
-                                    <li><i class="far fa-phone"></i> <a href="tel:+21236547898">+2 123 654 7898</a></li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6 col-lg-3">
-                        <div class="dealer-item wow fadeInUp" data-wow-delay="1s">
-                            <div class="dealer-img">
-                                <span class="dealer-listing">20 Listing</span>
-                                <img src="/img/dealer/04.png" alt="">
-                            </div>
-                            <div class="dealer-content">
-                                <h4><a href="#">Racing Gear Car</a></h4>
-                                <ul>
-                                    <li><i class="far fa-location-dot"></i> 25/B Milford Road, New York</li>
-                                    <li><i class="far fa-phone"></i> <a href="tel:+21236547898">+2 123 654 7898</a></li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6 col-lg-3">
-                        <div class="dealer-item wow fadeInUp" data-wow-delay=".25s">
-                            <div class="dealer-img">
-                                <span class="dealer-listing">19 Listing</span>
-                                <img src="/img/dealer/05.png" alt="">
-                            </div>
-                            <div class="dealer-content">
-                                <h4><a href="#">Car Showromio</a></h4>
-                                <ul>
-                                    <li><i class="far fa-location-dot"></i> 25/B Milford Road, New York</li>
-                                    <li><i class="far fa-phone"></i> <a href="tel:+21236547898">+2 123 654 7898</a></li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6 col-lg-3">
-                        <div class="dealer-item wow fadeInUp" data-wow-delay=".50s">
-                            <div class="dealer-img">
-                                <span class="dealer-listing">40 Listing</span>
-                                <img src="/img/dealer/06.png" alt="">
-                            </div>
-                            <div class="dealer-content">
-                                <h4><a href="#">Fastspeedio Car</a></h4>
-                                <ul>
-                                    <li><i class="far fa-location-dot"></i> 25/B Milford Road, New York</li>
-                                    <li><i class="far fa-phone"></i> <a href="tel:+21236547898">+2 123 654 7898</a></li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6 col-lg-3">
-                        <div class="dealer-item wow fadeInUp" data-wow-delay=".75s">
-                            <div class="dealer-img">
-                                <span class="dealer-listing">59 Listing</span>
-                                <img src="/img/dealer/07.png" alt="">
-                            </div>
-                            <div class="dealer-content">
-                                <h4><a href="#">Star AutoMall</a></h4>
-                                <ul>
-                                    <li><i class="far fa-location-dot"></i> 25/B Milford Road, New York</li>
-                                    <li><i class="far fa-phone"></i> <a href="tel:+21236547898">+2 123 654 7898</a></li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6 col-lg-3">
-                        <div class="dealer-item wow fadeInUp" data-wow-delay="1s">
-                            <div class="dealer-img">
-                                <span class="dealer-listing">28 Listing</span>
-                                <img src="/img/dealer/08.png" alt="">
-                            </div>
-                            <div class="dealer-content">
-                                <h4><a href="#">Superspeed Auto</a></h4>
-                                <ul>
-                                    <li><i class="far fa-location-dot"></i> 25/B Milford Road, New York</li>
-                                    <li><i class="far fa-phone"></i> <a href="tel:+21236547898">+2 123 654 7898</a></li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- car dealer end-->
-
-
-        <!-- choose area -->
-        <div class="choose-area py-120">
-            <div class="container">
-                <div class="row align-items-center">
-                    <div class="col-lg-6">
-                        <div class="choose-content">
-                            <div class="site-heading wow fadeInDown" data-wow-delay=".25s">
-                                <span class="site-title-tagline text-white justify-content-start">
-                                    <i class="flaticon-drive"></i> Why Choose Us
-                                </span>
-                                <h2 class="site-title text-white mb-10">Estamos dedicados <span>a ofrecer</span> un servicio de calidad</h2>
-                                <p class="text-white">
-                                    Existen muchas variaciones de pasajes disponibles, pero la mayoría ha sufrido
-                                    alteraciones de alguna forma; se usan pasajes con humor inyectado y palabras
-                                    aleatorias que no parecen creíbles.
-                                </p>
-                            </div>
-                            <div class="choose-img wow fadeInUp" data-wow-delay=".25s">
-                                <img src="/img/choose/01.png" alt="">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-6">
-                        <div class="choose-content-wrapper wow fadeInRight" data-wow-delay=".25s">
-                            <div class="row">
-                                <div class="col-md-6 col-lg-6 mt-lg-5">
-                                    <div class="choose-item">
-                                        <span class="choose-count">01</span>
-                                        <div class="choose-item-icon">
-                                            <i class="flaticon-car"></i>
-                                        </div>
-                                        <div class="choose-item-info">
-                                            <h3>Mejores coches de calidad</h3>
-                                            <p>Existen muchas variaciones de pasajes disponibles; la mayoría ha sufrido
-                                                alteraciones que distraen al lector.</p>
-                                        </div>
-                                    </div>
-                                    <div class="choose-item mb-lg-0">
-                                        <span class="choose-count">03</span>
-                                        <div class="choose-item-icon">
-                                            <i class="flaticon-drive-thru"></i>
-                                        </div>
-                                        <div class="choose-item-info">
-                                            <h3>Marcas populares</h3>
-                                            <p>Existen muchas variaciones de pasajes disponibles; la mayoría ha sufrido
-                                                alteraciones que distraen al lector.</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6 col-lg-6">
-                                    <div class="choose-item">
-                                        <span class="choose-count">02</span>
-                                        <div class="choose-item-icon">
-                                            <i class="flaticon-chauffeur"></i>
-                                        </div>
-                                        <div class="choose-item-info">
-                                            <h3>Mecánicos certificados</h3>
-                                            <p>Existen muchas variaciones de pasajes disponibles; la mayoría ha sufrido
-                                                alteraciones que distraen al lector.</p>
-                                        </div>
-                                    </div>
-                                    <div class="choose-item mb-lg-0">
-                                        <span class="choose-count">04</span>
-                                        <div class="choose-item-icon">
-                                            <i class="flaticon-online-payment"></i>
-                                        </div>
-                                        <div class="choose-item-info">
-                                            <h3>Precios razonables</h3>
-                                            <p>Existen muchas variaciones de pasajes disponibles; la mayoría ha sufrido
-                                                alteraciones que distraen al lector.</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- choose area end -->
-
-
-        <!-- car brand -->
-        <div class="car-brand py-120">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-6 mx-auto">
-                        <div class="site-heading text-center">
-                            <span class="site-title-tagline"><i class="flaticon-drive"></i> Popular Brands</span>
-                            <h2 class="site-title">Nuestras marcas de <span>alta calidad</span></h2>
-                            <div class="heading-divider"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-6 col-md-3 col-lg-2">
-                        <a href="#" class="brand-item wow fadeInUp" data-wow-delay=".25s">
-                            <div class="brand-img">
-                                <img src="/img/brand/01.png" alt="">
-                            </div>
-                            <h5>Ferrari</h5>
-                        </a>
-                    </div>
-                    <div class="col-6 col-md-3 col-lg-2">
-                        <a href="#" class="brand-item wow fadeInUp" data-wow-delay=".50s">
-                            <div class="brand-img">
-                                <img src="/img/brand/02.png" alt="">
-                            </div>
-                            <h5>Hyundai</h5>
-                        </a>
-                    </div>
-                    <div class="col-6 col-md-3 col-lg-2">
-                        <a href="#" class="brand-item wow fadeInUp" data-wow-delay=".75s">
-                            <div class="brand-img">
-                                <img src="/img/brand/03.png" alt="">
-                            </div>
-                            <h5>Mercedes Benz</h5>
-                        </a>
-                    </div>
-                    <div class="col-6 col-md-3 col-lg-2">
-                        <a href="#" class="brand-item wow fadeInUp" data-wow-delay="1s">
-                            <div class="brand-img">
-                                <img src="/img/brand/04.png" alt="">
-                            </div>
-                            <h5>Toyota</h5>
-                        </a>
-                    </div>
-                    <div class="col-6 col-md-3 col-lg-2">
-                        <a href="#" class="brand-item wow fadeInUp" data-wow-delay="1.25s">
-                            <div class="brand-img">
-                                <img src="/img/brand/05.png" alt="">
-                            </div>
-                            <h5>BMW</h5>
-                        </a>
-                    </div>
-                    <div class="col-6 col-md-3 col-lg-2">
-                        <a href="#" class="brand-item wow fadeInUp" data-wow-delay="1.50s">
-                            <div class="brand-img">
-                                <img src="/img/brand/06.png" alt="">
-                            </div>
-                            <h5>Nissan</h5>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- car brand end-->
-
-
-        <!-- testimonial area -->
-        <div class="testimonial-area bg py-120">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-6 mx-auto">
-                        <div class="site-heading text-center">
-                            <span class="site-title-tagline"><i class="flaticon-drive"></i> Testimonials</span>
-                            <h2 class="site-title">Lo que dicen <span>nuestros clientes</span></h2>
-                            <div class="heading-divider"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="testimonial-slider owl-carousel owl-theme">
-                    <div class="testimonial-single">
-                        <div class="testimonial-content">
-                            <div class="testimonial-author-img">
-                                <img src="/img/testimonial/01.jpg" alt="">
-                            </div>
-                            <div class="testimonial-author-info">
-                                <h4>Sylvia H Green</h4>
-                                <p>Cliente</p>
-                            </div>
-                        </div>
-                        <div class="testimonial-quote">
-                            <span class="testimonial-quote-icon"><i class="flaticon-quote"></i></span>
-                            <p>
-                                Existen muchas variaciones de pasajes disponibles, pero la mayoría ha sufrido
-                                alteraciones de alguna forma.
-                            </p>
-                        </div>
-                        <div class="testimonial-rate">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                        </div>
-                    </div>
-                    <div class="testimonial-single">
-                        <div class="testimonial-content">
-                            <div class="testimonial-author-img">
-                                <img src="/img/testimonial/02.jpg" alt="">
-                            </div>
-                            <div class="testimonial-author-info">
-                                <h4>Gordo Novak</h4>
-                                <p>Cliente</p>
-                            </div>
-                        </div>
-                        <div class="testimonial-quote">
-                            <span class="testimonial-quote-icon"><i class="flaticon-quote"></i></span>
-                            <p>
-                                Existen muchas variaciones de pasajes disponibles, pero la mayoría ha sufrido
-                                alteraciones de alguna forma.
-                            </p>
-                        </div>
-                        <div class="testimonial-rate">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                        </div>
-                    </div>
-                    <div class="testimonial-single">
-                        <div class="testimonial-content">
-                            <div class="testimonial-author-img">
-                                <img src="/img/testimonial/03.jpg" alt="">
-                            </div>
-                            <div class="testimonial-author-info">
-                                <h4>Reid E Butt</h4>
-                                <p>Cliente</p>
-                            </div>
-                        </div>
-                        <div class="testimonial-quote">
-                            <span class="testimonial-quote-icon"><i class="flaticon-quote"></i></span>
-                            <p>
-                                Existen muchas variaciones de pasajes disponibles, pero la mayoría ha sufrido
-                                alteraciones de alguna forma.
-                            </p>
-                        </div>
-                        <div class="testimonial-rate">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                        </div>
-                    </div>
-                    <div class="testimonial-single">
-                        <div class="testimonial-content">
-                            <div class="testimonial-author-img">
-                                <img src="/img/testimonial/04.jpg" alt="">
-                            </div>
-                            <div class="testimonial-author-info">
-                                <h4>Parker Jimenez</h4>
-                                <p>Cliente</p>
-                            </div>
-                        </div>
-                        <div class="testimonial-quote">
-                            <span class="testimonial-quote-icon"><i class="flaticon-quote"></i></span>
-                            <p>
-                                Existen muchas variaciones de pasajes disponibles, pero la mayoría ha sufrido
-                                alteraciones de alguna forma.
-                            </p>
-                        </div>
-                        <div class="testimonial-rate">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                        </div>
-                    </div>
-                    <div class="testimonial-single">
-                        <div class="testimonial-content">
-                            <div class="testimonial-author-img">
-                                <img src="/img/testimonial/05.jpg" alt="">
-                            </div>
-                            <div class="testimonial-author-info">
-                                <h4>Heruli Nez</h4>
-                                <p>Cliente</p>
-                            </div>
-                        </div>
-                        <div class="testimonial-quote">
-                            <span class="testimonial-quote-icon"><i class="flaticon-quote"></i></span>
-                            <p>
-                                Existen muchas variaciones de pasajes disponibles, pero la mayoría ha sufrido
-                                alteraciones de alguna forma.
-                            </p>
-                        </div>
-                        <div class="testimonial-rate">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- testimonial area end -->
-
-
-        <!-- blog area -->
-        <div class="blog-area py-120">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-6 mx-auto">
-                        <div class="site-heading text-center">
-                            <span class="site-title-tagline"><i class="flaticon-drive"></i> Our Blog</span>
-                            <h2 class="site-title">Últimas noticias y <span>blog</span></h2>
-                            <div class="heading-divider"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-6 col-lg-4">
-                        <div class="blog-item wow fadeInUp" data-wow-delay=".25s">
-                            <div class="blog-item-img">
-                                <img src="/img/blog/01.jpg" alt="Thumb">
-                            </div>
-                            <div class="blog-item-info">
-                                <div class="blog-item-meta">
-                                    <ul>
-                                        <li><a href="#"><i class="far fa-user-circle"></i> By Alicia Davis</a></li>
-                                        <li><a href="#"><i class="far fa-calendar-alt"></i> January 29, 2023</a></li>
-                                    </ul>
-                                </div>
-                                <h4 class="blog-title">
-                                    <a href="#">Existen muchas variaciones de pasajes disponibles.</a>
-                                </h4>
-                                <a class="theme-btn" href="#">Read More<i class="fas fa-arrow-right-long"></i></a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6 col-lg-4">
-                        <div class="blog-item wow fadeInUp" data-wow-delay=".50s">
-                            <div class="blog-item-img">
-                                <img src="/img/blog/02.jpg" alt="Thumb">
-                            </div>
-                            <div class="blog-item-info">
-                                <div class="blog-item-meta">
-                                    <ul>
-                                        <li><a href="#"><i class="far fa-user-circle"></i> By Alicia Davis</a></li>
-                                        <li><a href="#"><i class="far fa-calendar-alt"></i> January 29, 2023</a></li>
-                                    </ul>
-                                </div>
-                                <h4 class="blog-title">
-                                    <a href="#">Existen muchas variaciones de pasajes disponibles.</a>
-                                </h4>
-                                <a class="theme-btn" href="#">Read More<i class="fas fa-arrow-right-long"></i></a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6 col-lg-4">
-                        <div class="blog-item wow fadeInUp" data-wow-delay=".75s">
-                            <div class="blog-item-img">
-                                <img src="/img/blog/03.jpg" alt="Thumb">
-                            </div>
-                            <div class="blog-item-info">
-                                <div class="blog-item-meta">
-                                    <ul>
-                                        <li><a href="#"><i class="far fa-user-circle"></i> By Alicia Davis</a></li>
-                                        <li><a href="#"><i class="far fa-calendar-alt"></i> January 29, 2023</a></li>
-                                    </ul>
-                                </div>
-                                <h4 class="blog-title">
-                                    <a href="#">Existen muchas variaciones de pasajes disponibles.</a>
-                                </h4>
-                                <a class="theme-btn" href="#">Read More<i class="fas fa-arrow-right-long"></i></a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- blog area end -->
-
-
-        <!-- download area -->
-        <div class="download-area mb-120">
-            <div class="container">
-                <div class="download-wrapper">
-                    <div class="row">
-                        <div class="col-lg-6">
-                            <div class="download-content">
-                                <div class="site-heading mb-4">
-                                    <span class="site-title-tagline justify-content-start">
-                                        <i class="flaticon-drive"></i> Get Our App
-                                    </span>
-                                    <h2 class="site-title mb-10">Descarga gratis nuestra App <span>Motex</span></h2>
-                                    <p>
-                                        Existen muchas variaciones de pasajes disponibles, pero la mayoría ha sufrido
-                                        alteraciones de alguna forma por humor inyectado.
-                                    </p>
-                                </div>
-                                <div class="download-btn">
-                                    <a href="#">
-                                        <i class="fab fa-google-play"></i>
-                                        <div class="download-btn-content">
-                                            <span>Get It On</span>
-                                            <strong>Google Play</strong>
-                                        </div>
-                                    </a>
-                                    <a href="#">
-                                        <i class="fab fa-app-store"></i>
-                                        <div class="download-btn-content">
-                                            <span>Get It On</span>
-                                            <strong>App Store</strong>
-                                        </div>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="download-img">
-                        <img src="/img/download/01.png" alt="">
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- download area end -->
-
-
-    </main>
-
-
-
-    <footer th:replace="~{fragments/footer :: footer}"></footer>
-
-
-
-
-    <div th:replace="~{fragments/footer :: scroll-top}"></div>
-
-    <div th:replace="~{fragments/header :: scripts}"></div>
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+<div th:replace="~{fragments/footer :: scroll-top}"></div>
+<div th:replace="~{fragments/header :: scripts}"></div>
+<script th:inline="javascript">
+    window.homeModelCatalog = /*[[${modelsByMake}]]*/ {};
+</script>
+<script src="/js/home-salvage.js"></script>
 </body>
-
 </html>
