@@ -333,9 +333,9 @@
                                 <span class="car-status"
                                       th:classappend="${car.condition.name() == 'NUEVO'} ? 'status-2' : 'status-1'"
                                       th:text="${car.condition}">Used</span>
-                                <img th:if="${car.images != null and !#lists.isEmpty(car.images)}" th:src="@{/uploads/{img}(img=${car.images[0]})}"
+                                <img loading="lazy" th:if="${car.images != null and !#lists.isEmpty(car.images)}" th:src="@{/uploads/{img}(img=${car.images[0]})}"
                                      th:alt="${car.make + ' ' + car.model}">
-                                <img th:unless="${car.images != null and !#lists.isEmpty(car.images)}" src="/img/car/01.jpg"
+                                <img loading="lazy" th:unless="${car.images != null and !#lists.isEmpty(car.images)}" src="/img/car/01.jpg"
                                      th:alt="${car.make + ' ' + car.model}">
                                 <div class="car-btns">
                                     <a href="#"><i class="far fa-heart"></i></a>

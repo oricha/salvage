@@ -4,6 +4,7 @@ import com.cardealer.dto.CarDTO;
 import com.cardealer.dto.CarFilterDTO;
 import com.cardealer.dto.DashboardStats;
 import com.cardealer.exception.ResourceNotFoundException;
+import com.cardealer.exception.ImageProcessingException;
 import com.cardealer.exception.UnauthorizedException;
 import com.cardealer.model.Car;
 import com.cardealer.model.Dealer;
@@ -11,6 +12,7 @@ import com.cardealer.model.enums.BodyType;
 import com.cardealer.model.enums.CarCondition;
 import com.cardealer.model.enums.FuelType;
 import com.cardealer.model.enums.TransmissionType;
+import com.cardealer.model.enums.VehicleCategory;
 import com.cardealer.repository.CarRepository;
 import com.cardealer.repository.DealerRepository;
 import com.cardealer.specification.CarSpecification;
@@ -29,7 +31,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
@@ -45,6 +51,7 @@ public class CarService {
     /**
      * Find cars with filters and pagination
      */
+    @Cacheable("vehicles")
     public Page<Car> findCarsWithFilters(CarFilterDTO filters, Pageable pageable) {
         log.info("Finding cars with filters: {}", filters);
         
@@ -227,8 +234,13 @@ public class CarService {
             .toList();
         
         Long totalListings = (long) carRepository.findByDealerIdOrderByCreatedAtDesc(dealerId).size();
-        
-        return new DashboardStats(activeListings, totalViews, totalListings, recentListings);
+        Map<com.cardealer.model.enums.VehicleCategory, Long> listingsByCategory = new EnumMap<>(com.cardealer.model.enums.VehicleCategory.class);
+        for (com.cardealer.model.enums.VehicleCategory category : com.cardealer.model.enums.VehicleCategory.values()) {
+            Long categoryCount = carRepository.countByDealerIdAndCategoryAndActiveTrue(dealerId, category);
+            listingsByCategory.put(category, categoryCount == null ? 0L : categoryCount);
+        }
+
+        return new DashboardStats(activeListings, totalViews, totalListings, recentListings, listingsByCategory);
     }
 
     /**
@@ -258,6 +270,26 @@ public class CarService {
      */
     public List<Car> getCarsByMake(String make) {
         return carRepository.findByMakeIgnoreCaseAndActiveTrue(make);
+    }
+
+    public List<Car> getCarsByLocale(String locale) {
+        return carRepository.findByLocaleIgnoreCaseAndActiveTrueOrderByCreatedAtDesc(locale);
+    }
+
+    public Page<Car> findCarsByCategory(VehicleCategory category, Pageable pageable) {
+        return carRepository.findByCategoryAndActiveTrue(category, pageable);
+    }
+
+    public Page<Car> getDamagedVehicles(Pageable pageable) {
+        return findCarsByCategory(VehicleCategory.DAMAGED, pageable);
+    }
+
+    public Page<Car> getSalvageVehicles(Pageable pageable) {
+        return findCarsByCategory(VehicleCategory.SALVAGE, pageable);
+    }
+
+    public void validateImageCount(List<MultipartFile> images) {
+        fileUploadUtil.validateImageCount(images);
     }
 
     /**
@@ -336,6 +368,16 @@ public class CarService {
         if (dto.getCondition() != null) {
             car.setCondition(CarCondition.valueOf(dto.getCondition().toUpperCase()));
         }
+        if (dto.getCategory() != null) {
+            car.setCategory(VehicleCategory.valueOf(dto.getCategory().toUpperCase()));
+        } else if (car.getCategory() == null) {
+            car.setCategory(VehicleCategory.PASSENGER_CAR);
+        }
+        if (dto.getLocale() != null && !dto.getLocale().isBlank()) {
+            car.setLocale(dto.getLocale().toLowerCase());
+        } else if (car.getLocale() == null || car.getLocale().isBlank()) {
+            car.setLocale("es");
+        }
         
         // Set features
         if (dto.getFeatures() != null) {
@@ -350,28 +392,37 @@ public class CarService {
 
     private void handleImages(CarDTO dto, Car car, boolean isUpdate) throws IOException {
         List<String> images = dto.getExistingImages() != null
-            ? new java.util.ArrayList<>(dto.getExistingImages())
+            ? new ArrayList<>(dto.getExistingImages())
             : new java.util.ArrayList<>();
 
         List<MultipartFile> imageFiles = dto.getImageFiles();
         if (imageFiles != null && !imageFiles.isEmpty()) {
+            fileUploadUtil.validateImageCount(imageFiles);
             for (MultipartFile file : imageFiles) {
                 if (file != null && !file.isEmpty()) {
-                    images.add(fileUploadUtil.saveFile(file));
+                    try {
+                        images.add(fileUploadUtil.saveFile(file));
+                    } catch (IOException ex) {
+                        throw new ImageProcessingException("No se pudo procesar la imagen " + file.getOriginalFilename(), ex);
+                    }
                 }
             }
         }
 
         if (!isUpdate && images.isEmpty()) {
-            throw new IllegalArgumentException("Debe subir al menos una imagen");
+            throw new IllegalArgumentException("Debe subir entre 20 y 25 imágenes");
         }
 
         if (isUpdate && images.isEmpty() && (car.getImages() == null || car.getImages().isEmpty())) {
-            throw new IllegalArgumentException("Debe mantener o subir al menos una imagen");
+            throw new IllegalArgumentException("Debe mantener o subir entre 20 y 25 imágenes");
         }
 
         if (!images.isEmpty()) {
-            car.setImages(images);
+            int imageCount = images.size();
+            if (imageCount < FileUploadUtil.MIN_IMAGE_COUNT || imageCount > FileUploadUtil.MAX_IMAGE_COUNT) {
+                throw new IllegalArgumentException("Cada vehículo debe tener entre 20 y 25 imágenes");
+            }
+            car.setImages(new ArrayList<>(new ArrayDeque<>(images)));
         }
     }
 

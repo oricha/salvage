@@ -1,168 +1,110 @@
-# Car Dealer Website - Spring Boot Application
+# Car Salvage Marketplace - Spring Boot Application
 
-A simple and elegant car dealership website built with Spring Boot, Thymeleaf, and Bootstrap. This application allows users to browse car inventory, view detailed car information, and submit contact inquiries.
+This project is a Spring Boot marketplace focused on salvage and damaged vehicles rather than a traditional car dealership website. It allows dealers to publish listings for damaged, salvage, passenger, commercial, and motorcycle vehicles, while buyers can browse inventory, filter by category and condition, review large image galleries, and contact sellers through multiple channels.
 
-## Features
+The application is built with Spring Boot, Thymeleaf, PostgreSQL, and Flyway. It also includes multilingual support, SEO metadata generation, recently viewed vehicle tracking, dashboard statistics, and image handling for 20 to 25 photos per vehicle.
 
-- 🚗 **Car Inventory Display**: Browse all available cars with images, prices, and specifications
-- 🔍 **Car Details**: View detailed information about each vehicle
-- 📧 **Contact Form**: Submit inquiries with form validation
-- 📱 **Responsive Design**: Works seamlessly on desktop, tablet, and mobile devices
-- 💾 **PostgreSQL Database**: Persistent database running in Docker
-- 🎨 **Modern UI**: Clean and professional design using Bootstrap 5
+## Core Features
 
-## Technology Stack
-
-- **Backend**: Spring Boot 3.x
-- **Frontend**: Thymeleaf + Bootstrap 5
-- **Database**: PostgreSQL
-- **Build Tool**: Gradle
-- **Java Version**: 21
-
-## Prerequisites
-
-Before running this application, ensure you have:
-
-- Java 21 or higher installed
-- Gradle 8.5+ installed (or use the included Gradle Wrapper)
-- Docker Desktop
-- Your favorite IDE (IntelliJ IDEA, Eclipse, or VS Code)
+- Salvage-focused inventory marketplace
+- Vehicle categories: `DAMAGED`, `SALVAGE`, `PASSENGER_CAR`, `COMMERCIAL_VEHICLE`, `MOTORCYCLE`
+- Multi-language support: English, Spanish, Dutch, German, French
+- Large image galleries with validation and thumbnail generation
+- Recently viewed vehicle tracking
+- Dealer dashboard and category-based listing statistics
+- SEO metadata and sitemap generation
+- Contact interaction logging for phone, email, and WhatsApp
 
 ## Quick Start
 
-### 1. Clone or Download the Project
+### 1. Move into the project
 
 ```bash
-cd /Users/zion/dev/project/springboot
+cd /Users/zion/dev/project/salvage
 ```
 
-### 2. Build the Project
+### 2. Build the project
 
 ```bash
 ./gradlew clean build
 ```
 
-### 3. Start PostgreSQL (Docker)
+### 3. Start PostgreSQL
 
 ```bash
 docker compose up -d db
 ```
 
-### 4. Run the Application
+### 4. Run the application
 
 ```bash
 ./gradlew bootRun
 ```
-
-
-## Sample Data
-
-The application comes with pre-populated sample data including:
-- 10+ sample cars with various makes and models
-- Different price ranges and specifications
-- Placeholder images (can be replaced with actual car images)
 
 ## Development
 
-### Running in Development Mode
+### Run in development mode
 
 ```bash
 docker compose up -d db
 ./gradlew bootRun
 ```
 
-The application will automatically reload when you make changes to the code (thanks to Spring Boot DevTools).
+Spring Boot DevTools is enabled for local development, so server-side changes reload automatically.
 
-### Building for Production
+### Build for production
 
 ```bash
 ./gradlew clean build
-java -jar build/libs/car-dealer-0.0.1-SNAPSHOT.jar
+java -jar build/libs/car-salvage-0.0.1-SNAPSHOT.jar
 ```
 
 ## Testing
 
-### Run All Tests
+Run the full test suite:
 
 ```bash
 ./gradlew test
 ```
 
-### Manual Testing Checklist
+## Database and Migrations
 
-- [ ] Home page loads correctly
-- [ ] Car inventory displays all cars
-- [ ] Car details page shows complete information
-- [ ] Contact form validates input
-- [ ] Contact form submits successfully
-- [ ] Navigation works between all pages
-- [ ] Responsive design works on mobile
-- [ ] H2 console is accessible
+Flyway migrations run automatically at startup.
 
-## Troubleshooting
+To reset the local database:
 
-### Port Already in Use
-
-If port 8080 is already in use, change it in `application.properties`:
-```properties
-server.port=8081
-```
-
-### Database Connection Issues
-
-1) Ensure Docker Postgres is running:
-```bash
-docker compose ps
-```
-2) Verify env or defaults match `application.properties`:
-- `SPRING_DATASOURCE_URL`
-- `SPRING_DATASOURCE_USERNAME`
-- `SPRING_DATASOURCE_PASSWORD`
-3) Recreate DB volume if needed:
-```bash
-docker compose down -v && docker compose up -d db
-```
-
-### Template Not Found
-
-Check that Thymeleaf templates are in `src/main/resources/templates/` directory.
-
-## Future Enhancements
-
-- [ ] Add search and filter functionality
-- [ ] Implement admin panel for car management
-- [ ] Add user authentication
-- [ ] Email notifications for contact form
-- [ ] Image upload functionality
-- [ ] Appointment scheduling
- 
-## Flyway Migrations
-
-Migrations run automatically at application startup. To force a clean setup:
 ```bash
 docker compose down -v
 docker compose up -d db
 ./gradlew bootRun
 ```
-- [ ] Add pagination for car listings
-- [ ] Implement favorites/wishlist feature
 
-## Contributing
+If you run into connection issues:
 
-This is a learning/demonstration project. Feel free to fork and modify as needed.
+1. Make sure PostgreSQL is running:
 
-## License
+```bash
+docker compose ps
+```
 
-This project is open source and available for educational purposes.
+2. Check datasource configuration in your environment or `application.properties`:
+- `SPRING_DATASOURCE_URL`
+- `SPRING_DATASOURCE_USERNAME`
+- `SPRING_DATASOURCE_PASSWORD`
 
-## Support
+3. Recreate the database volume if needed:
 
-For questions or issues, please refer to the ARCHITECTURE.md file for detailed technical documentation.
+```bash
+docker compose down -v && docker compose up -d db
+```
 
-## Author
+## Project Focus
 
-Created as a Spring Boot demonstration project for a car dealership website.
+This repository is no longer centered on a generic dealership experience. The current product direction is:
 
----
-
-**Happy Coding! 🚀**
+- Dealer-managed salvage and damaged vehicle inventory
+- Rich vehicle listings with strict photo requirements
+- Internationalized browsing experience
+- Search and filtering by category and condition
+- Buyer-to-dealer contact workflows with interaction tracking
+- Future expansion paths for used parts and occasion vehicles

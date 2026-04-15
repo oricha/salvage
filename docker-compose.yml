@@ -2,11 +2,11 @@
 services:
   db:
     image: postgres:16
-    container_name: carDealerDB
+    container_name: carSalvageDB
     environment:
-      - POSTGRES_DB=portal_coches
-      - POSTGRES_USER=portal
-      - POSTGRES_PASSWORD=portal
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     ports:
       - "5434:5432"
     volumes:
@@ -19,5 +19,4 @@ services:
 
 volumes:
   db-data:
-
 

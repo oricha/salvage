@@ -68,6 +68,14 @@
                                 <div class="invalid-feedback" th:errors="*{condition}"></div>
                             </div>
                             <div class="col-md-4">
+                                <label class="form-label">Categoría *</label>
+                                <select th:field="*{category}" class="form-control" th:classappend="${#fields.hasErrors('category')} ? ' is-invalid'">
+                                    <option value="">Seleccionar</option>
+                                    <option th:each="category : ${categories}" th:value="${category.name()}" th:text="${category}">PASSENGER_CAR</option>
+                                </select>
+                                <div class="invalid-feedback" th:errors="*{category}"></div>
+                            </div>
+                            <div class="col-md-4">
                                 <label class="form-label">Carrocería</label>
                                 <select th:field="*{bodyType}" class="form-control">
                                     <option value="">Seleccionar</option>
@@ -103,6 +111,12 @@
                                 <label class="form-label">Motor</label>
                                 <input th:field="*{engine}" class="form-control">
                             </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Idioma del anuncio *</label>
+                                <select th:field="*{locale}" class="form-control">
+                                    <option th:each="localeOption : ${locales}" th:value="${localeOption}" th:text="${#strings.toUpperCase(localeOption)}">ES</option>
+                                </select>
+                            </div>
                             <div class="col-12">
                                 <label class="form-label">Descripción</label>
                                 <textarea th:field="*{description}" class="form-control" rows="5"></textarea>
@@ -128,14 +142,20 @@
                             <div class="col-12">
                                 <h6 class="mb-3">Imágenes</h6>
                                 <input type="file" class="form-control" name="imageFiles" id="imageFiles" multiple accept="image/*" th:required="${!isEdit}">
-                                <small class="text-muted">Puedes subir varias imágenes. Formatos: JPG, PNG y WebP.</small>
+                                <small class="text-muted d-block">Debes mantener entre 20 y 25 imágenes por vehículo. Formatos permitidos: JPG, PNG y WebP hasta 10MB.</small>
+                                <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('imageFiles')}" th:errors="*{imageFiles}"></div>
                             </div>
 
                             <div class="col-12" th:if="${isEdit and carDTO.existingImages != null}">
-                                <div class="row g-3">
+                                <div class="row g-3" id="existingImagesGrid">
                                     <div class="col-md-3" th:each="img, iterStat : ${carDTO.existingImages}">
                                         <input type="hidden" name="existingImages" th:value="${img}">
-                                        <img th:src="@{'/uploads/' + ${img}}" class="img-thumbnail" alt="Imagen actual">
+                                        <div class="card h-100 existing-image-card" draggable="true">
+                                            <img th:src="@{'/uploads/' + ${img}}" class="img-thumbnail" alt="Imagen actual">
+                                            <div class="card-body p-2">
+                                                <small class="text-muted">Arrastra para reordenar</small>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -163,22 +183,92 @@
     <script>
         const imageInput = document.getElementById('imageFiles');
         const previewContainer = document.getElementById('imagePreview');
+        const existingGrid = document.getElementById('existingImagesGrid');
 
         if (imageInput && previewContainer) {
             imageInput.addEventListener('change', () => {
                 previewContainer.innerHTML = '';
-                Array.from(imageInput.files || []).forEach(file => {
+                let files = Array.from(imageInput.files || []);
+                files.forEach((file, index) => {
                     if (!file.type.startsWith('image/')) {
                         return;
                     }
                     const reader = new FileReader();
                     reader.onload = event => {
                         const wrapper = document.createElement('div');
-                        wrapper.className = 'col-md-3';
-                        wrapper.innerHTML = `<img src="${event.target.result}" class="img-thumbnail" alt="Vista previa">`;
+                        wrapper.className = 'col-md-3 sortable-preview';
+                        wrapper.draggable = true;
+                        wrapper.dataset.index = String(index);
+                        wrapper.innerHTML = `<div class="card h-100"><img src="${event.target.result}" class="img-thumbnail" alt="Vista previa" loading="lazy"><div class="card-body p-2"><small class="text-muted">Arrastra para reordenar</small></div></div>`;
                         previewContainer.appendChild(wrapper);
                     };
                     reader.readAsDataURL(file);
+                });
+                enablePreviewReordering();
+            });
+        }
+
+        function enablePreviewReordering() {
+            let dragged = null;
+            previewContainer.querySelectorAll('.sortable-preview').forEach(item => {
+                item.addEventListener('dragstart', () => {
+                    dragged = item;
+                });
+                item.addEventListener('dragover', event => event.preventDefault());
+                item.addEventListener('drop', event => {
+                    event.preventDefault();
+                    if (!dragged || dragged === item) {
+                        return;
+                    }
+                    const items = Array.from(previewContainer.children);
+                    const draggedIndex = items.indexOf(dragged);
+                    const targetIndex = items.indexOf(item);
+                    if (draggedIndex < targetIndex) {
+                        previewContainer.insertBefore(dragged, item.nextSibling);
+                    } else {
+                        previewContainer.insertBefore(dragged, item);
+                    }
+                    syncFileInputWithPreview();
+                });
+            });
+        }
+
+        function syncFileInputWithPreview() {
+            if (!imageInput || !window.DataTransfer) {
+                return;
+            }
+            const currentFiles = Array.from(imageInput.files || []);
+            const reordered = Array.from(previewContainer.children)
+                .map(item => currentFiles[Number(item.dataset.index)])
+                .filter(Boolean);
+            const transfer = new DataTransfer();
+            reordered.forEach(file => transfer.items.add(file));
+            imageInput.files = transfer.files;
+            Array.from(previewContainer.children).forEach((item, index) => {
+                item.dataset.index = String(index);
+            });
+        }
+
+        if (existingGrid) {
+            let draggedCard = null;
+            existingGrid.querySelectorAll('.col-md-3').forEach(item => {
+                item.addEventListener('dragstart', () => {
+                    draggedCard = item;
+                });
+                item.addEventListener('dragover', event => event.preventDefault());
+                item.addEventListener('drop', event => {
+                    event.preventDefault();
+                    if (!draggedCard || draggedCard === item) {
+                        return;
+                    }
+                    const items = Array.from(existingGrid.children);
+                    const draggedIndex = items.indexOf(draggedCard);
+                    const targetIndex = items.indexOf(item);
+                    if (draggedIndex < targetIndex) {
+                        existingGrid.insertBefore(draggedCard, item.nextSibling);
+                    } else {
+                        existingGrid.insertBefore(draggedCard, item);
+                    }
                 });
             });
         }

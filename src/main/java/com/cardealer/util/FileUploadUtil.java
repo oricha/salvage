@@ -6,7 +6,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.imageio.ImageIO;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -18,6 +23,15 @@ import java.util.UUID;
 @Slf4j
 @Component
 public class FileUploadUtil {
+
+    public static final int MIN_IMAGE_COUNT = 20;
+    public static final int MAX_IMAGE_COUNT = 25;
+    public static final int MIN_WIDTH = 800;
+    public static final int MIN_HEIGHT = 600;
+    public static final int GRID_THUMBNAIL_WIDTH = 150;
+    public static final int GRID_THUMBNAIL_HEIGHT = 150;
+    public static final int LIST_THUMBNAIL_WIDTH = 400;
+    public static final int LIST_THUMBNAIL_HEIGHT = 300;
 
     @Value("${file.upload-dir:uploads/cars}")
     private String uploadDir;
@@ -54,6 +68,8 @@ public class FileUploadUtil {
         // Save file
         Path filePath = uploadPath.resolve(fileName);
         Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+        generateThumbnail(fileName, GRID_THUMBNAIL_WIDTH, GRID_THUMBNAIL_HEIGHT);
+        generateThumbnail(fileName, LIST_THUMBNAIL_WIDTH, LIST_THUMBNAIL_HEIGHT);
         
         log.info("File saved successfully: {}", fileName);
         return fileName;
@@ -64,6 +80,7 @@ public class FileUploadUtil {
      */
     public List<String> saveFiles(List<MultipartFile> files) throws IOException {
         log.info("Saving {} files", files.size());
+        validateImageCount(files);
         
         List<String> savedFileNames = new ArrayList<>();
         
@@ -93,6 +110,8 @@ public class FileUploadUtil {
         
         if (Files.exists(filePath)) {
             Files.deleteIfExists(filePath);
+            Files.deleteIfExists(getThumbnailPath(fileName, GRID_THUMBNAIL_WIDTH, GRID_THUMBNAIL_HEIGHT));
+            Files.deleteIfExists(getThumbnailPath(fileName, LIST_THUMBNAIL_WIDTH, LIST_THUMBNAIL_HEIGHT));
             log.info("File deleted successfully: {}", fileName);
         } else {
             log.warn("File not found for deletion: {}", fileName);
@@ -117,7 +136,7 @@ public class FileUploadUtil {
     /**
      * Validate file
      */
-    private void validateFile(MultipartFile file) {
+    public void validateFile(MultipartFile file) {
         // Check if file is empty
         if (file.isEmpty()) {
             throw new IllegalArgumentException("El archivo está vacío");
@@ -146,8 +165,81 @@ public class FileUploadUtil {
                 "Extensión de archivo no válida. Solo se permiten: " + ALLOWED_EXTENSIONS
             );
         }
+
+        validateImageDimensions(file);
         
         log.debug("File validation passed for: {}", originalFilename);
+    }
+
+    public void validateImageCount(List<MultipartFile> files) {
+        long validFileCount = files == null ? 0 : files.stream()
+            .filter(file -> file != null && !file.isEmpty())
+            .count();
+
+        if (validFileCount < MIN_IMAGE_COUNT || validFileCount > MAX_IMAGE_COUNT) {
+            throw new IllegalArgumentException(
+                String.format("Debe subir entre %d y %d imágenes por vehículo", MIN_IMAGE_COUNT, MAX_IMAGE_COUNT)
+            );
+        }
+    }
+
+    public void validateImageDimensions(MultipartFile file) {
+        try (InputStream inputStream = file.getInputStream()) {
+            BufferedImage image = ImageIO.read(inputStream);
+            if (image == null) {
+                throw new IllegalArgumentException("No se pudo leer la imagen subida");
+            }
+            if (image.getWidth() < MIN_WIDTH || image.getHeight() < MIN_HEIGHT) {
+                throw new IllegalArgumentException(
+                    String.format("La imagen debe tener una resolución mínima de %dx%d píxeles", MIN_WIDTH, MIN_HEIGHT)
+                );
+            }
+        } catch (IOException e) {
+            throw new IllegalArgumentException("No se pudo procesar la imagen subida", e);
+        }
+    }
+
+    public String generateThumbnail(String originalFileName, int width, int height) throws IOException {
+        Path originalPath = getFilePath(originalFileName);
+        if (!Files.exists(originalPath)) {
+            throw new IllegalArgumentException("No existe la imagen original para generar miniatura: " + originalFileName);
+        }
+
+        Path thumbnailsDir = Paths.get(uploadDir).resolve("thumbnails");
+        Files.createDirectories(thumbnailsDir);
+
+        BufferedImage originalImage = ImageIO.read(originalPath.toFile());
+        if (originalImage == null) {
+            throw new IllegalArgumentException("No se pudo leer la imagen original: " + originalFileName);
+        }
+
+        BufferedImage thumbnail = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        Graphics2D graphics = thumbnail.createGraphics();
+        graphics.drawImage(
+            originalImage.getScaledInstance(width, height, Image.SCALE_SMOOTH),
+            0,
+            0,
+            width,
+            height,
+            null
+        );
+        graphics.dispose();
+
+        String thumbnailFileName = getThumbnailFileName(originalFileName, width, height);
+        Path thumbnailPath = thumbnailsDir.resolve(thumbnailFileName);
+        ImageIO.write(thumbnail, "jpg", thumbnailPath.toFile());
+        return "thumbnails/" + thumbnailFileName;
+    }
+
+    public Path getThumbnailPath(String fileName, int width, int height) {
+        return Paths.get(uploadDir).resolve("thumbnails").resolve(getThumbnailFileName(fileName, width, height));
+    }
+
+    public String getThumbnailFileName(String originalFileName, int width, int height) {
+        String cleanFilename = StringUtils.cleanPath(originalFileName);
+        int lastDotIndex = cleanFilename.lastIndexOf('.');
+        String baseName = lastDotIndex > 0 ? cleanFilename.substring(0, lastDotIndex) : cleanFilename;
+        return baseName + "_" + width + "x" + height + ".jpg";
     }
 
     /**

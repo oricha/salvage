@@ -1,6 +1,7 @@
 package com.cardealer.repository;
 
 import com.cardealer.model.Car;
+import com.cardealer.model.enums.VehicleCategory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -31,8 +32,10 @@ public interface CarRepository extends JpaRepository<Car, Long>, JpaSpecificatio
     
     // Find active cars with pagination
     Page<Car> findByActiveTrue(Pageable pageable);
+    Page<Car> findByCategoryAndActiveTrue(VehicleCategory category, Pageable pageable);
 
     List<Car> findAllByActiveTrue();
+    List<Car> findByLocaleIgnoreCaseAndActiveTrueOrderByCreatedAtDesc(String locale);
     
     // Find cars by dealer ID ordered by creation date
     List<Car> findByDealerIdOrderByCreatedAtDesc(Long dealerId);
@@ -48,6 +51,7 @@ public interface CarRepository extends JpaRepository<Car, Long>, JpaSpecificatio
     
     // Count active listings by dealer
     Long countByDealerIdAndActiveTrue(Long dealerId);
+    Long countByDealerIdAndCategoryAndActiveTrue(Long dealerId, VehicleCategory category);
 
     Long countByActiveTrue();
     

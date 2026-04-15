@@ -10,6 +10,7 @@ import com.cardealer.model.enums.BodyType;
 import com.cardealer.model.enums.CarCondition;
 import com.cardealer.model.enums.FuelType;
 import com.cardealer.model.enums.TransmissionType;
+import com.cardealer.model.enums.VehicleCategory;
 import com.cardealer.service.CarService;
 import com.cardealer.service.DealerService;
 import com.cardealer.service.FavoriteService;
@@ -61,6 +62,7 @@ public class DashboardController {
             model.addAttribute("totalViews", stats.getTotalViews());
             model.addAttribute("totalListings", stats.getTotalListings());
             model.addAttribute("recentListings", stats.getRecentListings());
+            model.addAttribute("listingsByCategory", stats.getListingsByCategory().entrySet());
             model.addAttribute("breadcrumbItems", List.of(
                 new BreadcrumbItem("Inicio", "/", false),
                 new BreadcrumbItem("Dashboard", null, true)
@@ -97,6 +99,7 @@ public class DashboardController {
         model.addAttribute("totalViews", stats.getTotalViews());
         model.addAttribute("totalListings", stats.getTotalListings());
         model.addAttribute("recentListings", stats.getRecentListings());
+        model.addAttribute("listingsByCategory", stats.getListingsByCategory().entrySet());
         model.addAttribute("breadcrumbItems", List.of(
             new BreadcrumbItem("Inicio", "/", false),
             new BreadcrumbItem("Dashboard", null, true)
@@ -512,9 +515,11 @@ public class DashboardController {
      */
     private void addEnumsToModel(Model model) {
         model.addAttribute("conditions", CarCondition.values());
+        model.addAttribute("categories", VehicleCategory.values());
         model.addAttribute("bodyTypes", BodyType.values());
         model.addAttribute("fuelTypes", FuelType.values());
         model.addAttribute("transmissions", TransmissionType.values());
+        model.addAttribute("locales", List.of("es", "en", "nl", "de", "fr"));
         
         // Add predefined features list
         List<String> features = List.of(
@@ -562,9 +567,13 @@ public class DashboardController {
         if (car.getCondition() != null) {
             dto.setCondition(car.getCondition().name());
         }
-        
+        if (car.getCategory() != null) {
+            dto.setCategory(car.getCategory().name());
+        }
+
         dto.setFeatures(car.getFeatures());
         dto.setExistingImages(car.getImages());
+        dto.setLocale(car.getLocale());
         
         return dto;
     }

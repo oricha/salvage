@@ -66,6 +66,7 @@ public class DealerService {
     /**
      * Get dealer by ID
      */
+    @Cacheable("dealers")
     public Dealer getDealerById(Long id) {
         log.debug("Fetching dealer by ID: {}", id);
         return dealerRepository.findById(id)

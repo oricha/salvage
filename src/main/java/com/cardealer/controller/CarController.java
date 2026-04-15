@@ -9,10 +9,15 @@ import com.cardealer.model.enums.BodyType;
 import com.cardealer.model.enums.CarCondition;
 import com.cardealer.model.enums.FuelType;
 import com.cardealer.model.enums.TransmissionType;
+import com.cardealer.model.enums.VehicleCategory;
 import com.cardealer.service.CarService;
 import com.cardealer.service.CommentService;
 import com.cardealer.service.FavoriteService;
+import com.cardealer.service.RecentlyViewedService;
+import com.cardealer.service.SEOService;
 import com.cardealer.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -27,6 +32,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,6 +45,8 @@ public class CarController {
     private final CommentService commentService;
     private final FavoriteService favoriteService;
     private final UserService userService;
+    private final RecentlyViewedService recentlyViewedService;
+    private final SEOService seoService;
 
     /**
      * List cars with filters and pagination
@@ -50,9 +58,10 @@ public class CarController {
             @RequestParam(defaultValue = "12") int size,
             Model model) {
         buildCarsListing(filters, page, size, model);
-        model.addAttribute("pageDescription", "Explora el inventario completo de coches disponibles en Portal de Coches.");
-        model.addAttribute("pageKeywords", "inventario coches, coches segunda mano, coches ocasión");
-        model.addAttribute("ogTitle", "Inventario de Coches");
+        model.addAllAttributes(seoService.toModelAttributes(
+            seoService.generatePageMetadata("inventory", Locale.forLanguageTag(filters.getLocale() != null ? filters.getLocale() : "es")),
+            "/cars"
+        ));
         return "inventory-grid";
     }
 
@@ -63,34 +72,72 @@ public class CarController {
             @RequestParam(defaultValue = "12") int size,
             Model model) {
         buildCarsListing(filters, page, size, model);
-        model.addAttribute("pageDescription", "Consulta el inventario en formato lista para comparar rápidamente vehículos disponibles.");
-        model.addAttribute("pageKeywords", "lista coches, catálogo coches, vehículos disponibles");
-        model.addAttribute("ogTitle", "Inventario en Lista");
+        model.addAllAttributes(seoService.toModelAttributes(
+            seoService.generatePageMetadata("inventory", Locale.forLanguageTag(filters.getLocale() != null ? filters.getLocale() : "es")),
+            "/cars/list"
+        ));
         return "inventory-list";
+    }
+
+    @GetMapping("/damaged")
+    public String damagedCars(@ModelAttribute CarFilterDTO filters,
+                              @RequestParam(defaultValue = "0") int page,
+                              @RequestParam(defaultValue = "12") int size,
+                              Model model) {
+        filters.setCategories(List.of(VehicleCategory.DAMAGED));
+        return listCars(filters, page, size, model);
+    }
+
+    @GetMapping("/salvage")
+    public String salvageCars(@ModelAttribute CarFilterDTO filters,
+                              @RequestParam(defaultValue = "0") int page,
+                              @RequestParam(defaultValue = "12") int size,
+                              Model model) {
+        filters.setCategories(List.of(VehicleCategory.SALVAGE));
+        return listCars(filters, page, size, model);
+    }
+
+    @GetMapping("/category/{category}")
+    public String carsByCategory(@PathVariable VehicleCategory category,
+                                 @ModelAttribute CarFilterDTO filters,
+                                 @RequestParam(defaultValue = "0") int page,
+                                 @RequestParam(defaultValue = "12") int size,
+                                 Model model) {
+        filters.setCategories(List.of(category));
+        return listCars(filters, page, size, model);
+    }
+
+    @GetMapping("/locale/{locale}")
+    public String carsByLocale(@PathVariable String locale,
+                               @ModelAttribute CarFilterDTO filters,
+                               @RequestParam(defaultValue = "0") int page,
+                               @RequestParam(defaultValue = "12") int size,
+                               Model model) {
+        filters.setLocale(locale);
+        return listCars(filters, page, size, model);
     }
 
     /**
      * Car detail page
      */
     @GetMapping("/{id}")
-    public String carDetail(@PathVariable Long id, Model model, Authentication authentication) {
+    public String carDetail(@PathVariable Long id, Model model, Authentication authentication, HttpSession session, HttpServletRequest request) {
         // Get car and increment views
         Car car = carService.getCarById(id);
+        var currentUser = authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getName())
+            ? userService.getUserByEmail(authentication.getName())
+            : null;
+        recentlyViewedService.addToRecentlyViewed(id, session, currentUser, request);
         model.addAttribute("car", car);
         model.addAttribute("breadcrumbItems", List.of(
             new BreadcrumbItem("Inicio", "/", false),
             new BreadcrumbItem("Inventario", "/cars", false),
             new BreadcrumbItem(car.getMake() + " " + car.getModel(), null, true)
         ));
-        model.addAttribute("pageDescription", car.getDescription() != null && !car.getDescription().isBlank()
-            ? car.getDescription()
-            : "Descubre todos los detalles de " + car.getMake() + " " + car.getModel() + ".");
-        model.addAttribute("pageKeywords", String.join(", ",
-            List.of("detalle coche", car.getMake(), car.getModel(), "portal coches")));
-        model.addAttribute("ogTitle", car.getMake() + " " + car.getModel());
-        model.addAttribute("ogImage", (car.getImages() != null && !car.getImages().isEmpty())
-            ? "/uploads/" + car.getImages().get(0)
-            : "/img/car/01.jpg");
+        model.addAllAttributes(seoService.toModelAttributes(
+            seoService.generateCarMetadata(car, Locale.forLanguageTag(car.getLocale())),
+            "/cars/" + car.getId()
+        ));
         
         // Get related cars (same brand)
         List<Car> relatedCars = carService.getRelatedCars(id);
@@ -112,8 +159,7 @@ public class CarController {
         // Check if car is in user's favorites (if authenticated)
         if (authentication != null && authentication.isAuthenticated()) {
             String email = authentication.getName();
-            var user = userService.getUserByEmail(email);
-            boolean isFavorite = favoriteService.isFavorite(user.getId(), id);
+            boolean isFavorite = favoriteService.isFavorite(currentUser.getId(), id);
             model.addAttribute("isFavorite", isFavorite);
         } else {
             model.addAttribute("isFavorite", false);
@@ -161,6 +207,7 @@ public class CarController {
         model.addAttribute("transmissionTypes", Arrays.asList(TransmissionType.values()));
         model.addAttribute("bodyTypes", Arrays.asList(BodyType.values()));
         model.addAttribute("conditions", Arrays.asList(CarCondition.values()));
+        model.addAttribute("categories", Arrays.asList(VehicleCategory.values()));
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", carsPage.getTotalPages());
         model.addAttribute("totalItems", carsPage.getTotalElements());

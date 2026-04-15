@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<section th:fragment="recentlyViewed(cars)" class="recently-viewed-area py-80" th:if="${cars != null && !cars.isEmpty()}">
+    <div class="container">
+        <div class="mb-4">
+            <h3 class="site-title mb-1">Vehículos vistos recientemente</h3>
+            <p class="mb-0 text-muted">Acceso rápido a los últimos 5 vehículos visitados.</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-sm-6 col-lg-15" th:each="car : ${cars}">
+                <a class="car-item d-block h-100" th:href="@{/cars/{id}(id=${car.id})}">
+                    <div class="car-img">
+                        <img loading="lazy" th:src="@{${car.images != null && !car.images.isEmpty()} ? '/uploads/' + ${car.images[0]} : '/img/car/01.jpg'}" th:alt="${car.make + ' ' + car.model}">
+                    </div>
+                    <div class="car-content">
+                        <span class="badge bg-dark mb-2" th:text="${car.category}">PASSENGER_CAR</span>
+                        <h6 th:text="${car.make + ' ' + car.model}">Vehículo</h6>
+                        <span class="car-price" th:text="${#numbers.formatDecimal(car.price, 0, 'COMMA', 2, 'POINT')} + ' €'">0 €</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

@@ -11,7 +11,7 @@
             
         ],
         "classpath": [
-            "/Users/zion/.gradle/caches/modules-2/files-2.1/org.projectlombok/lombok/1.18.30/f195ee86e6c896ea47a1d39defbe20eb59cd149d/lombok-1.18.30.jar",
+            "/Users/zion/.gradle/caches/modules-2/files-2.1/org.projectlombok/lombok/1.18.36/5a30490a6e14977d97d9c73c924c1f1b5311ea95/lombok-1.18.36.jar",
             "/Users/zion/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-starter-web/3.2.0/e609f839e7c2ff9c90bc75d7c05dbcbb19315319/spring-boot-starter-web-3.2.0.jar",
             "/Users/zion/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-starter-data-jpa/3.2.0/6a8ad077a37f8a0cef6949dcfd91a9b2115cade/spring-boot-starter-data-jpa-3.2.0.jar",
             "/Users/zion/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-starter-thymeleaf/3.2.0/aafdb22a1cb8f8f7f38786417a39d56de51213ba/spring-boot-starter-thymeleaf-3.2.0.jar",
@@ -100,7 +100,7 @@
                 "-sourcepath",
                 "",
                 "-processorpath",
-                "/Users/zion/.gradle/caches/modules-2/files-2.1/org.projectlombok/lombok/1.18.30/f195ee86e6c896ea47a1d39defbe20eb59cd149d/lombok-1.18.30.jar",
+                "/Users/zion/.gradle/caches/modules-2/files-2.1/org.projectlombok/lombok/1.18.36/5a30490a6e14977d97d9c73c924c1f1b5311ea95/lombok-1.18.36.jar",
                 "-s",
                 "/Users/zion/dev/project/cardealer/build/generated/sources/annotationProcessor/java/main",
                 "-XDuseUnsharedTable=true",
@@ -222,22 +222,6 @@
                     ]
                 },
                 {
-                    "organization": "jakarta.annotation",
-                    "name": "jakarta.annotation-api",
-                    "version": "2.1.1",
-                    "artifacts": [
-                        {
-                            "name": "jakarta.annotation-api",
-                            "classifier": "sources",
-                            "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/jakarta.annotation/jakarta.annotation-api/2.1.1/3beea3ed2e687d9bd8a78c00e18951fffccefe90/jakarta.annotation-api-2.1.1-sources.jar"
-                        },
-                        {
-                            "name": "jakarta.annotation-api",
-                            "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/jakarta.annotation/jakarta.annotation-api/2.1.1/48b9bda22b091b1f48b13af03fe36db3be6e1ae3/jakarta.annotation-api-2.1.1.jar"
-                        }
-                    ]
-                },
-                {
                     "organization": "org.springframework.boot",
                     "name": "spring-boot-starter-test",
                     "version": "3.2.0",
@@ -250,6 +234,22 @@
                             "name": "spring-boot-starter-test",
                             "classifier": "sources",
                             "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-starter-test/3.2.0/494e8d8e2813217d12acafcc21c6bfee047de0b5/spring-boot-starter-test-3.2.0-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization": "jakarta.annotation",
+                    "name": "jakarta.annotation-api",
+                    "version": "2.1.1",
+                    "artifacts": [
+                        {
+                            "name": "jakarta.annotation-api",
+                            "classifier": "sources",
+                            "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/jakarta.annotation/jakarta.annotation-api/2.1.1/3beea3ed2e687d9bd8a78c00e18951fffccefe90/jakarta.annotation-api-2.1.1-sources.jar"
+                        },
+                        {
+                            "name": "jakarta.annotation-api",
+                            "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/jakarta.annotation/jakarta.annotation-api/2.1.1/48b9bda22b091b1f48b13af03fe36db3be6e1ae3/jakarta.annotation-api-2.1.1.jar"
                         }
                     ]
                 },
@@ -318,22 +318,6 @@
                     ]
                 },
                 {
-                    "organization": "org.projectlombok",
-                    "name": "lombok",
-                    "version": "1.18.30",
-                    "artifacts": [
-                        {
-                            "name": "lombok",
-                            "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/org.projectlombok/lombok/1.18.30/f195ee86e6c896ea47a1d39defbe20eb59cd149d/lombok-1.18.30.jar"
-                        },
-                        {
-                            "name": "lombok",
-                            "classifier": "sources",
-                            "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/org.projectlombok/lombok/1.18.30/f41b66af9925b6476e18c77d476f905710ee8488/lombok-1.18.30-sources.jar"
-                        }
-                    ]
-                },
-                {
                     "organization": "org.checkerframework",
                     "name": "checker-qual",
                     "version": "3.42.0",
@@ -366,6 +350,22 @@
                     ]
                 },
                 {
+                    "organization": "org.junit.jupiter",
+                    "name": "junit-jupiter",
+                    "version": "5.10.1",
+                    "artifacts": [
+                        {
+                            "name": "junit-jupiter",
+                            "classifier": "sources",
+                            "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/org.junit.jupiter/junit-jupiter/5.10.1/4e79ee610aff59d79b5f229252ded392b7d48fd1/junit-jupiter-5.10.1-sources.jar"
+                        },
+                        {
+                            "name": "junit-jupiter",
+                            "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/org.junit.jupiter/junit-jupiter/5.10.1/6e5c7dd668d6349cb99e52ab8321e73479a309bc/junit-jupiter-5.10.1.jar"
+                        }
+                    ]
+                },
+                {
                     "organization": "org.springframework.boot",
                     "name": "spring-boot-starter-thymeleaf",
                     "version": "3.2.0",
@@ -394,22 +394,6 @@
                             "name": "awaitility",
                             "classifier": "sources",
                             "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/org.awaitility/awaitility/4.2.0/359e52d6a80b3d12fb08b0e665f15ce334d2c7a3/awaitility-4.2.0-sources.jar"
-                        }
-                    ]
-                },
-                {
-                    "organization": "org.junit.jupiter",
-                    "name": "junit-jupiter",
-                    "version": "5.10.1",
-                    "artifacts": [
-                        {
-                            "name": "junit-jupiter",
-                            "classifier": "sources",
-                            "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/org.junit.jupiter/junit-jupiter/5.10.1/4e79ee610aff59d79b5f229252ded392b7d48fd1/junit-jupiter-5.10.1-sources.jar"
-                        },
-                        {
-                            "name": "junit-jupiter",
-                            "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/org.junit.jupiter/junit-jupiter/5.10.1/6e5c7dd668d6349cb99e52ab8321e73479a309bc/junit-jupiter-5.10.1.jar"
                         }
                     ]
                 },
@@ -542,22 +526,6 @@
                     ]
                 },
                 {
-                    "organization": "org.hamcrest",
-                    "name": "hamcrest",
-                    "version": "2.2",
-                    "artifacts": [
-                        {
-                            "name": "hamcrest",
-                            "classifier": "sources",
-                            "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/org.hamcrest/hamcrest/2.2/a0a13cfc629420efb587d954f982c4c6a100da25/hamcrest-2.2-sources.jar"
-                        },
-                        {
-                            "name": "hamcrest",
-                            "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/org.hamcrest/hamcrest/2.2/1820c0968dba3a11a1b30669bb1f01978a91dedc/hamcrest-2.2.jar"
-                        }
-                    ]
-                },
-                {
                     "organization": "com.fasterxml.jackson.module",
                     "name": "jackson-module-parameter-names",
                     "version": "2.15.3",
@@ -570,6 +538,22 @@
                             "name": "jackson-module-parameter-names",
                             "classifier": "sources",
                             "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.module/jackson-module-parameter-names/2.15.3/a69102db97639344028b198720103e3d1c72d5fe/jackson-module-parameter-names-2.15.3-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization": "org.hamcrest",
+                    "name": "hamcrest",
+                    "version": "2.2",
+                    "artifacts": [
+                        {
+                            "name": "hamcrest",
+                            "classifier": "sources",
+                            "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/org.hamcrest/hamcrest/2.2/a0a13cfc629420efb587d954f982c4c6a100da25/hamcrest-2.2-sources.jar"
+                        },
+                        {
+                            "name": "hamcrest",
+                            "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/org.hamcrest/hamcrest/2.2/1820c0968dba3a11a1b30669bb1f01978a91dedc/hamcrest-2.2.jar"
                         }
                     ]
                 },
@@ -846,18 +830,18 @@
                     ]
                 },
                 {
-                    "organization": "org.glassfish.jaxb",
-                    "name": "jaxb-runtime",
-                    "version": "4.0.4",
+                    "organization": "org.springframework.boot",
+                    "name": "spring-boot-devtools",
+                    "version": "3.2.0",
                     "artifacts": [
                         {
-                            "name": "jaxb-runtime",
-                            "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/org.glassfish.jaxb/jaxb-runtime/4.0.4/7180c50ef8bd127bb1dd645458b906cffcf6c2b5/jaxb-runtime-4.0.4.jar"
+                            "name": "spring-boot-devtools",
+                            "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-devtools/3.2.0/b8a547cba9b5ea40c1b2b0257bc0f19ebe4a0e17/spring-boot-devtools-3.2.0.jar"
                         },
                         {
-                            "name": "jaxb-runtime",
+                            "name": "spring-boot-devtools",
                             "classifier": "sources",
-                            "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/org.glassfish.jaxb/jaxb-runtime/4.0.4/75f0097e2178e16ce462e7aec38f49ea578b99e3/jaxb-runtime-4.0.4-sources.jar"
+                            "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-devtools/3.2.0/30014eccb1bce48bc2e825b5bc6298f057a2127c/spring-boot-devtools-3.2.0-sources.jar"
                         }
                     ]
                 },
@@ -878,18 +862,18 @@
                     ]
                 },
                 {
-                    "organization": "org.springframework.boot",
-                    "name": "spring-boot-devtools",
-                    "version": "3.2.0",
+                    "organization": "org.glassfish.jaxb",
+                    "name": "jaxb-runtime",
+                    "version": "4.0.4",
                     "artifacts": [
                         {
-                            "name": "spring-boot-devtools",
-                            "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-devtools/3.2.0/b8a547cba9b5ea40c1b2b0257bc0f19ebe4a0e17/spring-boot-devtools-3.2.0.jar"
+                            "name": "jaxb-runtime",
+                            "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/org.glassfish.jaxb/jaxb-runtime/4.0.4/7180c50ef8bd127bb1dd645458b906cffcf6c2b5/jaxb-runtime-4.0.4.jar"
                         },
                         {
-                            "name": "spring-boot-devtools",
+                            "name": "jaxb-runtime",
                             "classifier": "sources",
-                            "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-devtools/3.2.0/30014eccb1bce48bc2e825b5bc6298f057a2127c/spring-boot-devtools-3.2.0-sources.jar"
+                            "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/org.glassfish.jaxb/jaxb-runtime/4.0.4/75f0097e2178e16ce462e7aec38f49ea578b99e3/jaxb-runtime-4.0.4-sources.jar"
                         }
                     ]
                 },
@@ -926,22 +910,6 @@
                     ]
                 },
                 {
-                    "organization": "org.springframework.boot",
-                    "name": "spring-boot-test-autoconfigure",
-                    "version": "3.2.0",
-                    "artifacts": [
-                        {
-                            "name": "spring-boot-test-autoconfigure",
-                            "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-test-autoconfigure/3.2.0/4d096363d61b38f3a4151c3a4460e7cd92c52ca8/spring-boot-test-autoconfigure-3.2.0.jar"
-                        },
-                        {
-                            "name": "spring-boot-test-autoconfigure",
-                            "classifier": "sources",
-                            "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-test-autoconfigure/3.2.0/f0fcbf4d3385b9a2cff4aef7cde11fdf2be0e6b6/spring-boot-test-autoconfigure-3.2.0-sources.jar"
-                        }
-                    ]
-                },
-                {
                     "organization": "org.springframework.data",
                     "name": "spring-data-jpa",
                     "version": "3.2.0",
@@ -954,6 +922,22 @@
                         {
                             "name": "spring-data-jpa",
                             "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/org.springframework.data/spring-data-jpa/3.2.0/59e49a0eca3d02c3dc593e7a881c19b932641894/spring-data-jpa-3.2.0.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization": "org.springframework.boot",
+                    "name": "spring-boot-test-autoconfigure",
+                    "version": "3.2.0",
+                    "artifacts": [
+                        {
+                            "name": "spring-boot-test-autoconfigure",
+                            "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-test-autoconfigure/3.2.0/4d096363d61b38f3a4151c3a4460e7cd92c52ca8/spring-boot-test-autoconfigure-3.2.0.jar"
+                        },
+                        {
+                            "name": "spring-boot-test-autoconfigure",
+                            "classifier": "sources",
+                            "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-test-autoconfigure/3.2.0/f0fcbf4d3385b9a2cff4aef7cde11fdf2be0e6b6/spring-boot-test-autoconfigure-3.2.0-sources.jar"
                         }
                     ]
                 },
@@ -1134,22 +1118,6 @@
                     ]
                 },
                 {
-                    "organization": "org.aspectj",
-                    "name": "aspectjweaver",
-                    "version": "1.9.20.1",
-                    "artifacts": [
-                        {
-                            "name": "aspectjweaver",
-                            "classifier": "sources",
-                            "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/org.aspectj/aspectjweaver/1.9.20.1/92c96d3f7be6a80a3f1fc540b2ebee4c4af97bbd/aspectjweaver-1.9.20.1-sources.jar"
-                        },
-                        {
-                            "name": "aspectjweaver",
-                            "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/org.aspectj/aspectjweaver/1.9.20.1/33b0e41476658229933eec7134678cf336e66dd4/aspectjweaver-1.9.20.1.jar"
-                        }
-                    ]
-                },
-                {
                     "organization": "io.micrometer",
                     "name": "micrometer-commons",
                     "version": "1.12.0",
@@ -1162,6 +1130,22 @@
                             "name": "micrometer-commons",
                             "classifier": "sources",
                             "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/io.micrometer/micrometer-commons/1.12.0/3b7271c7ba1b7964ed63d751b62676f93103b5ec/micrometer-commons-1.12.0-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization": "org.aspectj",
+                    "name": "aspectjweaver",
+                    "version": "1.9.20.1",
+                    "artifacts": [
+                        {
+                            "name": "aspectjweaver",
+                            "classifier": "sources",
+                            "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/org.aspectj/aspectjweaver/1.9.20.1/92c96d3f7be6a80a3f1fc540b2ebee4c4af97bbd/aspectjweaver-1.9.20.1-sources.jar"
+                        },
+                        {
+                            "name": "aspectjweaver",
+                            "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/org.aspectj/aspectjweaver/1.9.20.1/33b0e41476658229933eec7134678cf336e66dd4/aspectjweaver-1.9.20.1.jar"
                         }
                     ]
                 },
@@ -1406,18 +1390,34 @@
                     ]
                 },
                 {
-                    "organization": "org.mockito",
-                    "name": "mockito-junit-jupiter",
-                    "version": "5.7.0",
+                    "organization": "org.springframework",
+                    "name": "spring-beans",
+                    "version": "6.1.1",
                     "artifacts": [
                         {
-                            "name": "mockito-junit-jupiter",
-                            "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/org.mockito/mockito-junit-jupiter/5.7.0/ac2d6a3431747a7986b8f4abef465f72bf3a21ae/mockito-junit-jupiter-5.7.0.jar"
+                            "name": "spring-beans",
+                            "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/org.springframework/spring-beans/6.1.1/6af88af13193acf2197bc0a42f0ec4e5c481bfe9/spring-beans-6.1.1.jar"
                         },
                         {
-                            "name": "mockito-junit-jupiter",
+                            "name": "spring-beans",
                             "classifier": "sources",
-                            "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/org.mockito/mockito-junit-jupiter/5.7.0/5d3de2c05dc223dbb76d5d57125e529fe3623fec/mockito-junit-jupiter-5.7.0-sources.jar"
+                            "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/org.springframework/spring-beans/6.1.1/7a48fcd36752a8702b29e15a222bce4372b72d06/spring-beans-6.1.1-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization": "org.springframework.boot",
+                    "name": "spring-boot-starter-aop",
+                    "version": "3.2.0",
+                    "artifacts": [
+                        {
+                            "name": "spring-boot-starter-aop",
+                            "classifier": "sources",
+                            "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-starter-aop/3.2.0/12cdc21e70ac8bb5268bdbd4cb6d22b1857d5484/spring-boot-starter-aop-3.2.0-sources.jar"
+                        },
+                        {
+                            "name": "spring-boot-starter-aop",
+                            "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-starter-aop/3.2.0/1c4e5498a0ae4c179d0c192e9b674ac656f3e0b9/spring-boot-starter-aop-3.2.0.jar"
                         }
                     ]
                 },
@@ -1434,22 +1434,6 @@
                         {
                             "name": "jakarta.activation-api",
                             "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/jakarta.activation/jakarta.activation-api/2.1.2/640c0d5aff45dbff1e1a1bc09673ff3a02b1ba12/jakarta.activation-api-2.1.2.jar"
-                        }
-                    ]
-                },
-                {
-                    "organization": "org.springframework",
-                    "name": "spring-beans",
-                    "version": "6.1.1",
-                    "artifacts": [
-                        {
-                            "name": "spring-beans",
-                            "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/org.springframework/spring-beans/6.1.1/6af88af13193acf2197bc0a42f0ec4e5c481bfe9/spring-beans-6.1.1.jar"
-                        },
-                        {
-                            "name": "spring-beans",
-                            "classifier": "sources",
-                            "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/org.springframework/spring-beans/6.1.1/7a48fcd36752a8702b29e15a222bce4372b72d06/spring-beans-6.1.1-sources.jar"
                         }
                     ]
                 },
@@ -1502,34 +1486,18 @@
                     ]
                 },
                 {
-                    "organization": "org.springframework.boot",
-                    "name": "spring-boot-starter-aop",
-                    "version": "3.2.0",
+                    "organization": "org.mockito",
+                    "name": "mockito-junit-jupiter",
+                    "version": "5.7.0",
                     "artifacts": [
                         {
-                            "name": "spring-boot-starter-aop",
-                            "classifier": "sources",
-                            "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-starter-aop/3.2.0/12cdc21e70ac8bb5268bdbd4cb6d22b1857d5484/spring-boot-starter-aop-3.2.0-sources.jar"
+                            "name": "mockito-junit-jupiter",
+                            "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/org.mockito/mockito-junit-jupiter/5.7.0/ac2d6a3431747a7986b8f4abef465f72bf3a21ae/mockito-junit-jupiter-5.7.0.jar"
                         },
                         {
-                            "name": "spring-boot-starter-aop",
-                            "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-starter-aop/3.2.0/1c4e5498a0ae4c179d0c192e9b674ac656f3e0b9/spring-boot-starter-aop-3.2.0.jar"
-                        }
-                    ]
-                },
-                {
-                    "organization": "org.springframework",
-                    "name": "spring-web",
-                    "version": "6.1.1",
-                    "artifacts": [
-                        {
-                            "name": "spring-web",
-                            "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/org.springframework/spring-web/6.1.1/4eeb5f2edb9f04d00357edcc56b59d3874b3b453/spring-web-6.1.1.jar"
-                        },
-                        {
-                            "name": "spring-web",
+                            "name": "mockito-junit-jupiter",
                             "classifier": "sources",
-                            "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/org.springframework/spring-web/6.1.1/9ca23e110965b376c724ab6f49b7aa0a24c6bfc6/spring-web-6.1.1-sources.jar"
+                            "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/org.mockito/mockito-junit-jupiter/5.7.0/5d3de2c05dc223dbb76d5d57125e529fe3623fec/mockito-junit-jupiter-5.7.0-sources.jar"
                         }
                     ]
                 },
@@ -1546,6 +1514,22 @@
                         {
                             "name": "spring-security-web",
                             "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/org.springframework.security/spring-security-web/6.2.0/279f836f90d0b7d394abe115e5504b2ff4b66643/spring-security-web-6.2.0.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization": "org.springframework",
+                    "name": "spring-web",
+                    "version": "6.1.1",
+                    "artifacts": [
+                        {
+                            "name": "spring-web",
+                            "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/org.springframework/spring-web/6.1.1/4eeb5f2edb9f04d00357edcc56b59d3874b3b453/spring-web-6.1.1.jar"
+                        },
+                        {
+                            "name": "spring-web",
+                            "classifier": "sources",
+                            "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/org.springframework/spring-web/6.1.1/9ca23e110965b376c724ab6f49b7aa0a24c6bfc6/spring-web-6.1.1-sources.jar"
                         }
                     ]
                 },
@@ -1582,22 +1566,6 @@
                     ]
                 },
                 {
-                    "organization": "org.springframework",
-                    "name": "spring-expression",
-                    "version": "6.1.1",
-                    "artifacts": [
-                        {
-                            "name": "spring-expression",
-                            "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/org.springframework/spring-expression/6.1.1/807700a64cb055ed85af189d1fa0702bc0d2efba/spring-expression-6.1.1.jar"
-                        },
-                        {
-                            "name": "spring-expression",
-                            "classifier": "sources",
-                            "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/org.springframework/spring-expression/6.1.1/9b8a778ee7a384f017910bb10a7585a5d769a43d/spring-expression-6.1.1-sources.jar"
-                        }
-                    ]
-                },
-                {
                     "organization": "org.springframework.boot",
                     "name": "spring-boot-starter-tomcat",
                     "version": "3.2.0",
@@ -1610,6 +1578,22 @@
                             "name": "spring-boot-starter-tomcat",
                             "classifier": "sources",
                             "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-starter-tomcat/3.2.0/546c20ae1a84e26307ca06285923870d2fbb8b61/spring-boot-starter-tomcat-3.2.0-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization": "org.springframework",
+                    "name": "spring-expression",
+                    "version": "6.1.1",
+                    "artifacts": [
+                        {
+                            "name": "spring-expression",
+                            "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/org.springframework/spring-expression/6.1.1/807700a64cb055ed85af189d1fa0702bc0d2efba/spring-expression-6.1.1.jar"
+                        },
+                        {
+                            "name": "spring-expression",
+                            "classifier": "sources",
+                            "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/org.springframework/spring-expression/6.1.1/9b8a778ee7a384f017910bb10a7585a5d769a43d/spring-expression-6.1.1-sources.jar"
                         }
                     ]
                 },
@@ -1646,6 +1630,22 @@
                     ]
                 },
                 {
+                    "organization": "org.springframework",
+                    "name": "spring-jdbc",
+                    "version": "6.1.1",
+                    "artifacts": [
+                        {
+                            "name": "spring-jdbc",
+                            "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/org.springframework/spring-jdbc/6.1.1/92f1f65c3d8ccee4a86cd8f85a446d99f2915833/spring-jdbc-6.1.1.jar"
+                        },
+                        {
+                            "name": "spring-jdbc",
+                            "classifier": "sources",
+                            "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/org.springframework/spring-jdbc/6.1.1/fbdba039cb4797afdfb4959ede42b6d6b4f6a107/spring-jdbc-6.1.1-sources.jar"
+                        }
+                    ]
+                },
+                {
                     "organization": "org.hibernate.orm",
                     "name": "hibernate-core",
                     "version": "6.3.1.Final",
@@ -1674,22 +1674,6 @@
                             "name": "spring-boot-starter-jdbc",
                             "classifier": "sources",
                             "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-starter-jdbc/3.2.0/d9e6d805fed4aff1d6029374b6fdfc206c69b744/spring-boot-starter-jdbc-3.2.0-sources.jar"
-                        }
-                    ]
-                },
-                {
-                    "organization": "org.springframework",
-                    "name": "spring-jdbc",
-                    "version": "6.1.1",
-                    "artifacts": [
-                        {
-                            "name": "spring-jdbc",
-                            "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/org.springframework/spring-jdbc/6.1.1/92f1f65c3d8ccee4a86cd8f85a446d99f2915833/spring-jdbc-6.1.1.jar"
-                        },
-                        {
-                            "name": "spring-jdbc",
-                            "classifier": "sources",
-                            "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/org.springframework/spring-jdbc/6.1.1/fbdba039cb4797afdfb4959ede42b6d6b4f6a107/spring-jdbc-6.1.1-sources.jar"
                         }
                     ]
                 },
@@ -1806,6 +1790,22 @@
                     ]
                 },
                 {
+                    "organization": "org.projectlombok",
+                    "name": "lombok",
+                    "version": "1.18.36",
+                    "artifacts": [
+                        {
+                            "name": "lombok",
+                            "classifier": "sources",
+                            "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/org.projectlombok/lombok/1.18.36/c37490d4988331a31a5b3d3836e745d65aed485e/lombok-1.18.36-sources.jar"
+                        },
+                        {
+                            "name": "lombok",
+                            "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/org.projectlombok/lombok/1.18.36/5a30490a6e14977d97d9c73c924c1f1b5311ea95/lombok-1.18.36.jar"
+                        }
+                    ]
+                },
+                {
                     "organization": "org.apiguardian",
                     "name": "apiguardian-api",
                     "version": "1.1.2",
@@ -1854,22 +1854,6 @@
                     ]
                 },
                 {
-                    "organization": "org.springframework",
-                    "name": "spring-aop",
-                    "version": "6.1.1",
-                    "artifacts": [
-                        {
-                            "name": "spring-aop",
-                            "classifier": "sources",
-                            "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/org.springframework/spring-aop/6.1.1/6e38793c6f2fb08afa6d8712a63be8bebd923065/spring-aop-6.1.1-sources.jar"
-                        },
-                        {
-                            "name": "spring-aop",
-                            "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/org.springframework/spring-aop/6.1.1/66cb0e08770d4523ae3976b0b791cde767466c61/spring-aop-6.1.1.jar"
-                        }
-                    ]
-                },
-                {
                     "organization": "org.apache.logging.log4j",
                     "name": "log4j-api",
                     "version": "2.21.1",
@@ -1898,6 +1882,22 @@
                             "name": "assertj-core",
                             "classifier": "sources",
                             "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/org.assertj/assertj-core/3.24.2/76c425ccc878f91e347fa3cb0d686772679b66e2/assertj-core-3.24.2-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization": "org.springframework",
+                    "name": "spring-aop",
+                    "version": "6.1.1",
+                    "artifacts": [
+                        {
+                            "name": "spring-aop",
+                            "classifier": "sources",
+                            "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/org.springframework/spring-aop/6.1.1/6e38793c6f2fb08afa6d8712a63be8bebd923065/spring-aop-6.1.1-sources.jar"
+                        },
+                        {
+                            "name": "spring-aop",
+                            "path": "/Users/zion/.gradle/caches/modules-2/files-2.1/org.springframework/spring-aop/6.1.1/66cb0e08770d4523ae3976b0b791cde767466c61/spring-aop-6.1.1.jar"
                         }
                     ]
                 },
