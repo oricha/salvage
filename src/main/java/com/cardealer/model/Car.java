@@ -4,6 +4,7 @@ import com.cardealer.model.enums.BodyType;
 import com.cardealer.model.enums.CarCondition;
 import com.cardealer.model.enums.FuelType;
 import com.cardealer.model.enums.TransmissionType;
+import com.cardealer.model.enums.VehicleCategory;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -56,6 +57,10 @@ public class Car {
     @Enumerated(EnumType.STRING)
     private CarCondition condition;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private VehicleCategory category = VehicleCategory.PASSENGER_CAR;
+
     private Integer doors;
 
     private String engine;
@@ -71,6 +76,7 @@ public class Car {
 
     @ElementCollection
     @CollectionTable(name = "car_images", joinColumns = @JoinColumn(name = "car_id"))
+    @OrderColumn(name = "image_order")
     @Column(name = "image_url")
     private List<String> images;
 
@@ -91,4 +97,18 @@ public class Car {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @PrePersist
+    @PreUpdate
+    private void validateImageCount() {
+        if (category == null) {
+            category = VehicleCategory.PASSENGER_CAR;
+        }
+
+        // Preserve legacy rows without migrated galleries while enforcing the new constraint
+        // for listings that already carry uploaded images.
+        if (images != null && !images.isEmpty() && (images.size() < 20 || images.size() > 25)) {
+            throw new IllegalStateException("Cada vehículo debe tener entre 20 y 25 imágenes");
+        }
+    }
 }

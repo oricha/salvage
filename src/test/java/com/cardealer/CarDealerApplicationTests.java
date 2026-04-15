@@ -3,7 +3,7 @@ package com.cardealer;
 import org.junit.jupiter.api.Test;
 // Removed Spring context loading for lightweight unit test
 
-class CarDealerApplicationTests {
+class CarSalvageTests {
 
     @Test
     void contextLoads() {
