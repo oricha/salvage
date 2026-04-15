@@ -1,0 +1,495 @@
+.home-salvage-page {
+  background: #f5f4f7;
+}
+
+.home-salvage-hero {
+  background:
+    linear-gradient(180deg, rgba(37, 31, 130, 0.98), rgba(37, 31, 130, 0.96)),
+    radial-gradient(circle at top left, rgba(255, 103, 0, 0.18), transparent 35%);
+  color: #fff;
+  padding: 42px 0 56px;
+}
+
+.home-salvage-shell {
+  display: grid;
+  gap: 22px;
+}
+
+.hero-heading {
+  max-width: 760px;
+}
+
+.hero-kicker,
+.section-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #ff6b00;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.hero-heading h1,
+.section-head h2,
+.about-home-copy h2 {
+  color: inherit;
+  margin: 10px 0 12px;
+}
+
+.hero-heading p {
+  max-width: 680px;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.hero-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
+  background: #f0eef7;
+  border-radius: 18px 18px 10px 10px;
+  overflow: hidden;
+}
+
+.hero-tab {
+  padding: 20px 22px;
+  background: rgba(255, 255, 255, 0.96);
+  color: #201c6f;
+  border-right: 1px solid rgba(32, 28, 111, 0.08);
+}
+
+.hero-tab:last-child {
+  border-right: 0;
+}
+
+.hero-tab strong,
+.hero-tab span {
+  display: block;
+}
+
+.hero-tab strong {
+  font-size: 16px;
+  margin-bottom: 6px;
+}
+
+.hero-tab span {
+  font-size: 13px;
+  color: #5a558b;
+}
+
+.vehicle-type-strip,
+.vehicle-type-more-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.vehicle-type-chip,
+.vehicle-type-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: 999px;
+  padding: 10px 16px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font-size: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.vehicle-type-chip.secondary {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.vehicle-type-more {
+  background: transparent;
+}
+
+.home-search-panel {
+  background: rgba(17, 14, 71, 0.42);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 24px;
+}
+
+.search-main-grid,
+.search-advanced-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.search-field,
+.search-action {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.search-field label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.home-search-panel .form-select,
+.dealer-search-form input {
+  min-height: 48px;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.search-btn {
+  width: 100%;
+  min-height: 48px;
+  margin-top: auto;
+}
+
+.advanced-search-toggle {
+  margin-top: 18px;
+}
+
+.advanced-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  background: none;
+  border: 0;
+  color: #fff;
+  font-weight: 600;
+}
+
+.advanced-search-panel {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.search-field-wide {
+  grid-column: span 2;
+}
+
+.radius-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.radius-row input {
+  flex: 1;
+}
+
+.radius-output {
+  min-width: 62px;
+  font-weight: 700;
+  color: #ff6b00;
+}
+
+.advanced-options-columns {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.option-card {
+  background: rgba(255, 255, 255, 0.97);
+  color: #231d72;
+  border-radius: 14px;
+  padding: 18px;
+}
+
+.option-card h5 {
+  margin-bottom: 12px;
+  color: #231d72;
+}
+
+.option-check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.advanced-submit {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.home-section {
+  padding: 72px 0;
+}
+
+.section-head {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 28px;
+}
+
+.section-link,
+.dealer-count {
+  color: #251f82;
+  font-weight: 600;
+}
+
+.home-arrivals-carousel .owl-stage {
+  display: flex;
+}
+
+.home-arrivals-carousel .owl-item {
+  display: flex;
+  height: auto;
+}
+
+.arrival-card {
+  background: #fff;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(37, 31, 130, 0.08);
+  height: 100%;
+}
+
+.arrival-media {
+  position: relative;
+}
+
+.arrival-media img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+
+.arrival-badge {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  background: #ff6b00;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  padding: 8px 10px;
+  border-radius: 999px;
+}
+
+.arrival-body {
+  padding: 18px;
+}
+
+.arrival-price-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.arrival-price {
+  color: #ff6b00;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.arrival-price-old {
+  color: #9f9cbf;
+  text-decoration: line-through;
+}
+
+.arrival-specs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  padding: 0;
+  margin: 0 0 14px;
+  list-style: none;
+  font-size: 13px;
+  color: #5d5986;
+}
+
+.arrival-specs li {
+  display: flex;
+  gap: 8px;
+}
+
+.arrival-link {
+  color: #251f82;
+  font-weight: 700;
+}
+
+.make-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px 18px;
+}
+
+.make-link {
+  color: #251f82;
+  font-weight: 600;
+}
+
+.split-visual-section {
+  padding-top: 0;
+}
+
+.split-visual-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  grid-template-rows: 220px 220px;
+  gap: 18px;
+}
+
+.split-visual-grid img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 18px;
+}
+
+.split-visual-grid img:first-child {
+  grid-row: span 2;
+}
+
+.dealer-search-band {
+  background: #ff6b00;
+  padding: 54px 0;
+  color: #fff;
+}
+
+.dealer-search-content {
+  text-align: center;
+}
+
+.dealer-search-content .section-kicker {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.dealer-search-form {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  max-width: 740px;
+  margin: 22px auto 0;
+}
+
+.dealer-directory-section {
+  background: #efeff2;
+}
+
+.dealer-directory-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 28px;
+}
+
+.dealer-letter-group h4 {
+  color: #251f82;
+  margin-bottom: 12px;
+}
+
+.dealer-letter-group ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.dealer-letter-group a {
+  color: #3b365f;
+  font-size: 13px;
+}
+
+.about-home-grid {
+  display: grid;
+  grid-template-columns: 1.1fr .9fr;
+  gap: 28px;
+  align-items: center;
+}
+
+.about-home-gallery {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.about-home-gallery img:first-child {
+  grid-column: span 2;
+}
+
+.about-home-gallery img {
+  width: 100%;
+  border-radius: 18px;
+  object-fit: cover;
+  min-height: 200px;
+}
+
+.about-home-copy p {
+  color: #5a567b;
+}
+
+@media (max-width: 1199px) {
+  .search-main-grid,
+  .search-advanced-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .make-grid,
+  .dealer-directory-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 991px) {
+  .hero-tabs,
+  .advanced-options-columns,
+  .about-home-grid,
+  .split-visual-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dealer-search-form,
+  .section-head {
+    grid-template-columns: 1fr;
+    display: grid;
+    align-items: start;
+  }
+
+  .make-grid,
+  .dealer-directory-grid,
+  .search-main-grid,
+  .search-advanced-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .search-field-wide {
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 767px) {
+  .home-salvage-hero {
+    padding-top: 28px;
+  }
+
+  .make-grid,
+  .dealer-directory-grid,
+  .search-main-grid,
+  .search-advanced-grid,
+  .advanced-options-columns {
+    grid-template-columns: 1fr;
+  }
+
+  .search-field-wide {
+    grid-column: span 1;
+  }
+
+  .arrival-specs {
+    grid-template-columns: 1fr;
+  }
+}
