@@ -74,6 +74,7 @@ Desktop.ini
 # Application specific
 application-local.properties
 application-dev.properties
+.env
 
 # Kiro (local specs / agent)
 .kiro/
