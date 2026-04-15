@@ -23,11 +23,16 @@
                     </div>
                     <div class="car-single-widget" id="vehicle-gallery" data-image-gallery>
                         <div class="mb-3">
-                            <img class="w-100 rounded" data-gallery-main loading="lazy" th:src="@{${car.images != null && !car.images.isEmpty()} ? '/uploads/' + ${car.images[0]} : '/img/car/01.jpg'}" th:alt="${car.make + ' ' + car.model}">
+                            <img class="w-100 rounded" data-gallery-main loading="lazy" sizes="(max-width: 768px) 100vw, 66vw" th:src="@{${car.images != null && !car.images.isEmpty()} ? '/uploads/' + ${car.images[0]} : '/img/car/01.jpg'}" th:alt="${car.make + ' ' + car.model}">
                         </div>
                         <div class="row g-2">
-                            <div class="col-4 col-md-3 col-lg-2" th:each="image, stat : ${car.images}">
-                                <img class="w-100 rounded border" th:classappend="${stat.index == 0} ? ' active' : ''" data-gallery-thumb loading="lazy" th:attr="data-full=@{'/uploads/' + ${image}}" th:src="@{'/uploads/' + ${image}}" th:alt="${car.make + ' ' + car.model + ' image ' + (stat.index + 1)}">
+                            <div class="col-4 col-md-3 col-lg-2" th:each="image, stat : ${car.images}"
+                                 th:with="dot=${image.lastIndexOf('.')}, base=${dot > 0 ? image.substring(0, dot) : image}">
+                                <img class="w-100 rounded border" th:classappend="${stat.index == 0} ? ' active' : ''" data-gallery-thumb loading="lazy" sizes="150px"
+                                     th:attr="data-full=@{'/uploads/' + ${image}}"
+                                     th:src="@{'/uploads/thumbnails/' + ${base} + '_150x150.jpg'}"
+                                     th:srcset="|/uploads/thumbnails/${base}_150x150.jpg 150w, /uploads/thumbnails/${base}_400x300.jpg 400w, /uploads/${image} 1200w|"
+                                     th:alt="${car.make + ' ' + car.model + ' image ' + (stat.index + 1)}">
                             </div>
                         </div>
                     </div>
@@ -77,9 +82,9 @@
                             <h4 class="mb-3">Contacto del concesionario</h4>
                             <ul class="car-list">
                                 <li><i class="far fa-user"></i><span th:text="${car.dealer.name}">Dealer</span></li>
-                                <li><i class="far fa-phone"></i><a th:href="'tel:' + ${car.dealer.phone}" th:text="${car.dealer.phone}">phone</a></li>
-                                <li><i class="far fa-envelope"></i><a th:href="'mailto:' + ${car.dealer.email}" th:text="${car.dealer.email}">email</a></li>
-                                <li><i class="fab fa-whatsapp"></i><a target="_blank" rel="noopener" th:href="'https://wa.me/' + ${#strings.replace(car.dealer.phone, ' ', '')} + '?text=' + ${'Hola, me interesa el vehículo ' + car.make + ' ' + car.model}">WhatsApp</a></li>
+                                <li><i class="far fa-phone"></i><a class="contact-track" data-interaction="PHONE" th:attr="data-car-id=${car.id}" th:href="'tel:' + ${car.dealer.phone}" th:text="${car.dealer.phone}">phone</a></li>
+                                <li><i class="far fa-envelope"></i><a class="contact-track" data-interaction="EMAIL" th:attr="data-car-id=${car.id}" th:href="'mailto:' + ${car.dealer.email}" th:text="${car.dealer.email}">email</a></li>
+                                <li><i class="fab fa-whatsapp"></i><a class="contact-track" data-interaction="WHATSAPP" th:attr="data-car-id=${car.id}" target="_blank" rel="noopener" th:href="'https://wa.me/' + ${#strings.replace(car.dealer.phone, ' ', '')} + '?text=' + ${'Hola, me interesa el vehículo ' + car.make + ' ' + car.model}">WhatsApp</a></li>
                             </ul>
                         </div>
                     </aside>
@@ -91,5 +96,19 @@
 <footer th:replace="~{fragments/footer :: footer}"></footer>
 <div th:replace="~{fragments/footer :: scroll-top}"></div>
 <div th:replace="~{fragments/header :: scripts}"></div>
+<script>
+document.querySelectorAll('.contact-track').forEach(link => {
+  link.addEventListener('click', () => {
+      fetch('/api/contact/log', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+        carId: Number(link.dataset.carId),
+        interactionType: link.dataset.interaction
+      })
+    }).catch(() => {});
+  });
+});
+</script>
 </body>
 </html>

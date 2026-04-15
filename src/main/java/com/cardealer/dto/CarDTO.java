@@ -1,5 +1,6 @@
 package com.cardealer.dto;
 
+import com.cardealer.validation.ValidImageUpload;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -15,6 +16,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@ValidImageUpload
 public class CarDTO {
     
     @NotBlank(message = "La marca es obligatoria")
@@ -28,7 +30,6 @@ public class CarDTO {
     private Integer year;
     
     @NotNull(message = "El precio es obligatorio")
-    @Min(value = 0, message = "El precio debe ser positivo")
     private BigDecimal price;
     
     @Min(value = 0, message = "El kilometraje debe ser positivo")
@@ -59,7 +60,6 @@ public class CarDTO {
     
     private List<String> features;
 
-    @Size(min = 20, max = 25, message = "Debe subir entre 20 y 25 imágenes")
     private List<MultipartFile> imageFiles;
 
     // For editing - existing image URLs

@@ -1,10 +1,12 @@
 package com.cardealer.service;
 
 import com.cardealer.config.LocaleConfig;
+import com.cardealer.exception.LocalizationException;
 import com.cardealer.model.LocalizedContent;
 import com.cardealer.repository.LocalizedContentRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 
@@ -27,22 +29,27 @@ public class LocalizationService {
     private final MessageSource messageSource;
     private final LocalizedContentRepository localizedContentRepository;
 
+    @Cacheable("i18n")
     public String getMessage(String key, Locale locale) {
-        Locale effectiveLocale = normalizeLocale(locale);
+        try {
+            Locale effectiveLocale = normalizeLocale(locale);
 
-        Optional<LocalizedContent> customContent = localizedContentRepository
-            .findByContentKeyAndLocale(key, effectiveLocale.getLanguage());
+            Optional<LocalizedContent> customContent = localizedContentRepository
+                .findByContentKeyAndLocale(key, effectiveLocale.getLanguage());
 
-        if (customContent.isPresent()) {
-            return customContent.get().getContent();
+            if (customContent.isPresent()) {
+                return customContent.get().getContent();
+            }
+
+            String localizedMessage = messageSource.getMessage(key, null, key, effectiveLocale);
+            if (!key.equals(localizedMessage)) {
+                return localizedMessage;
+            }
+
+            return messageSource.getMessage(key, null, key, Locale.ENGLISH);
+        } catch (Exception ex) {
+            throw new LocalizationException("No se pudo resolver el contenido localizado para la clave: " + key, ex);
         }
-
-        String localizedMessage = messageSource.getMessage(key, null, key, effectiveLocale);
-        if (!key.equals(localizedMessage)) {
-            return localizedMessage;
-        }
-
-        return messageSource.getMessage(key, null, key, Locale.ENGLISH);
     }
 
     public List<Locale> getSupportedLocales() {

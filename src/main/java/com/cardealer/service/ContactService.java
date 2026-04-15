@@ -1,8 +1,15 @@
 package com.cardealer.service;
 
 import com.cardealer.dto.ContactFormDTO;
+import com.cardealer.model.Car;
+import com.cardealer.model.ContactInteraction;
 import com.cardealer.model.ContactForm;
+import com.cardealer.model.User;
+import com.cardealer.model.enums.InteractionType;
+import com.cardealer.repository.CarRepository;
+import com.cardealer.repository.ContactInteractionRepository;
 import com.cardealer.repository.ContactFormRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,6 +25,8 @@ import java.util.Optional;
 public class ContactService {
 
     private final ContactFormRepository contactFormRepository;
+    private final ContactInteractionRepository contactInteractionRepository;
+    private final CarRepository carRepository;
 
     /**
      * Get all contact forms
@@ -69,5 +78,32 @@ public class ContactService {
      */
     public long getTotalContactFormCount() {
         return contactFormRepository.count();
+    }
+
+    @Transactional
+    public ContactInteraction logInteraction(Long carId, InteractionType interactionType, HttpServletRequest request, User user) {
+        Car car = carRepository.findById(carId)
+            .orElseThrow(() -> new IllegalArgumentException("Vehículo no encontrado para registrar interacción"));
+
+        ContactInteraction interaction = new ContactInteraction();
+        interaction.setCar(car);
+        interaction.setDealer(car.getDealer());
+        interaction.setUser(user);
+        interaction.setInteractionType(interactionType);
+        interaction.setIpAddress(extractIpAddress(request));
+        ContactInteraction saved = contactInteractionRepository.save(interaction);
+        log.info("Contact interaction logged for car {} via {}", carId, interactionType);
+        return saved;
+    }
+
+    private String extractIpAddress(HttpServletRequest request) {
+        if (request == null) {
+            return null;
+        }
+        String forwarded = request.getHeader("X-Forwarded-For");
+        if (forwarded != null && !forwarded.isBlank()) {
+            return forwarded.split(",")[0].trim();
+        }
+        return request.getRemoteAddr();
     }
 }

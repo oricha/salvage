@@ -4,6 +4,7 @@ import com.cardealer.dto.CarDTO;
 import com.cardealer.dto.CarFilterDTO;
 import com.cardealer.dto.DashboardStats;
 import com.cardealer.exception.ResourceNotFoundException;
+import com.cardealer.exception.ImageProcessingException;
 import com.cardealer.exception.UnauthorizedException;
 import com.cardealer.model.Car;
 import com.cardealer.model.Dealer;
@@ -32,7 +33,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
@@ -48,6 +51,7 @@ public class CarService {
     /**
      * Find cars with filters and pagination
      */
+    @Cacheable("vehicles")
     public Page<Car> findCarsWithFilters(CarFilterDTO filters, Pageable pageable) {
         log.info("Finding cars with filters: {}", filters);
         
@@ -230,8 +234,13 @@ public class CarService {
             .toList();
         
         Long totalListings = (long) carRepository.findByDealerIdOrderByCreatedAtDesc(dealerId).size();
-        
-        return new DashboardStats(activeListings, totalViews, totalListings, recentListings);
+        Map<com.cardealer.model.enums.VehicleCategory, Long> listingsByCategory = new EnumMap<>(com.cardealer.model.enums.VehicleCategory.class);
+        for (com.cardealer.model.enums.VehicleCategory category : com.cardealer.model.enums.VehicleCategory.values()) {
+            Long categoryCount = carRepository.countByDealerIdAndCategoryAndActiveTrue(dealerId, category);
+            listingsByCategory.put(category, categoryCount == null ? 0L : categoryCount);
+        }
+
+        return new DashboardStats(activeListings, totalViews, totalListings, recentListings, listingsByCategory);
     }
 
     /**
@@ -391,7 +400,11 @@ public class CarService {
             fileUploadUtil.validateImageCount(imageFiles);
             for (MultipartFile file : imageFiles) {
                 if (file != null && !file.isEmpty()) {
-                    images.add(fileUploadUtil.saveFile(file));
+                    try {
+                        images.add(fileUploadUtil.saveFile(file));
+                    } catch (IOException ex) {
+                        throw new ImageProcessingException("No se pudo procesar la imagen " + file.getOriginalFilename(), ex);
+                    }
                 }
             }
         }

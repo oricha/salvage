@@ -12,6 +12,6 @@ public interface DealerRepository extends JpaRepository<Dealer, Long> {
     Optional<Dealer> findByUserId(Long userId);
     Optional<Dealer> findByEmail(String email);
     List<Dealer> findByActiveTrue();
+    long countByActiveTrue();
 }
-
 

@@ -75,6 +75,8 @@
                     <ul class="navbar-nav">
                         <li class="nav-item"><a class="nav-link" th:href="@{/}" th:text="#{nav.home}">Inicio</a></li>
                         <li class="nav-item"><a class="nav-link" th:href="@{/cars}" th:text="#{nav.inventory}">Inventario</a></li>
+                        <li class="nav-item"><a class="nav-link" th:href="@{/coming-soon(feature='used-parts')}"><span th:text="#{feature.usedParts}">Used Parts</span> <span class="badge bg-warning text-dark" th:text="#{common.comingSoon}">Soon</span></a></li>
+                        <li class="nav-item"><a class="nav-link" th:href="@{/coming-soon(feature='occasion-vehicles')}"><span th:text="#{feature.occasionVehicles}">Occasion Vehicles</span> <span class="badge bg-warning text-dark" th:text="#{common.comingSoon}">Soon</span></a></li>
                         <li class="nav-item"><a class="nav-link" th:href="@{/dealers}" th:text="#{nav.dealers}">Concesionarios</a></li>
                         <li class="nav-item"><a class="nav-link" th:href="@{/about}" th:text="#{nav.about}">Acerca de</a></li>
                         <li class="nav-item"><a class="nav-link" th:href="@{/contact}" th:text="#{nav.contact}">Contacto</a></li>

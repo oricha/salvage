@@ -52,11 +52,10 @@
                     <div class="col-lg-7">
                         <div class="contact-form">
                             <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
-                            <div th:if="${#fields.hasErrors('*')}" class="alert alert-danger">
-                                Revisa los campos marcados e inténtalo de nuevo.
-                            </div>
-
                             <form th:action="@{/contact}" method="post" th:object="${contactForm}">
+                                <div th:if="${#fields.hasErrors('*')}" class="alert alert-danger">
+                                    Revisa los campos marcados e inténtalo de nuevo.
+                                </div>
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">

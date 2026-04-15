@@ -51,6 +51,7 @@ public interface CarRepository extends JpaRepository<Car, Long>, JpaSpecificatio
     
     // Count active listings by dealer
     Long countByDealerIdAndActiveTrue(Long dealerId);
+    Long countByDealerIdAndCategoryAndActiveTrue(Long dealerId, VehicleCategory category);
 
     Long countByActiveTrue();
     
