@@ -15,12 +15,15 @@ import java.util.List;
 public class CarFilterDTO {
     
     private List<String> brands;
+    private String model;
     private Integer yearFrom;
     private Integer yearTo;
     private BigDecimal minPrice;
     private BigDecimal maxPrice;
     private String transmission;
+    private List<String> transmissions;
     private String fuelType;
+    private List<String> fuelTypes;
     private String bodyType;
     private String condition;
     private List<CarCondition> conditions;

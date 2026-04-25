@@ -19,6 +19,7 @@ import com.cardealer.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.data.domain.Page;
@@ -35,7 +36,7 @@ import java.util.List;
 @Slf4j
 @Controller
 @RequestMapping("/dashboard")
-// @PreAuthorize("hasRole('VENDEDOR')") // TEMPORARY: Disabled for development
+@PreAuthorize("hasRole('VENDEDOR')")
 @RequiredArgsConstructor
 public class DashboardController {
 
@@ -50,48 +51,12 @@ public class DashboardController {
      */
     @GetMapping
     public String dashboard(Model model, Authentication authentication) {
-        // TEMPORARY: For development without authentication, use first dealer
-        if (authentication == null) {
-            log.info("Loading dashboard without authentication (development mode)");
-            Dealer dealer = dealerService.getDealerById(1L);
-            DashboardStats stats = carService.getDealerStats(dealer.getId());
-            
-            model.addAttribute("dealer", dealer);
-            model.addAttribute("stats", stats);
-            model.addAttribute("activeListings", stats.getActiveListings());
-            model.addAttribute("totalViews", stats.getTotalViews());
-            model.addAttribute("totalListings", stats.getTotalListings());
-            model.addAttribute("recentListings", stats.getRecentListings());
-            model.addAttribute("listingsByCategory", stats.getListingsByCategory().entrySet());
-            model.addAttribute("breadcrumbItems", List.of(
-                new BreadcrumbItem("Inicio", "/", false),
-                new BreadcrumbItem("Dashboard", null, true)
-            ));
-            model.addAttribute("pageDescription", "Panel de control del vendedor con estadísticas, listados y actividad reciente.");
-            model.addAttribute("pageKeywords", "dashboard vendedor, estadísticas coches, panel concesionario");
-            model.addAttribute("ogTitle", "Dashboard");
-            
-            return "dashboard";
-        }
-        
         log.info("Loading dashboard for user: {}", authentication.getName());
-        
-        // Get authenticated user
-        String email = authentication.getName();
-        User user = userService.getUserByEmail(email);
-        
-        // Get dealer associated with user
-        Dealer dealer = dealerService.getDealerByUserId(user.getId());
-        
-        if (dealer == null) {
-            log.error("No dealer found for user: {}", email);
-            return "redirect:/";
-        }
-        
-        // Get dealer statistics
+
+        User user = getAuthenticatedUser(authentication);
+        Dealer dealer = getAuthenticatedDealer(authentication);
         DashboardStats stats = carService.getDealerStats(dealer.getId());
-        
-        // Add data to model
+
         model.addAttribute("user", user);
         model.addAttribute("dealer", dealer);
         model.addAttribute("stats", stats);
@@ -117,30 +82,9 @@ public class DashboardController {
      */
     @GetMapping("/listings")
     public String myListings(Model model, Authentication authentication) {
-        // TEMPORARY: For development without authentication, use first dealer
-        if (authentication == null) {
-            log.info("Loading listings without authentication (development mode)");
-            Dealer dealer = dealerService.getDealerById(1L);
-            model.addAttribute("cars", carService.getCarsByDealer(dealer.getId()));
-            model.addAttribute("dealer", dealer);
-            return "profile-listing";
-        }
-        
         log.info("Loading listings for user: {}", authentication.getName());
-        
-        // Get authenticated user
-        String email = authentication.getName();
-        User user = userService.getUserByEmail(email);
-        
-        // Get dealer associated with user
-        Dealer dealer = dealerService.getDealerByUserId(user.getId());
-        
-        if (dealer == null) {
-            log.error("No dealer found for user: {}", email);
-            return "redirect:/";
-        }
-        
-        // Get all cars for this dealer
+
+        Dealer dealer = getAuthenticatedDealer(authentication);
         model.addAttribute("cars", carService.getCarsByDealer(dealer.getId()));
         model.addAttribute("dealer", dealer);
         
@@ -156,26 +100,9 @@ public class DashboardController {
             @RequestParam(defaultValue = "10") int size,
             Model model,
             Authentication authentication) {
-        // TEMPORARY: For development without authentication
-        if (authentication == null) {
-            log.info("Loading messages without authentication (development mode)");
-            PageRequest pageable = PageRequest.of(page, size);
-            Page<com.cardealer.model.Message> messagesPage = messageService.getReceivedMessages(1L, pageable);
-            model.addAttribute("messagesPage", messagesPage);
-            model.addAttribute("messages", messagesPage.getContent());
-            model.addAttribute("currentPage", page);
-            model.addAttribute("totalPages", messagesPage.getTotalPages());
-            model.addAttribute("unreadCount", messageService.getUnreadCount(1L));
-            return "profile-message";
-        }
-        
         log.info("Loading messages for user: {}", authentication.getName());
-        
-        // Get authenticated user
-        String email = authentication.getName();
-        User user = userService.getUserByEmail(email);
-        
-        // Get received messages
+
+        User user = getAuthenticatedUser(authentication);
         PageRequest pageable = PageRequest.of(page, size);
         Page<com.cardealer.model.Message> messagesPage = messageService.getReceivedMessages(user.getId(), pageable);
         model.addAttribute("user", user);
@@ -197,24 +124,9 @@ public class DashboardController {
             @RequestParam(defaultValue = "9") int size,
             Model model,
             Authentication authentication) {
-        // TEMPORARY: For development without authentication
-        if (authentication == null) {
-            log.info("Loading favorites without authentication (development mode)");
-            PageRequest pageable = PageRequest.of(page, size);
-            Page<com.cardealer.model.Favorite> favoriteCarsPage = favoriteService.getUserFavorites(1L, pageable);
-            model.addAttribute("favoriteCarsPage", favoriteCarsPage);
-            model.addAttribute("favoriteCars", favoriteCarsPage.map(com.cardealer.model.Favorite::getCar).getContent());
-            model.addAttribute("currentPage", page);
-            model.addAttribute("totalPages", favoriteCarsPage.getTotalPages());
-            return "profile-favorite";
-        }
-        
         log.info("Loading favorites for user: {}", authentication.getName());
-        
-        // Get authenticated user
-        String email = authentication.getName();
-        User user = userService.getUserByEmail(email);
-        
+
+        User user = getAuthenticatedUser(authentication);
         model.addAttribute("user", user);
         PageRequest pageable = PageRequest.of(page, size);
         Page<com.cardealer.model.Favorite> favoriteCarsPage = favoriteService.getUserFavorites(user.getId(), pageable);
@@ -231,28 +143,9 @@ public class DashboardController {
      */
     @GetMapping("/listings/add")
     public String addListingForm(Model model, Authentication authentication) {
-        // TEMPORARY: For development without authentication
-        if (authentication == null) {
-            log.info("Loading add listing form without authentication (development mode)");
-            model.addAttribute("carDTO", new CarDTO());
-            addEnumsToModel(model);
-            return "add-listing";
-        }
-        
         log.info("Loading add listing form for user: {}", authentication.getName());
-        
-        // Get authenticated user
-        String email = authentication.getName();
-        User user = userService.getUserByEmail(email);
-        
-        // Get dealer associated with user
-        Dealer dealer = dealerService.getDealerByUserId(user.getId());
-        
-        if (dealer == null) {
-            log.error("No dealer found for user: {}", email);
-            return "redirect:/";
-        }
-        
+
+        Dealer dealer = getAuthenticatedDealer(authentication);
         model.addAttribute("carDTO", new CarDTO());
         model.addAttribute("dealer", dealer);
         addEnumsToModel(model);
@@ -271,24 +164,7 @@ public class DashboardController {
             Authentication authentication,
             Model model,
             RedirectAttributes redirectAttributes) {
-        
-        // TEMPORARY: For development without authentication, use first dealer
-        Long dealerId;
-        if (authentication == null) {
-            log.info("Adding listing without authentication (development mode)");
-            dealerId = 1L;
-        } else {
-            String email = authentication.getName();
-            User user = userService.getUserByEmail(email);
-            Dealer dealer = dealerService.getDealerByUserId(user.getId());
-            
-            if (dealer == null) {
-                log.error("No dealer found for user: {}", email);
-                redirectAttributes.addFlashAttribute("error", "No se encontró el concesionario asociado");
-                return "redirect:/dashboard";
-            }
-            dealerId = dealer.getId();
-        }
+        Long dealerId = getAuthenticatedDealer(authentication).getId();
         
         // Validate form
         if (bindingResult.hasErrors()) {
@@ -327,23 +203,7 @@ public class DashboardController {
      */
     @GetMapping("/listings/edit/{id}")
     public String editListingForm(@PathVariable Long id, Model model, Authentication authentication, RedirectAttributes redirectAttributes) {
-        // TEMPORARY: For development without authentication, use first dealer
-        Long dealerId;
-        if (authentication == null) {
-            log.info("Loading edit listing form without authentication (development mode)");
-            dealerId = 1L;
-        } else {
-            String email = authentication.getName();
-            User user = userService.getUserByEmail(email);
-            Dealer dealer = dealerService.getDealerByUserId(user.getId());
-            
-            if (dealer == null) {
-                log.error("No dealer found for user: {}", email);
-                redirectAttributes.addFlashAttribute("error", "No se encontró el concesionario asociado");
-                return "redirect:/dashboard";
-            }
-            dealerId = dealer.getId();
-        }
+        Long dealerId = getAuthenticatedDealer(authentication).getId();
         
         try {
             // Get car
@@ -386,24 +246,7 @@ public class DashboardController {
             Authentication authentication,
             Model model,
             RedirectAttributes redirectAttributes) {
-        
-        // TEMPORARY: For development without authentication, use first dealer
-        Long dealerId;
-        if (authentication == null) {
-            log.info("Editing listing without authentication (development mode)");
-            dealerId = 1L;
-        } else {
-            String email = authentication.getName();
-            User user = userService.getUserByEmail(email);
-            Dealer dealer = dealerService.getDealerByUserId(user.getId());
-            
-            if (dealer == null) {
-                log.error("No dealer found for user: {}", email);
-                redirectAttributes.addFlashAttribute("error", "No se encontró el concesionario asociado");
-                return "redirect:/dashboard";
-            }
-            dealerId = dealer.getId();
-        }
+        Long dealerId = getAuthenticatedDealer(authentication).getId();
         
         // Validate form
         if (bindingResult.hasErrors()) {
@@ -448,23 +291,7 @@ public class DashboardController {
      */
     @PostMapping("/listings/delete/{id}")
     public String deleteListing(@PathVariable Long id, Authentication authentication, RedirectAttributes redirectAttributes) {
-        // TEMPORARY: For development without authentication, use first dealer
-        Long dealerId;
-        if (authentication == null) {
-            log.info("Deleting listing without authentication (development mode)");
-            dealerId = 1L;
-        } else {
-            String email = authentication.getName();
-            User user = userService.getUserByEmail(email);
-            Dealer dealer = dealerService.getDealerByUserId(user.getId());
-            
-            if (dealer == null) {
-                log.error("No dealer found for user: {}", email);
-                redirectAttributes.addFlashAttribute("error", "No se encontró el concesionario asociado");
-                return "redirect:/dashboard";
-            }
-            dealerId = dealer.getId();
-        }
+        Long dealerId = getAuthenticatedDealer(authentication).getId();
         
         try {
             carService.deleteCar(id, dealerId);
@@ -482,20 +309,7 @@ public class DashboardController {
 
     @PostMapping("/listings/reactivate/{id}")
     public String reactivateListing(@PathVariable Long id, Authentication authentication, RedirectAttributes redirectAttributes) {
-        Long dealerId;
-        if (authentication == null) {
-            dealerId = 1L;
-        } else {
-            String email = authentication.getName();
-            User user = userService.getUserByEmail(email);
-            Dealer dealer = dealerService.getDealerByUserId(user.getId());
-
-            if (dealer == null) {
-                redirectAttributes.addFlashAttribute("error", "No se encontró el concesionario asociado");
-                return "redirect:/dashboard";
-            }
-            dealerId = dealer.getId();
-        }
+        Long dealerId = getAuthenticatedDealer(authentication).getId();
 
         try {
             carService.reactivateCar(id, dealerId);
@@ -509,6 +323,19 @@ public class DashboardController {
     }
 
     // Helper methods
+
+    private User getAuthenticatedUser(Authentication authentication) {
+        return userService.getUserByEmail(authentication.getName());
+    }
+
+    private Dealer getAuthenticatedDealer(Authentication authentication) {
+        User user = getAuthenticatedUser(authentication);
+        Dealer dealer = dealerService.getDealerByUserId(user.getId());
+        if (dealer == null) {
+            throw new IllegalStateException("No se encontró el concesionario asociado");
+        }
+        return dealer;
+    }
 
     /**
      * Add enums to model for dropdowns

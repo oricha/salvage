@@ -9,49 +9,48 @@
                 <div class="col-md-6 col-lg-3">
                     <div class="footer-widget-box about-us">
                         <a th:href="@{/}" class="footer-logo"><img src="/img/logo/logo-light.png" alt=""></a>
-                        <p class="mb-3">European marketplace for damaged and salvage vehicles from professional sellers only.</p>
+                        <p class="mb-3" th:text="#{footer.marketDescription}">European marketplace for damaged and salvage vehicles from professional sellers only.</p>
                         <ul class="footer-list">
-                            <li><a th:href="@{/about}"><i class="fas fa-caret-right"></i> General terms and conditions</a></li>
-                            <li><a th:href="@{/about}"><i class="fas fa-caret-right"></i> Disclaimer</a></li>
-                            <li><a th:href="@{/about}"><i class="fas fa-caret-right"></i> Privacy statement</a></li>
+                            <li><a th:href="@{/about}"><i class="fas fa-caret-right"></i> <span th:text="#{secondary.about}">Acerca de schadeautos.nl</span></a></li>
+                            <li><a th:href="@{/terms}"><i class="fas fa-caret-right"></i> <span th:text="#{secondary.terms}">Términos y condiciones</span></a></li>
+                            <li><a th:href="@{/disclaimer}"><i class="fas fa-caret-right"></i> <span th:text="#{secondary.disclaimer}">Descargo de responsabilidad</span></a></li>
+                            <li><a th:href="@{/privacy}"><i class="fas fa-caret-right"></i> <span th:text="#{secondary.privacy}">Declaración de privacidad</span></a></li>
                         </ul>
                     </div>
                 </div>
                 <div class="col-md-6 col-lg-3">
                     <div class="footer-widget-box list">
-                        <h4 class="footer-widget-title">Services</h4>
+                        <h4 class="footer-widget-title" th:text="#{footer.primaryNavigation}">Navegación principal</h4>
                         <ul class="footer-list">
-                            <li><a th:href="@{/cars/damaged}"><i class="fas fa-caret-right"></i> Damaged cars</a></li>
-                            <li><a th:href="@{/cars/salvage}"><i class="fas fa-caret-right"></i> Salvage cars</a></li>
-                            <li><a th:href="@{/coming-soon(feature='used-parts')}"><i class="fas fa-caret-right"></i> Used car parts</a></li>
-                            <li><a th:href="@{/coming-soon(feature='occasion-vehicles')}"><i class="fas fa-caret-right"></i> Occasion passenger cars</a></li>
+                            <li><a th:href="@{/}"><i class="fas fa-caret-right"></i> <span th:text="#{nav.home}">Inicio</span></a></li>
+                            <li><a th:href="@{/cars/damaged}"><i class="fas fa-caret-right"></i> <span th:text="#{nav.damagedCars}">Coches accidentados</span></a></li>
+                            <li><a th:href="@{/cars/salvage}"><i class="fas fa-caret-right"></i> <span th:text="#{nav.salvageCars}">Coches siniestrados</span></a></li>
+                            <li><a th:href="@{/cars(categories='PASSENGER_CAR',conditions='OCASION')}"><i class="fas fa-caret-right"></i> <span th:text="#{nav.occasionPassengerCars}">Ocasión turismos</span></a></li>
+                            <li><a th:href="@{/dealers}"><i class="fas fa-caret-right"></i> <span th:text="#{nav.agents}">Agentes</span></a></li>
                         </ul>
                     </div>
                 </div>
                 <div class="col-md-6 col-lg-3">
                     <div class="footer-widget-box list">
-                        <h4 class="footer-widget-title">Information</h4>
+                        <h4 class="footer-widget-title" th:text="#{footer.secondaryNavigation}">Navegación secundaria</h4>
                         <ul class="footer-list">
-                            <li><a href="#"><i class="fas fa-caret-right"></i> Parking</a></li>
-                            <li><a href="#"><i class="fas fa-caret-right"></i> Quality codes</a></li>
-                            <li><a href="#"><i class="fas fa-caret-right"></i> Parts order status</a></li>
-                            <li><a th:href="@{/contact}"><i class="fas fa-caret-right"></i> Contact</a></li>
-                            <li><a th:href="@{/login}"><i class="fas fa-caret-right"></i> Dealer login</a></li>
-                            <li><a href="#"><i class="fas fa-caret-right"></i> FAQ dealers</a></li>
-                            <li><a href="#"><i class="fas fa-caret-right"></i> FAQ customers</a></li>
-                            <li><a th:href="@{/contact}"><i class="fas fa-caret-right"></i> Customer service</a></li>
+                            <li><a th:href="@{/contact}"><i class="fas fa-caret-right"></i> <span th:text="#{secondary.contact}">Contacto</span></a></li>
+                            <li><a th:href="@{/login}"><i class="fas fa-caret-right"></i> <span th:text="#{secondary.agentAccess}">Acceso agente</span></a></li>
+                            <li><a th:href="@{/faq}"><i class="fas fa-caret-right"></i> <span th:text="#{secondary.faq}">Preguntas frecuentes</span></a></li>
+                            <li><a th:href="@{/parts-order-status}"><i class="fas fa-caret-right"></i> <span th:text="#{secondary.partsOrderStatus}">Estado del pedido de piezas</span></a></li>
+                            <li><a th:href="@{/quality-codes}"><i class="fas fa-caret-right"></i> <span th:text="#{secondary.qualityCodes}">Códigos de calidad</span></a></li>
                         </ul>
                     </div>
                 </div>
                 <div class="col-md-6 col-lg-3">
                     <div class="footer-widget-box list">
-                        <h4 class="footer-widget-title">Updates</h4>
-                        <p class="mb-3 text-white">Receive alerts for fresh salvage arrivals, dealer stock updates and export-ready lots.</p>
-                        <div class="subscribe-form">
-                            <form action="#" method="post">
-                                <input type="email" class="form-control" placeholder="Your email" required>
-                                <button class="theme-btn" type="submit">Subscribe <i class="far fa-paper-plane"></i></button>
-                            </form>
+                        <h4 class="footer-widget-title" th:text="#{footer.supportTitle}">Soporte</h4>
+                        <p class="mb-3 text-white" th:text="#{footer.supportDescription}">Necesitas ayuda con una operación, una página legal o el acceso de agentes. Nuestro equipo puede orientarte.</p>
+                        <div class="nav-right-btn mt-2">
+                            <a th:href="@{/contact}" class="theme-btn">
+                                <span class="far fa-paper-plane"></span>
+                                <span th:text="#{footer.supportCta}">Contactar con soporte</span>
+                            </a>
                         </div>
                     </div>
                 </div>

@@ -11,7 +11,10 @@ import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
 public class CarSpecification {
 
@@ -25,6 +28,16 @@ public class CarSpecification {
             // Filter by brands
             if (filters.getBrands() != null && !filters.getBrands().isEmpty()) {
                 predicates.add(root.get("make").in(filters.getBrands()));
+            }
+
+            if (filters.getModel() != null
+                    && !filters.getModel().isBlank()
+                    && filters.getBrands() != null
+                    && !filters.getBrands().isEmpty()) {
+                predicates.add(criteriaBuilder.equal(
+                    criteriaBuilder.lower(root.get("model")),
+                    filters.getModel().toLowerCase(Locale.ROOT)
+                ));
             }
 
             // Filter by price range
@@ -45,23 +58,15 @@ public class CarSpecification {
             }
 
             // Filter by transmission
-            if (filters.getTransmission() != null && !filters.getTransmission().isEmpty()) {
-                try {
-                    TransmissionType transmission = TransmissionType.valueOf(filters.getTransmission().toUpperCase());
-                    predicates.add(criteriaBuilder.equal(root.get("transmission"), transmission));
-                } catch (IllegalArgumentException e) {
-                    // Invalid transmission type, ignore filter
-                }
+            Set<TransmissionType> transmissions = resolveTransmissions(filters);
+            if (!transmissions.isEmpty()) {
+                predicates.add(root.get("transmission").in(transmissions));
             }
 
             // Filter by fuel type
-            if (filters.getFuelType() != null && !filters.getFuelType().isEmpty()) {
-                try {
-                    FuelType fuelType = FuelType.valueOf(filters.getFuelType().toUpperCase());
-                    predicates.add(criteriaBuilder.equal(root.get("fuelType"), fuelType));
-                } catch (IllegalArgumentException e) {
-                    // Invalid fuel type, ignore filter
-                }
+            Set<FuelType> fuelTypes = resolveFuelTypes(filters);
+            if (!fuelTypes.isEmpty()) {
+                predicates.add(root.get("fuelType").in(fuelTypes));
             }
 
             // Filter by body type
@@ -104,7 +109,8 @@ public class CarSpecification {
             String queryText = filters.getSearchQuery() != null && !filters.getSearchQuery().isEmpty()
                 ? filters.getSearchQuery()
                 : filters.getSearchText();
-            if (queryText != null && !queryText.isEmpty()) {
+            if ((filters.getModel() == null || filters.getModel().isBlank())
+                    && queryText != null && !queryText.isEmpty()) {
                 String searchPattern = "%" + queryText.toLowerCase() + "%";
                 Predicate brandMatch = criteriaBuilder.like(
                     criteriaBuilder.lower(root.get("make")), searchPattern);
@@ -129,5 +135,43 @@ public class CarSpecification {
 
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
+    }
+
+    private static Set<TransmissionType> resolveTransmissions(CarFilterDTO filters) {
+        Set<TransmissionType> transmissions = new LinkedHashSet<>();
+        if (filters.getTransmissions() != null) {
+            filters.getTransmissions().forEach(value -> addTransmission(transmissions, value));
+        }
+        addTransmission(transmissions, filters.getTransmission());
+        return transmissions;
+    }
+
+    private static void addTransmission(Set<TransmissionType> transmissions, String value) {
+        if (value == null || value.isBlank()) {
+            return;
+        }
+        try {
+            transmissions.add(TransmissionType.valueOf(value.toUpperCase(Locale.ROOT)));
+        } catch (IllegalArgumentException ignored) {
+        }
+    }
+
+    private static Set<FuelType> resolveFuelTypes(CarFilterDTO filters) {
+        Set<FuelType> fuelTypes = new LinkedHashSet<>();
+        if (filters.getFuelTypes() != null) {
+            filters.getFuelTypes().forEach(value -> addFuelType(fuelTypes, value));
+        }
+        addFuelType(fuelTypes, filters.getFuelType());
+        return fuelTypes;
+    }
+
+    private static void addFuelType(Set<FuelType> fuelTypes, String value) {
+        if (value == null || value.isBlank()) {
+            return;
+        }
+        try {
+            fuelTypes.add(FuelType.valueOf(value.toUpperCase(Locale.ROOT)));
+        } catch (IllegalArgumentException ignored) {
+        }
     }
 }

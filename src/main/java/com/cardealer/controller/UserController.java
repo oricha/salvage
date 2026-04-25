@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -31,7 +32,12 @@ public class UserController {
      * Show login page
      */
     @GetMapping("/login")
-    public String loginPage() {
+    public String loginPage(Authentication authentication) {
+        if (authentication != null
+                && authentication.isAuthenticated()
+                && !"anonymousUser".equals(authentication.getName())) {
+            return redirectForAuthenticatedUser(authentication);
+        }
         return "login";
     }
 
@@ -121,6 +127,24 @@ public class UserController {
     @GetMapping("/forgot-password")
     public String forgotPassword() {
         return "forgot-password";
+    }
+
+    private String redirectForAuthenticatedUser(Authentication authentication) {
+        boolean isSeller = authentication.getAuthorities().stream()
+            .map(GrantedAuthority::getAuthority)
+            .anyMatch("ROLE_VENDEDOR"::equals);
+        if (isSeller) {
+            return "redirect:/dashboard";
+        }
+
+        boolean isAdmin = authentication.getAuthorities().stream()
+            .map(GrantedAuthority::getAuthority)
+            .anyMatch("ROLE_ADMIN"::equals);
+        if (isAdmin) {
+            return "redirect:/admin";
+        }
+
+        return "redirect:/profile";
     }
 
     /**

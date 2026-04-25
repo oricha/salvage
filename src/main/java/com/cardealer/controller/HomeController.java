@@ -9,6 +9,7 @@ import com.cardealer.service.CarService;
 import com.cardealer.service.DealerService;
 import com.cardealer.service.SEOService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,6 +31,7 @@ public class HomeController {
     private final CarService carService;
     private final DealerService dealerService;
     private final SEOService seoService;
+    private final MessageSource messageSource;
 
     @GetMapping("/")
     public String home(Model model, Locale locale) {
@@ -113,6 +115,84 @@ public class HomeController {
         model.addAttribute("pageKeywords", "contacto, soporte coches, ayuda portal");
         model.addAttribute("ogTitle", "Contacto");
         return "contact";
+    }
+
+    @GetMapping("/terms")
+    public String terms(Model model, Locale locale) {
+        return renderInfoPage(
+            model,
+            locale,
+            "info.terms.title",
+            "info.terms.subtitle",
+            "info.terms.lead",
+            List.of("info.terms.point1", "info.terms.point2", "info.terms.point3"),
+            "/terms"
+        );
+    }
+
+    @GetMapping("/disclaimer")
+    public String disclaimer(Model model, Locale locale) {
+        return renderInfoPage(
+            model,
+            locale,
+            "info.disclaimer.title",
+            "info.disclaimer.subtitle",
+            "info.disclaimer.lead",
+            List.of("info.disclaimer.point1", "info.disclaimer.point2", "info.disclaimer.point3"),
+            "/disclaimer"
+        );
+    }
+
+    @GetMapping("/privacy")
+    public String privacy(Model model, Locale locale) {
+        return renderInfoPage(
+            model,
+            locale,
+            "info.privacy.title",
+            "info.privacy.subtitle",
+            "info.privacy.lead",
+            List.of("info.privacy.point1", "info.privacy.point2", "info.privacy.point3"),
+            "/privacy"
+        );
+    }
+
+    @GetMapping("/faq")
+    public String faq(Model model, Locale locale) {
+        return renderInfoPage(
+            model,
+            locale,
+            "info.faq.title",
+            "info.faq.subtitle",
+            "info.faq.lead",
+            List.of("info.faq.point1", "info.faq.point2", "info.faq.point3"),
+            "/faq"
+        );
+    }
+
+    @GetMapping("/parts-order-status")
+    public String partsOrderStatus(Model model, Locale locale) {
+        return renderInfoPage(
+            model,
+            locale,
+            "info.partsOrderStatus.title",
+            "info.partsOrderStatus.subtitle",
+            "info.partsOrderStatus.lead",
+            List.of("info.partsOrderStatus.point1", "info.partsOrderStatus.point2", "info.partsOrderStatus.point3"),
+            "/parts-order-status"
+        );
+    }
+
+    @GetMapping("/quality-codes")
+    public String qualityCodes(Model model, Locale locale) {
+        return renderInfoPage(
+            model,
+            locale,
+            "info.qualityCodes.title",
+            "info.qualityCodes.subtitle",
+            "info.qualityCodes.lead",
+            List.of("info.qualityCodes.point1", "info.qualityCodes.point2", "info.qualityCodes.point3"),
+            "/quality-codes"
+        );
     }
 
     @GetMapping("/coming-soon")
@@ -209,5 +289,29 @@ public class HomeController {
         });
         grouped.values().forEach(list -> list.sort(Comparator.naturalOrder()));
         return grouped;
+    }
+
+    private String renderInfoPage(Model model,
+                                  Locale locale,
+                                  String titleKey,
+                                  String subtitleKey,
+                                  String leadKey,
+                                  List<String> pointKeys,
+                                  String path) {
+        Locale effectiveLocale = locale != null ? locale : Locale.forLanguageTag("es");
+        String resolvedTitle = messageSource.getMessage(titleKey, null, effectiveLocale);
+        String resolvedLead = messageSource.getMessage(leadKey, null, effectiveLocale);
+        model.addAttribute("titleKey", titleKey);
+        model.addAttribute("subtitleKey", subtitleKey);
+        model.addAttribute("leadKey", leadKey);
+        model.addAttribute("pointKeys", pointKeys);
+        model.addAttribute("pageDescription", resolvedLead);
+        model.addAttribute("pageKeywords", "navigation, information, legal, support");
+        model.addAttribute("ogTitle", resolvedTitle);
+        model.addAllAttributes(seoService.toModelAttributes(
+            seoService.generatePageMetadata(path.substring(1), effectiveLocale),
+            path
+        ));
+        return "info-page";
     }
 }

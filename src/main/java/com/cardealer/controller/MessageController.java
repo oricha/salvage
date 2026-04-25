@@ -8,6 +8,8 @@ import com.cardealer.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -25,6 +27,29 @@ public class MessageController {
 
     private final MessageService messageService;
     private final UserService userService;
+
+    @GetMapping
+    public String listMessages(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            Model model,
+            Authentication authentication) {
+
+        log.info("Loading messages for user: {}", authentication.getName());
+
+        User user = userService.getUserByEmail(authentication.getName());
+        PageRequest pageable = PageRequest.of(page, size);
+        Page<Message> messagesPage = messageService.getReceivedMessages(user.getId(), pageable);
+
+        model.addAttribute("user", user);
+        model.addAttribute("messagesPage", messagesPage);
+        model.addAttribute("messages", messagesPage.getContent());
+        model.addAttribute("unreadCount", messageService.getUnreadCount(user.getId()));
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", messagesPage.getTotalPages());
+
+        return "profile-message";
+    }
 
     /**
      * Send a message

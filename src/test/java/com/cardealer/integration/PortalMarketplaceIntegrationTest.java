@@ -11,7 +11,9 @@ import com.cardealer.controller.HomeController;
 import com.cardealer.dto.CarFilterDTO;
 import com.cardealer.model.Car;
 import com.cardealer.model.Dealer;
+import com.cardealer.model.User;
 import com.cardealer.model.enums.CarCondition;
+import com.cardealer.model.enums.UserRole;
 import com.cardealer.model.enums.VehicleCategory;
 import com.cardealer.service.CarService;
 import com.cardealer.service.CommentService;
@@ -36,6 +38,8 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
 
@@ -45,6 +49,8 @@ import java.util.Locale;
 import java.util.Map;
 
 import static org.hamcrest.Matchers.hasKey;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -56,11 +62,13 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 @WebMvcTest(controllers = {DashboardController.class, HomeController.class, CarController.class, ContactController.class})
 @AutoConfigureMockMvc(addFilters = false)
 @Import({GlobalModelAttributesController.class, LocaleConfig.class, LocaleInterceptor.class, WebConfig.class})
 class PortalMarketplaceIntegrationTest {
+
+    private static final String SELLER_EMAIL = "seller@example.com";
 
     @Autowired
     private MockMvc mockMvc;
@@ -119,6 +127,8 @@ class PortalMarketplaceIntegrationTest {
             PageRequest.of(0, 12),
             1
         ));
+        when(userService.getUserByEmail(SELLER_EMAIL)).thenReturn(sampleUser(1L, SELLER_EMAIL, UserRole.VENDEDOR));
+        when(dealerService.getDealerByUserId(1L)).thenReturn(sampleDealer(1L, SELLER_EMAIL));
     }
 
     @Test
@@ -139,7 +149,11 @@ class PortalMarketplaceIntegrationTest {
             builder.file(new MockMultipartFile("imageFiles", "image-" + i + ".jpg", "image/jpeg", ("image-" + i).getBytes()));
         }
 
-        mockMvc.perform(builder)
+        mockMvc.perform(builder.principal(new UsernamePasswordAuthenticationToken(
+                SELLER_EMAIL,
+                "password",
+                List.of(new SimpleGrantedAuthority("ROLE_VENDEDOR"))
+            )))
             .andExpect(status().is3xxRedirection())
             .andExpect(redirectedUrl("/dashboard/listings"));
 
@@ -187,12 +201,70 @@ class PortalMarketplaceIntegrationTest {
         assertTrue(filters.getCategories().contains(VehicleCategory.DAMAGED));
     }
 
+    @Test
+    void advancedSearchBindsBrandModelYearFuelAndTransmission() throws Exception {
+        mockMvc.perform(get("/cars")
+                .param("brands", "Audi")
+                .param("model", "A3")
+                .param("yearFrom", "1936")
+                .param("yearTo", "2026")
+                .param("fuelTypes", "GASOLINA", "ELECTRICO")
+                .param("transmissions", "MANUAL", "AUTOMATICO"))
+            .andExpect(status().isOk());
+
+        ArgumentCaptor<CarFilterDTO> captor = ArgumentCaptor.forClass(CarFilterDTO.class);
+        verify(carService, times(1)).findCarsWithFilters(captor.capture(), any());
+        CarFilterDTO filters = captor.getValue();
+        assertEquals(List.of("Audi"), filters.getBrands());
+        assertEquals("A3", filters.getModel());
+        assertEquals(1936, filters.getYearFrom());
+        assertEquals(2026, filters.getYearTo());
+        assertEquals(List.of("GASOLINA", "ELECTRICO"), filters.getFuelTypes());
+        assertEquals(List.of("MANUAL", "AUTOMATICO"), filters.getTransmissions());
+    }
+
+    @Test
+    void invalidModelForSelectedBrandIsIgnored() throws Exception {
+        mockMvc.perform(get("/cars")
+                .param("brands", "Audi")
+                .param("model", "Corolla"))
+            .andExpect(status().isOk());
+
+        ArgumentCaptor<CarFilterDTO> captor = ArgumentCaptor.forClass(CarFilterDTO.class);
+        verify(carService, times(1)).findCarsWithFilters(captor.capture(), any());
+        CarFilterDTO filters = captor.getValue();
+        assertEquals(List.of("Audi"), filters.getBrands());
+        assertEquals(null, filters.getModel());
+    }
+
+    @Test
+    void mainAndSecondaryNavigationExposeApprovedRoutes() throws Exception {
+        mockMvc.perform(get("/terms"))
+            .andExpect(status().isOk())
+            .andExpect(content().string(containsString("href=\"/cars/damaged\"")))
+            .andExpect(content().string(containsString("href=\"/cars/salvage\"")))
+            .andExpect(content().string(containsString("href=\"/cars?categories=PASSENGER_CAR&amp;conditions=OCASION\"")))
+            .andExpect(content().string(containsString("href=\"/dealers\"")))
+            .andExpect(content().string(containsString("href=\"/terms\"")))
+            .andExpect(content().string(containsString("href=\"/disclaimer\"")))
+            .andExpect(content().string(containsString("href=\"/privacy\"")))
+            .andExpect(content().string(containsString("href=\"/faq\"")))
+            .andExpect(content().string(containsString("href=\"/parts-order-status\"")))
+            .andExpect(content().string(containsString("href=\"/quality-codes\"")))
+            .andExpect(content().string(not(containsString("href=\"/coming-soon?feature=used-parts\""))));
+    }
+
+    @Test
+    void legalAndSupportPagesArePubliclyReachable() throws Exception {
+        mockMvc.perform(get("/disclaimer")).andExpect(status().isOk());
+        mockMvc.perform(get("/privacy")).andExpect(status().isOk());
+        mockMvc.perform(get("/faq")).andExpect(status().isOk());
+        mockMvc.perform(get("/parts-order-status")).andExpect(status().isOk());
+        mockMvc.perform(get("/quality-codes")).andExpect(status().isOk());
+    }
+
     private Car sampleCar(Long id, VehicleCategory category, CarCondition condition) {
-        Dealer dealer = new Dealer();
-        dealer.setId(3L);
-        dealer.setName("Dealer");
-        dealer.setEmail("dealer@example.com");
-        dealer.setPhone("+34123456789");
+        Dealer dealer = sampleDealer(3L, "dealer@example.com");
 
         Car car = new Car();
         car.setId(id);
@@ -208,5 +280,25 @@ class PortalMarketplaceIntegrationTest {
         car.setImages(List.of("car-" + id + ".jpg"));
         car.setDealer(dealer);
         return car;
+    }
+
+    private Dealer sampleDealer(Long id, String email) {
+        Dealer dealer = new Dealer();
+        dealer.setId(id);
+        dealer.setName("Dealer");
+        dealer.setEmail(email);
+        dealer.setPhone("+34123456789");
+        return dealer;
+    }
+
+    private User sampleUser(Long id, String email, UserRole role) {
+        User user = new User();
+        user.setId(id);
+        user.setName("Test User");
+        user.setEmail(email);
+        user.setPassword("$2a$10$abcdefghijklmnopqrstuv");
+        user.setRole(role);
+        user.setEnabled(true);
+        return user;
     }
 }

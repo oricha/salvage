@@ -17,7 +17,7 @@
         <div class="container">
             <div class="row g-4">
                 <div class="col-lg-4 col-xl-3">
-                    <div th:replace="~{fragments/inventory-sidebar :: sidebar(@{/cars/list}, ${filters}, ${availableBrands}, ${modelsByMake}, ${sidebarFuelOptions}, ${sidebarTransmissionOptions}, ${vehicleTypeOptions}, ${categories})}"></div>
+                    <div th:replace="~{fragments/inventory-sidebar :: sidebar(@{/cars/list}, ${filters}, ${availableBrands}, ${modelsByMake}, ${sidebarFuelOptions}, ${sidebarTransmissionOptions})}"></div>
                 </div>
                 <div class="col-lg-8 col-xl-9">
                     <div class="car-sort mb-4">
