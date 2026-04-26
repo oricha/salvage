@@ -32,6 +32,11 @@ document.addEventListener('DOMContentLoaded', () => {
   updateModelOptions();
   updateRadius();
 
+  if (window.location.hash === '#dealers') {
+    const dealerSection = document.getElementById('dealers');
+    dealerSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
   if (window.jQuery && jQuery.fn.owlCarousel) {
     jQuery('.home-arrivals-carousel').owlCarousel({
       loop: false,

@@ -10,15 +10,21 @@ import com.cardealer.controller.DealerController;
 import com.cardealer.controller.FavoriteController;
 import com.cardealer.controller.GlobalModelAttributesController;
 import com.cardealer.controller.HomeController;
+import com.cardealer.controller.UserController;
+import com.cardealer.dto.CarDTO;
 import com.cardealer.dto.CarFilterDTO;
 import com.cardealer.dto.DealerDirectoryEntry;
 import com.cardealer.model.Car;
 import com.cardealer.model.Dealer;
 import com.cardealer.model.User;
+import com.cardealer.model.enums.BodyType;
 import com.cardealer.model.enums.CarCondition;
+import com.cardealer.model.enums.FuelType;
 import com.cardealer.model.enums.TriStateOption;
+import com.cardealer.model.enums.TransmissionType;
 import com.cardealer.model.enums.UserRole;
 import com.cardealer.model.enums.VehicleCategory;
+import com.cardealer.model.enums.VehicleOrigin;
 import com.cardealer.service.CarService;
 import com.cardealer.service.CommentService;
 import com.cardealer.service.ContactService;
@@ -46,6 +52,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
+import org.springframework.test.context.TestPropertySource;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -67,9 +74,14 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-@WebMvcTest(controllers = {DashboardController.class, HomeController.class, CarController.class, ContactController.class, DealerController.class, FavoriteController.class})
+@WebMvcTest(controllers = {DashboardController.class, HomeController.class, CarController.class, ContactController.class, DealerController.class, FavoriteController.class, UserController.class})
 @AutoConfigureMockMvc(addFilters = false)
 @Import({GlobalModelAttributesController.class, LocaleConfig.class, LocaleInterceptor.class, WebConfig.class})
+@TestPropertySource(properties = {
+    "marketplace.analytics.ga-measurement-id=G-TEST1234",
+    "marketplace.analytics.hotjar-enabled=false",
+    "marketplace.analytics.vwo-enabled=false"
+})
 class PortalMarketplaceIntegrationTest {
 
     private static final String SELLER_EMAIL = "seller@example.com";
@@ -176,6 +188,69 @@ class PortalMarketplaceIntegrationTest {
             .andExpect(redirectedUrl("/dashboard/listings"));
 
         verify(carService, times(1)).createCar(any(), eq(1L));
+    }
+
+    @Test
+    void vehicleListingCreationCapturesStructuredVehicleFields() throws Exception {
+        MockMultipartHttpServletRequestBuilder builder = multipart("/dashboard/listings/add");
+        builder.param("brand", "Audi");
+        builder.param("model", "A3");
+        builder.param("variant", "S line");
+        builder.param("year", "2024");
+        builder.param("price", "28500");
+        builder.param("exportPrice", "26400");
+        builder.param("mileage", "18000");
+        builder.param("fuelType", "GASOLINA");
+        builder.param("transmission", "AUTOMATICO");
+        builder.param("condition", "OCASION");
+        builder.param("category", "PASSENGER_CAR");
+        builder.param("bodyType", "HATCHBACK");
+        builder.param("color", "Azul");
+        builder.param("colorCode", "BG1");
+        builder.param("origin", "GERMANY");
+        builder.param("doors", "5");
+        builder.param("engine", "2.0 TFSI");
+        builder.param("powerHp", "190");
+        builder.param("description", "Vehículo con documentación completa y todos los airbags intactos.");
+        builder.param("registrationAvailable", "true");
+        builder.param("awaitingVerification", "true");
+        builder.param("fullInstructionBooklet", "true");
+        builder.param("allKeysAvailable", "true");
+        builder.param("engineDamage", "false");
+        builder.param("lowerDamage", "false");
+        builder.param("drivable", "true");
+        builder.param("movable", "true");
+        builder.param("engineRuns", "true");
+        builder.param("airbagsIntact", "true");
+        builder.param("refinedFuelType", "true");
+        builder.param("locale", "es");
+
+        for (int i = 0; i < 20; i++) {
+            builder.file(new MockMultipartFile("imageFiles", "vehicle-" + i + ".jpg", "image/jpeg", ("image-" + i).getBytes()));
+        }
+
+        mockMvc.perform(builder.principal(new UsernamePasswordAuthenticationToken(
+                SELLER_EMAIL,
+                "password",
+                List.of(new SimpleGrantedAuthority("ROLE_VENDEDOR"))
+            )))
+            .andExpect(status().is3xxRedirection())
+            .andExpect(redirectedUrl("/dashboard/listings"));
+
+        ArgumentCaptor<CarDTO> dtoCaptor = ArgumentCaptor.forClass(CarDTO.class);
+        verify(carService, times(1)).createCar(dtoCaptor.capture(), eq(1L));
+        CarDTO dto = dtoCaptor.getValue();
+        assertEquals("S line", dto.getVariant());
+        assertEquals(BigDecimal.valueOf(26400), dto.getExportPrice());
+        assertEquals("BG1", dto.getColorCode());
+        assertEquals("GERMANY", dto.getOrigin());
+        assertEquals(Integer.valueOf(190), dto.getPowerHp());
+        assertTrue(Boolean.TRUE.equals(dto.getRegistrationAvailable()));
+        assertTrue(Boolean.TRUE.equals(dto.getAwaitingVerification()));
+        assertTrue(Boolean.TRUE.equals(dto.getFullInstructionBooklet()));
+        assertTrue(Boolean.TRUE.equals(dto.getAllKeysAvailable()));
+        assertTrue(Boolean.TRUE.equals(dto.getDrivable()));
+        assertTrue(Boolean.TRUE.equals(dto.getAirbagsIntact()));
     }
 
     @Test
@@ -320,7 +395,7 @@ class PortalMarketplaceIntegrationTest {
                 .param("origins", "INVALID", "JAPAN")
                 .param("nearbyRadiusKm", "13"))
             .andExpect(status().isOk())
-            .andExpect(content().string(containsString("href=\"/cars/list?minPrice=0&amp;maxPrice=0&amp;bodyTypes=SUV&amp;origins=JAPAN\"")));
+            .andExpect(content().string(containsString("href=\"/cars/list?minPrice=0&amp;maxPrice=0&amp;bodyTypes=SUV&amp;origins=JAPAN#extra\"")));
 
         ArgumentCaptor<CarFilterDTO> captor = ArgumentCaptor.forClass(CarFilterDTO.class);
         verify(carService, times(1)).findCarsWithFilters(captor.capture(), any());
@@ -335,6 +410,42 @@ class PortalMarketplaceIntegrationTest {
     }
 
     @Test
+    void technicalAliasParametersAreNormalizedIntoCanonicalFilters() throws Exception {
+        mockMvc.perform(get("/cars")
+                .param("priceFrom", "1200")
+                .param("priceTo", "32000")
+                .param("odoFrom", "15000")
+                .param("odoTo", "180000")
+                .param("origin", "GERMANY", "JAPAN")
+                .param("locationRadius", "50")
+                .param("i_byz.registrationAvailable", "YES")
+                .param("i_opt.fullInstructionBooklet", "NO")
+                .param("i_sch.engineDamage", "YES"))
+            .andExpect(status().isOk());
+
+        ArgumentCaptor<CarFilterDTO> captor = ArgumentCaptor.forClass(CarFilterDTO.class);
+        verify(carService, times(1)).findCarsWithFilters(captor.capture(), any());
+        CarFilterDTO filters = captor.getValue();
+        assertEquals(BigDecimal.valueOf(1200), filters.getMinPrice());
+        assertEquals(BigDecimal.valueOf(32000), filters.getMaxPrice());
+        assertEquals(15000, filters.getMinMileage());
+        assertEquals(180000, filters.getMaxMileage());
+        assertEquals(List.of("GERMANY", "JAPAN"), filters.getOrigins());
+        assertEquals(50, filters.getNearbyRadiusKm());
+        assertEquals(TriStateOption.YES, filters.getRegistrationAvailable());
+        assertEquals(TriStateOption.NO, filters.getFullInstructionBooklet());
+        assertEquals(TriStateOption.YES, filters.getEngineDamage());
+    }
+
+    @Test
+    void advancedFiltersPreserveExtraHashOnGridListSwitch() throws Exception {
+        mockMvc.perform(get("/cars")
+                .param("minPrice", "1000"))
+            .andExpect(status().isOk())
+            .andExpect(content().string(containsString("href=\"/cars/list?minPrice=1000#extra\"")));
+    }
+
+    @Test
     void searchControlsExposeExplicitButtonsAndBrandSelectedState() throws Exception {
         mockMvc.perform(get("/cars")
                 .param("brands", "Audi"))
@@ -345,6 +456,29 @@ class PortalMarketplaceIntegrationTest {
             .andExpect(content().string(containsString("has-selected-brand")))
             .andExpect(content().string(containsString("Selected")))
             .andExpect(content().string(containsString("data-bs-dismiss=\"offcanvas\"")));
+    }
+
+    @Test
+    void pageCharacteristicsExposeStatusValidationAndActiveFilterStates() throws Exception {
+        mockMvc.perform(get("/cars")
+                .param("brands", "Audi")
+                .param("model", "A3")
+                .param("minPrice", "1000")
+                .param("maxPrice", "3000")
+                .param("lang", "es"))
+            .andExpect(status().isOk())
+            .andExpect(content().string(containsString("inventory-filter-status")))
+            .andExpect(content().string(containsString("aria-live=\"polite\"")))
+            .andExpect(content().string(containsString("data-primary-count")))
+            .andExpect(content().string(containsString("data-advanced-count")))
+            .andExpect(content().string(containsString("data-advanced-toggle-count")))
+            .andExpect(content().string(containsString("inventoryYearError")))
+            .andExpect(content().string(containsString("inventoryPriceError")))
+            .andExpect(content().string(containsString("inventoryMileageError")))
+            .andExpect(content().string(containsString("data-year-range-message")))
+            .andExpect(content().string(containsString("data-range-message")))
+            .andExpect(content().string(containsString("has-selected-brand")))
+            .andExpect(content().string(containsString("has-active-selection")));
     }
 
     @Test
@@ -428,9 +562,47 @@ class PortalMarketplaceIntegrationTest {
     }
 
     @Test
+    void contactPageWorksAsSupportHub() throws Exception {
+        mockMvc.perform(get("/contact").param("lang", "es"))
+            .andExpect(status().isOk())
+            .andExpect(content().string(containsString("Estamos disponibles para ayudarte")))
+            .andExpect(content().string(containsString("href=\"/faq\"")))
+            .andExpect(content().string(containsString("href=\"/parts-order-status\"")))
+            .andExpect(content().string(containsString("href=\"/quality-codes\"")))
+            .andExpect(content().string(containsString("href=\"/terms\"")))
+            .andExpect(content().string(containsString("href=\"/disclaimer\"")))
+            .andExpect(content().string(containsString("href=\"/privacy\"")))
+            .andExpect(content().string(containsString("href=\"/login\"")))
+            .andExpect(content().string(containsString("Envíanos tu consulta")));
+    }
+
+    @Test
+    void infoPagesLinkBackToSupportAndAgentAccess() throws Exception {
+        mockMvc.perform(get("/faq").param("lang", "es"))
+            .andExpect(status().isOk())
+            .andExpect(content().string(containsString("¿Necesitas ayuda adicional?")))
+            .andExpect(content().string(containsString("href=\"/contact\"")))
+            .andExpect(content().string(containsString("href=\"/login\"")))
+            .andExpect(content().string(containsString("href=\"/terms\"")))
+            .andExpect(content().string(containsString("href=\"/privacy\"")));
+    }
+
+    @Test
+    void loginPageIsPresentedAsAgentAccessPortal() throws Exception {
+        mockMvc.perform(get("/login").param("lang", "es"))
+            .andExpect(status().isOk())
+            .andExpect(content().string(containsString("Acceso para vendedores y distribuidores")))
+            .andExpect(content().string(containsString("gestionar anuncios")))
+            .andExpect(content().string(containsString("href=\"/contact\"")))
+            .andExpect(content().string(containsString("href=\"/faq\"")))
+            .andExpect(content().string(containsString("name=\"remember-me\"")));
+    }
+
+    @Test
     void homepageExposesSpanishDealerSearchAndDirectoryCount() throws Exception {
         mockMvc.perform(get("/"))
             .andExpect(status().isOk())
+            .andExpect(content().string(containsString("id=\"dealers\"")))
             .andExpect(content().string(containsString("Filtra por empresa o region espanola")))
             .andExpect(content().string(containsString("Atlas Madrid Motex")))
             .andExpect(content().string(containsString("distribuidores disponibles")));
@@ -447,6 +619,18 @@ class PortalMarketplaceIntegrationTest {
             .andExpect(content().string(containsString("Acerca de Schadeautos")))
             .andExpect(content().string(containsString("Visitamos personalmente a las empresas participantes")))
             .andExpect(content().string(containsString(">Leer más<")));
+    }
+
+    @Test
+    void analyticsScriptIsInjectedAndOptimizationToolsStayDisabled() throws Exception {
+        mockMvc.perform(get("/"))
+            .andExpect(status().isOk())
+            .andExpect(content().string(containsString("googletagmanager.com/gtag/js?id=G-TEST1234")))
+            .andExpect(content().string(containsString("gtag('config', \"G-TEST1234\"")))
+            .andExpect(content().string(containsString("name=\"hotjar-status\" content=\"disabled\"")))
+            .andExpect(content().string(containsString("name=\"vwo-status\" content=\"disabled\"")))
+            .andExpect(content().string(not(containsString("hotjar.com"))))
+            .andExpect(content().string(not(containsString("visualwebsiteoptimizer"))));
     }
 
     @Test
@@ -467,6 +651,20 @@ class PortalMarketplaceIntegrationTest {
             .andExpect(content().string(containsString("Motex")))
             .andExpect(content().string(containsString("Madrid")))
             .andExpect(content().string(containsString("Vehículos de este Concesionario")));
+    }
+
+    @Test
+    void vehicleDetailShowsStructuredVehicleData() throws Exception {
+        mockMvc.perform(get("/cars/5"))
+            .andExpect(status().isOk())
+            .andExpect(content().string(containsString("Titanium")))
+            .andExpect(content().string(containsString("Código de color")))
+            .andExpect(content().string(containsString("BG1")))
+            .andExpect(content().string(containsString("Origen")))
+            .andExpect(content().string(containsString("GERMANY")))
+            .andExpect(content().string(containsString("Documentación y opciones")))
+            .andExpect(content().string(containsString("Estado del vehículo")))
+            .andExpect(content().string(containsString("Precio exportación")));
     }
 
     @Test
@@ -498,6 +696,24 @@ class PortalMarketplaceIntegrationTest {
         car.setExportPrice(BigDecimal.valueOf(16100));
         car.setMileage(45000);
         car.setColor("Blue");
+        car.setColorCode("BG1");
+        car.setOrigin(VehicleOrigin.GERMANY);
+        car.setFuelType(FuelType.GASOLINA);
+        car.setTransmission(TransmissionType.AUTOMATICO);
+        car.setBodyType(BodyType.HATCHBACK);
+        car.setRegistrationAvailable(true);
+        car.setAwaitingVerification(false);
+        car.setFullInstructionBooklet(true);
+        car.setAllKeysAvailable(true);
+        car.setEngineDamage(false);
+        car.setLowerDamage(false);
+        car.setDrivable(true);
+        car.setMovable(true);
+        car.setEngineRuns(true);
+        car.setAirbagsIntact(true);
+        car.setRefinedFuelType(true);
+        car.setDoors(5);
+        car.setEngine("2.0 TFSI");
         car.setPowerHp(150);
         car.setCategory(category);
         car.setCondition(condition);

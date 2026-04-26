@@ -9,26 +9,25 @@
     <main class="main">
         <div class="site-breadcrumb" style="background: url(/img/breadcrumb/01.jpg)">
             <div class="container">
-                <h2 class="breadcrumb-title">Contacto</h2>
+                <h2 class="breadcrumb-title" th:text="#{secondary.contact}">Contacto</h2>
                 <ul class="breadcrumb-menu">
-                    <li><a th:href="@{/}">Inicio</a></li>
-                    <li class="active">Contacto</li>
+                    <li><a th:href="@{/}" th:text="#{nav.home}">Inicio</a></li>
+                    <li class="active" th:text="#{secondary.contact}">Contacto</li>
                 </ul>
             </div>
         </div>
 
-        <div class="contact-area py-120">
+        <section class="contact-area py-120">
             <div class="container">
-                <div class="row">
+                <div class="row g-4 align-items-start">
                     <div class="col-lg-5">
                         <div class="contact-content">
                             <div class="site-heading mb-3">
-                                <span class="site-title-tagline">Escríbenos</span>
-                                <h2 class="site-title">Estamos disponibles para ayudarte</h2>
+                                <span class="site-title-tagline" th:text="#{contact.support.tagline}">Soporte marketplace</span>
+                                <h1 class="site-title" th:text="#{contact.support.title}">Estamos disponibles para ayudarte</h1>
                             </div>
-                            <p class="contact-text">
-                                Si tienes preguntas sobre vehículos, vendedores o el funcionamiento del portal, utiliza
-                                este formulario. Respondemos lo antes posible.
+                            <p class="contact-text" th:text="#{contact.support.description}">
+                                Resolvemos dudas sobre vehículos, distribuidores, acceso agente, documentación legal y seguimiento de consultas.
                             </p>
                             <div class="contact-info mt-4">
                                 <div class="contact-info-single">
@@ -45,7 +44,77 @@
                                         <p>+34 912 345 678</p>
                                     </div>
                                 </div>
+                                <div class="contact-info-single">
+                                    <div class="contact-info-icon"><i class="far fa-clock"></i></div>
+                                    <div class="contact-info-content">
+                                        <h5 th:text="#{common.businessHours}">Lun - Vie (09:00 - 20:00)</h5>
+                                        <p th:text="#{contact.support.responseTime}">Respondemos en horario laboral y revisamos cada consulta manualmente.</p>
+                                    </div>
+                                </div>
                             </div>
+                        </div>
+
+                        <div class="mt-5">
+                            <div class="site-heading mb-3">
+                                <span class="site-title-tagline" th:text="#{contact.support.linksTagline}">Ayuda rápida</span>
+                                <h2 class="site-title fs-3" th:text="#{contact.support.linksTitle}">Antes de escribirnos</h2>
+                            </div>
+                            <p class="mb-3" th:text="#{contact.support.linksLead}">
+                                Algunas consultas ya tienen una ruta específica dentro del portal.
+                            </p>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <a class="feature-item rounded-3 h-100 d-block" th:href="@{/faq}">
+                                        <span class="feature-item-icon"><i class="far fa-circle-question"></i></span>
+                                        <div class="feature-item-info">
+                                            <h5 th:text="#{secondary.faq}">Preguntas frecuentes</h5>
+                                            <p class="mb-0" th:text="#{contact.support.faqLead}">Resuelve dudas generales del marketplace.</p>
+                                        </div>
+                                    </a>
+                                </div>
+                                <div class="col-md-6">
+                                    <a class="feature-item rounded-3 h-100 d-block" th:href="@{/parts-order-status}">
+                                        <span class="feature-item-icon"><i class="far fa-truck-fast"></i></span>
+                                        <div class="feature-item-info">
+                                            <h5 th:text="#{secondary.partsOrderStatus}">Estado del pedido de piezas</h5>
+                                            <p class="mb-0" th:text="#{contact.support.partsLead}">Consulta cómo escalar seguimiento y referencias.</p>
+                                        </div>
+                                    </a>
+                                </div>
+                                <div class="col-md-6">
+                                    <a class="feature-item rounded-3 h-100 d-block" th:href="@{/quality-codes}">
+                                        <span class="feature-item-icon"><i class="far fa-badge-check"></i></span>
+                                        <div class="feature-item-info">
+                                            <h5 th:text="#{secondary.qualityCodes}">Códigos de calidad</h5>
+                                            <p class="mb-0" th:text="#{contact.support.qualityLead}">Interpreta estados y referencias del stock anunciado.</p>
+                                        </div>
+                                    </a>
+                                </div>
+                                <div class="col-md-6">
+                                    <a class="feature-item rounded-3 h-100 d-block" th:href="@{/login}">
+                                        <span class="feature-item-icon"><i class="far fa-user-shield"></i></span>
+                                        <div class="feature-item-info">
+                                            <h5 th:text="#{secondary.agentAccess}">Acceso agente</h5>
+                                            <p class="mb-0" th:text="#{contact.support.agentLead}">Entrada para distribuidores y vendedores profesionales.</p>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-5">
+                            <div class="site-heading mb-3">
+                                <span class="site-title-tagline" th:text="#{contact.support.legalTagline}">Información legal</span>
+                                <h2 class="site-title fs-3" th:text="#{contact.support.legalTitle}">Documentación y condiciones</h2>
+                            </div>
+                            <p class="mb-3" th:text="#{contact.support.legalLead}">
+                                Si tu consulta está relacionada con privacidad, uso del portal o condiciones generales, puedes revisarlo antes aquí.
+                            </p>
+                            <ul class="list-unstyled about-list">
+                                <li><i class="fas fa-check-circle"></i><a th:href="@{/terms}" th:text="#{secondary.terms}">Términos y condiciones</a></li>
+                                <li><i class="fas fa-check-circle"></i><a th:href="@{/disclaimer}" th:text="#{secondary.disclaimer}">Descargo de responsabilidad</a></li>
+                                <li><i class="fas fa-check-circle"></i><a th:href="@{/privacy}" th:text="#{secondary.privacy}">Declaración de privacidad</a></li>
+                            </ul>
                         </div>
                     </div>
 
@@ -57,13 +126,19 @@
                                     Revisa los campos marcados e inténtalo de nuevo.
                                 </div>
                                 <div class="row">
+                                    <div class="col-12 mb-3">
+                                        <h3 class="mb-2" th:text="#{contact.form.title}">Envíanos tu consulta</h3>
+                                        <p class="mb-0" th:text="#{contact.form.lead}">
+                                            Describe la incidencia o la duda e indica la referencia del vehículo o del distribuidor si aplica.
+                                        </p>
+                                    </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <input type="text"
                                                    th:field="*{name}"
                                                    th:classappend="${#fields.hasErrors('name')} ? ' is-invalid'"
                                                    class="form-control"
-                                                   placeholder="Tu nombre">
+                                                   th:placeholder="#{contact.form.namePlaceholder}">
                                             <div class="invalid-feedback" th:errors="*{name}"></div>
                                         </div>
                                     </div>
@@ -73,7 +148,7 @@
                                                    th:field="*{email}"
                                                    th:classappend="${#fields.hasErrors('email')} ? ' is-invalid'"
                                                    class="form-control"
-                                                   placeholder="Tu email">
+                                                   th:placeholder="#{contact.form.emailPlaceholder}">
                                             <div class="invalid-feedback" th:errors="*{email}"></div>
                                         </div>
                                     </div>
@@ -83,7 +158,7 @@
                                                    th:field="*{subject}"
                                                    th:classappend="${#fields.hasErrors('subject')} ? ' is-invalid'"
                                                    class="form-control"
-                                                   placeholder="Asunto">
+                                                   th:placeholder="#{contact.form.subjectPlaceholder}">
                                             <div class="invalid-feedback" th:errors="*{subject}"></div>
                                         </div>
                                     </div>
@@ -93,14 +168,17 @@
                                                       th:classappend="${#fields.hasErrors('message')} ? ' is-invalid'"
                                                       class="form-control"
                                                       rows="6"
-                                                      placeholder="Escribe tu mensaje"></textarea>
+                                                      th:placeholder="#{contact.form.messagePlaceholder}"></textarea>
                                             <div class="invalid-feedback" th:errors="*{message}"></div>
                                         </div>
                                     </div>
-                                    <div class="col-12">
+                                    <div class="col-12 d-flex flex-wrap gap-3 align-items-center">
                                         <button type="submit" class="theme-btn">
-                                            Enviar mensaje <i class="far fa-paper-plane"></i>
+                                            <span th:text="#{contact.form.submit}">Enviar mensaje</span> <i class="far fa-paper-plane"></i>
                                         </button>
+                                        <a th:href="@{/login}" class="theme-btn theme-btn2">
+                                            <span th:text="#{secondary.agentAccess}">Acceso agente</span>
+                                        </a>
                                     </div>
                                 </div>
                             </form>
@@ -108,7 +186,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </section>
     </main>
 
     <footer th:replace="~{fragments/footer :: footer}"></footer>

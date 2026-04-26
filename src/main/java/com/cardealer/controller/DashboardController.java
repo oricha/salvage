@@ -11,6 +11,7 @@ import com.cardealer.model.enums.CarCondition;
 import com.cardealer.model.enums.FuelType;
 import com.cardealer.model.enums.TransmissionType;
 import com.cardealer.model.enums.VehicleCategory;
+import com.cardealer.model.enums.VehicleOrigin;
 import com.cardealer.service.CarService;
 import com.cardealer.service.DealerService;
 import com.cardealer.service.FavoriteService;
@@ -346,6 +347,7 @@ public class DashboardController {
         model.addAttribute("bodyTypes", BodyType.values());
         model.addAttribute("fuelTypes", FuelType.values());
         model.addAttribute("transmissions", TransmissionType.values());
+        model.addAttribute("origins", VehicleOrigin.values());
         model.addAttribute("locales", List.of("es", "en", "nl", "de", "fr"));
         
         // Add predefined features list
@@ -374,12 +376,27 @@ public class DashboardController {
         CarDTO dto = new CarDTO();
         dto.setBrand(car.getMake());
         dto.setModel(car.getModel());
+        dto.setVariant(car.getVariant());
         dto.setYear(car.getYear());
         dto.setPrice(car.getPrice());
+        dto.setExportPrice(car.getExportPrice());
         dto.setMileage(car.getMileage());
         dto.setColor(car.getColor());
+        dto.setColorCode(car.getColorCode());
         dto.setDoors(car.getDoors());
         dto.setEngine(car.getEngine());
+        dto.setPowerHp(car.getPowerHp());
+        dto.setRefinedFuelType(car.getRefinedFuelType());
+        dto.setRegistrationAvailable(car.getRegistrationAvailable());
+        dto.setAwaitingVerification(car.getAwaitingVerification());
+        dto.setFullInstructionBooklet(car.getFullInstructionBooklet());
+        dto.setAllKeysAvailable(car.getAllKeysAvailable());
+        dto.setEngineDamage(car.getEngineDamage());
+        dto.setLowerDamage(car.getLowerDamage());
+        dto.setDrivable(car.getDrivable());
+        dto.setMovable(car.getMovable());
+        dto.setEngineRuns(car.getEngineRuns());
+        dto.setAirbagsIntact(car.getAirbagsIntact());
         dto.setDescription(car.getDescription());
         
         if (car.getFuelType() != null) {
@@ -396,6 +413,9 @@ public class DashboardController {
         }
         if (car.getCategory() != null) {
             dto.setCategory(car.getCategory().name());
+        }
+        if (car.getOrigin() != null) {
+            dto.setOrigin(car.getOrigin().name());
         }
 
         dto.setFeatures(car.getFeatures());

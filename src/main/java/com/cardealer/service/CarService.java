@@ -13,6 +13,7 @@ import com.cardealer.model.enums.CarCondition;
 import com.cardealer.model.enums.FuelType;
 import com.cardealer.model.enums.TransmissionType;
 import com.cardealer.model.enums.VehicleCategory;
+import com.cardealer.model.enums.VehicleOrigin;
 import com.cardealer.repository.CarRepository;
 import com.cardealer.repository.DealerRepository;
 import com.cardealer.specification.CarSpecification;
@@ -347,12 +348,27 @@ public class CarService {
     private void mapDtoToEntity(CarDTO dto, Car car) {
         car.setMake(dto.getBrand());
         car.setModel(dto.getModel());
+        car.setVariant(dto.getVariant());
         car.setYear(dto.getYear());
         car.setPrice(dto.getPrice());
+        car.setExportPrice(dto.getExportPrice());
         car.setMileage(dto.getMileage());
         car.setColor(dto.getColor());
+        car.setColorCode(dto.getColorCode());
         car.setDoors(dto.getDoors());
         car.setEngine(dto.getEngine());
+        car.setPowerHp(dto.getPowerHp());
+        car.setRefinedFuelType(dto.getRefinedFuelType());
+        car.setRegistrationAvailable(dto.getRegistrationAvailable());
+        car.setAwaitingVerification(dto.getAwaitingVerification());
+        car.setFullInstructionBooklet(dto.getFullInstructionBooklet());
+        car.setAllKeysAvailable(dto.getAllKeysAvailable());
+        car.setEngineDamage(dto.getEngineDamage());
+        car.setLowerDamage(dto.getLowerDamage());
+        car.setDrivable(dto.getDrivable());
+        car.setMovable(dto.getMovable());
+        car.setEngineRuns(dto.getEngineRuns());
+        car.setAirbagsIntact(dto.getAirbagsIntact());
         car.setDescription(dto.getDescription());
         
         // Convert string enums to enum types
@@ -372,6 +388,11 @@ public class CarService {
             car.setCategory(VehicleCategory.valueOf(dto.getCategory().toUpperCase()));
         } else if (car.getCategory() == null) {
             car.setCategory(VehicleCategory.PASSENGER_CAR);
+        }
+        if (dto.getOrigin() != null && !dto.getOrigin().isBlank()) {
+            car.setOrigin(VehicleOrigin.valueOf(dto.getOrigin().toUpperCase()));
+        } else {
+            car.setOrigin(null);
         }
         if (dto.getLocale() != null && !dto.getLocale().isBlank()) {
             car.setLocale(dto.getLocale().toLowerCase());

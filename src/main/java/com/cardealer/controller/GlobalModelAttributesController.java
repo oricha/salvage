@@ -7,6 +7,7 @@ import com.cardealer.service.MessageService;
 import com.cardealer.service.RecentlyViewedService;
 import com.cardealer.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -20,6 +21,15 @@ import java.util.Locale;
 @ControllerAdvice
 @RequiredArgsConstructor
 public class GlobalModelAttributesController {
+
+    @Value("${marketplace.analytics.ga-measurement-id:}")
+    private String gaMeasurementId;
+
+    @Value("${marketplace.analytics.hotjar-enabled:false}")
+    private boolean hotjarEnabled;
+
+    @Value("${marketplace.analytics.vwo-enabled:false}")
+    private boolean vwoEnabled;
 
     private final UserService userService;
     private final FavoriteService favoriteService;
@@ -90,5 +100,25 @@ public class GlobalModelAttributesController {
             return "/";
         }
         return new ServletWebRequest(attributes.getRequest()).getRequest().getRequestURI();
+    }
+
+    @ModelAttribute("gaMeasurementId")
+    public String gaMeasurementId() {
+        return gaMeasurementId;
+    }
+
+    @ModelAttribute("analyticsEnabled")
+    public boolean analyticsEnabled() {
+        return gaMeasurementId != null && !gaMeasurementId.isBlank();
+    }
+
+    @ModelAttribute("hotjarEnabled")
+    public boolean hotjarEnabled() {
+        return hotjarEnabled;
+    }
+
+    @ModelAttribute("vwoEnabled")
+    public boolean vwoEnabled() {
+        return vwoEnabled;
     }
 }

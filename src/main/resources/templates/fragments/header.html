@@ -30,6 +30,17 @@
         <link rel="stylesheet" th:href="${stylesheet}">
     </th:block>
     <script type="application/ld+json" th:if="${structuredData != null}" th:utext="${structuredData}"></script>
+    <th:block th:if="${#ctx.containsVariable('analyticsEnabled') and analyticsEnabled}">
+        <script async th:src="'https://www.googletagmanager.com/gtag/js?id=' + ${gaMeasurementId}"></script>
+        <script th:inline="javascript">
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', [[${gaMeasurementId}]], { page_path: [[${currentUrl}]] });
+        </script>
+    </th:block>
+    <meta name="hotjar-status" content="disabled" th:if="${!#ctx.containsVariable('hotjarEnabled') or !hotjarEnabled}">
+    <meta name="vwo-status" content="disabled" th:if="${!#ctx.containsVariable('vwoEnabled') or !vwoEnabled}">
 </head>
 <body>
 <header th:fragment="navbar" class="header">

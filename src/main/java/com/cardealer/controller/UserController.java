@@ -32,12 +32,15 @@ public class UserController {
      * Show login page
      */
     @GetMapping("/login")
-    public String loginPage(Authentication authentication) {
+    public String loginPage(Authentication authentication, Model model) {
         if (authentication != null
                 && authentication.isAuthenticated()
                 && !"anonymousUser".equals(authentication.getName())) {
             return redirectForAuthenticatedUser(authentication);
         }
+        model.addAttribute("pageDescription", "Acceso para vendedores y distribuidores del marketplace.");
+        model.addAttribute("pageKeywords", "login agente, portal distribuidor, vendedores");
+        model.addAttribute("ogTitle", "Acceso agente");
         return "login";
     }
 

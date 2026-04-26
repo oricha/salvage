@@ -4,7 +4,6 @@ import com.cardealer.validation.ValidImageUpload;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -24,6 +23,8 @@ public class CarDTO {
     
     @NotBlank(message = "El modelo es obligatorio")
     private String model;
+
+    private String variant;
     
     @NotNull(message = "El año es obligatorio")
     @Min(value = 1900, message = "El año debe ser mayor a 1900")
@@ -31,6 +32,8 @@ public class CarDTO {
     
     @NotNull(message = "El precio es obligatorio")
     private BigDecimal price;
+
+    private BigDecimal exportPrice;
     
     @Min(value = 0, message = "El kilometraje debe ser positivo")
     private Integer mileage;
@@ -50,13 +53,42 @@ public class CarDTO {
     private String category;
 
     private String color;
+
+    private String colorCode;
+
+    private String origin;
+
+    private Boolean refinedFuelType;
     
     @Min(value = 2, message = "El número de puertas debe ser al menos 2")
     private Integer doors;
     
     private String engine;
+
+    @Min(value = 0, message = "La potencia debe ser positiva")
+    private Integer powerHp;
     
     private String description;
+
+    private Boolean registrationAvailable;
+
+    private Boolean awaitingVerification;
+
+    private Boolean fullInstructionBooklet;
+
+    private Boolean allKeysAvailable;
+
+    private Boolean engineDamage;
+
+    private Boolean lowerDamage;
+
+    private Boolean drivable;
+
+    private Boolean movable;
+
+    private Boolean engineRuns;
+
+    private Boolean airbagsIntact;
     
     private List<String> features;
 

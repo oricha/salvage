@@ -27,6 +27,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -60,10 +61,11 @@ public class CarController {
     @GetMapping
     public String listCars(
             @ModelAttribute CarFilterDTO filters,
+            @RequestParam MultiValueMap<String, String> requestParams,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "12") int size,
             Model model) {
-        buildCarsListing(filters, page, size, model);
+        buildCarsListing(filters, requestParams, page, size, model);
         model.addAllAttributes(seoService.toModelAttributes(
             seoService.generatePageMetadata("inventory", Locale.forLanguageTag(filters.getLocale() != null ? filters.getLocale() : "es")),
             "/cars"
@@ -74,10 +76,11 @@ public class CarController {
     @GetMapping("/list")
     public String listCarsAsList(
             @ModelAttribute CarFilterDTO filters,
+            @RequestParam MultiValueMap<String, String> requestParams,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "12") int size,
             Model model) {
-        buildCarsListing(filters, page, size, model);
+        buildCarsListing(filters, requestParams, page, size, model);
         model.addAllAttributes(seoService.toModelAttributes(
             seoService.generatePageMetadata("inventory", Locale.forLanguageTag(filters.getLocale() != null ? filters.getLocale() : "es")),
             "/cars/list"
@@ -91,7 +94,7 @@ public class CarController {
                               @RequestParam(defaultValue = "12") int size,
                               Model model) {
         filters.setCategories(List.of(VehicleCategory.DAMAGED));
-        return listCars(filters, page, size, model);
+        return listCars(filters, new org.springframework.util.LinkedMultiValueMap<>(), page, size, model);
     }
 
     @GetMapping("/salvage")
@@ -100,7 +103,7 @@ public class CarController {
                               @RequestParam(defaultValue = "12") int size,
                               Model model) {
         filters.setCategories(List.of(VehicleCategory.SALVAGE));
-        return listCars(filters, page, size, model);
+        return listCars(filters, new org.springframework.util.LinkedMultiValueMap<>(), page, size, model);
     }
 
     @GetMapping("/category/{category}")
@@ -110,7 +113,7 @@ public class CarController {
                                  @RequestParam(defaultValue = "12") int size,
                                  Model model) {
         filters.setCategories(List.of(category));
-        return listCars(filters, page, size, model);
+        return listCars(filters, new org.springframework.util.LinkedMultiValueMap<>(), page, size, model);
     }
 
     @GetMapping("/locale/{locale}")
@@ -120,7 +123,7 @@ public class CarController {
                                @RequestParam(defaultValue = "12") int size,
                                Model model) {
         filters.setLocale(locale);
-        return listCars(filters, page, size, model);
+        return listCars(filters, new org.springframework.util.LinkedMultiValueMap<>(), page, size, model);
     }
 
     /**
@@ -203,7 +206,8 @@ public class CarController {
         return "compare";
     }
 
-    private Page<Car> buildCarsListing(CarFilterDTO filters, int page, int size, Model model) {
+    private Page<Car> buildCarsListing(CarFilterDTO filters, MultiValueMap<String, String> requestParams, int page, int size, Model model) {
+        normalizeTechnicalAliases(filters, requestParams);
         normalizeAdvancedSearchFilters(filters);
         Pageable pageable = PageRequest.of(page, size);
         Page<Car> carsPage = carService.findCarsWithFilters(filters, pageable);
@@ -226,14 +230,73 @@ public class CarController {
         model.addAttribute("sidebarNearbyRadiusOptions", AdvancedSearchCatalog.nearbyRadiusOptions());
         model.addAttribute("sidebarPricePresets", AdvancedSearchCatalog.pricePresets());
         model.addAttribute("sidebarMileagePresets", AdvancedSearchCatalog.mileagePresets());
-        model.addAttribute("advancedFiltersExpanded", hasAdvancedFilters(filters));
-        model.addAttribute("gridViewUrl", buildViewUrl("/cars", filters));
-        model.addAttribute("listViewUrl", buildViewUrl("/cars/list", filters));
+        boolean advancedFiltersExpanded = hasAdvancedFilters(filters);
+        model.addAttribute("advancedFiltersExpanded", advancedFiltersExpanded);
+        String hashSuffix = advancedFiltersExpanded ? "#extra" : "";
+        model.addAttribute("gridViewUrl", buildViewUrl("/cars", filters) + hashSuffix);
+        model.addAttribute("listViewUrl", buildViewUrl("/cars/list", filters) + hashSuffix);
         model.addAttribute("extraStylesheets", List.of("/css/inventory-sidebar.css", "/css/inventory-results.css"));
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", carsPage.getTotalPages());
         model.addAttribute("totalItems", carsPage.getTotalElements());
         return carsPage;
+    }
+
+    private void normalizeTechnicalAliases(CarFilterDTO filters, MultiValueMap<String, String> requestParams) {
+        if (requestParams == null) {
+            return;
+        }
+        if (filters.getMinPrice() == null) {
+            filters.setMinPrice(parseBigDecimal(requestParams.getFirst("priceFrom")));
+        }
+        if (filters.getMaxPrice() == null) {
+            filters.setMaxPrice(parseBigDecimal(requestParams.getFirst("priceTo")));
+        }
+        if (filters.getMinMileage() == null) {
+            filters.setMinMileage(parseInteger(requestParams.getFirst("odoFrom")));
+        }
+        if (filters.getMaxMileage() == null) {
+            filters.setMaxMileage(parseInteger(requestParams.getFirst("odoTo")));
+        }
+        if ((filters.getOrigins() == null || filters.getOrigins().isEmpty())) {
+            List<String> originAliases = requestParams.get("origin");
+            if (originAliases != null && !originAliases.isEmpty()) {
+                filters.setOrigins(originAliases);
+            }
+        }
+        if (filters.getNearbyRadiusKm() == null) {
+            filters.setNearbyRadiusKm(parseInteger(requestParams.getFirst("locationRadius")));
+        }
+        if (filters.getRegistrationAvailable() == null) {
+            filters.setRegistrationAvailable(parseTriState(requestParams.getFirst("i_byz.registrationAvailable")));
+        }
+        if (!Boolean.TRUE.equals(filters.getAwaitingVerification())) {
+            filters.setAwaitingVerification(parseBoolean(requestParams.getFirst("i_byz.awaitingVerification"), filters.getAwaitingVerification()));
+        }
+        if (filters.getFullInstructionBooklet() == null) {
+            filters.setFullInstructionBooklet(parseTriState(requestParams.getFirst("i_opt.fullInstructionBooklet")));
+        }
+        if (filters.getAllKeysAvailable() == null) {
+            filters.setAllKeysAvailable(parseTriState(requestParams.getFirst("i_opt.allKeysAvailable")));
+        }
+        if (filters.getEngineDamage() == null) {
+            filters.setEngineDamage(parseTriState(requestParams.getFirst("i_sch.engineDamage")));
+        }
+        if (filters.getLowerDamage() == null) {
+            filters.setLowerDamage(parseTriState(requestParams.getFirst("i_sch.lowerDamage")));
+        }
+        if (filters.getDrivable() == null) {
+            filters.setDrivable(parseTriState(requestParams.getFirst("i_sch.drivable")));
+        }
+        if (filters.getMovable() == null) {
+            filters.setMovable(parseTriState(requestParams.getFirst("i_sch.movable")));
+        }
+        if (filters.getEngineRuns() == null) {
+            filters.setEngineRuns(parseTriState(requestParams.getFirst("i_sch.engineRuns")));
+        }
+        if (filters.getAirbagsIntact() == null) {
+            filters.setAirbagsIntact(parseTriState(requestParams.getFirst("i_sch.airbagsIntact")));
+        }
     }
 
     private void normalizeAdvancedSearchFilters(CarFilterDTO filters) {
@@ -396,5 +459,36 @@ public class CarController {
         if (!value.toString().isBlank()) {
             builder.queryParam(key, value);
         }
+    }
+
+    private Integer parseInteger(String value) {
+        try {
+            return value == null || value.isBlank() ? null : Integer.valueOf(value);
+        } catch (NumberFormatException ignored) {
+            return null;
+        }
+    }
+
+    private BigDecimal parseBigDecimal(String value) {
+        try {
+            return value == null || value.isBlank() ? null : new BigDecimal(value);
+        } catch (NumberFormatException ignored) {
+            return null;
+        }
+    }
+
+    private com.cardealer.model.enums.TriStateOption parseTriState(String value) {
+        try {
+            return value == null || value.isBlank() ? null : com.cardealer.model.enums.TriStateOption.valueOf(value.toUpperCase(Locale.ROOT));
+        } catch (IllegalArgumentException ignored) {
+            return null;
+        }
+    }
+
+    private Boolean parseBoolean(String value, Boolean fallback) {
+        if (value == null || value.isBlank()) {
+            return fallback;
+        }
+        return Boolean.parseBoolean(value);
     }
 }
