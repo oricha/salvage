@@ -227,7 +227,7 @@ public class CarController {
         model.addAttribute("advancedFiltersExpanded", hasAdvancedFilters(filters));
         model.addAttribute("gridViewUrl", buildViewUrl("/cars", filters));
         model.addAttribute("listViewUrl", buildViewUrl("/cars/list", filters));
-        model.addAttribute("extraStylesheets", List.of("/css/inventory-sidebar.css"));
+        model.addAttribute("extraStylesheets", List.of("/css/inventory-sidebar.css", "/css/inventory-results.css"));
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", carsPage.getTotalPages());
         model.addAttribute("totalItems", carsPage.getTotalElements());

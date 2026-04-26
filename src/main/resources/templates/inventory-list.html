@@ -28,11 +28,13 @@
                         </div>
                     </div>
                     <div th:if="${cars.isEmpty()}" class="alert alert-light border text-center">No hay vehículos que coincidan con los filtros seleccionados.</div>
-                    <article class="car-item car-list-item mb-30" th:each="car : ${cars}">
+                    <article class="car-item car-list-item mb-30 inventory-result-card inventory-result-card-list" th:each="car : ${cars}">
                         <div class="row g-0 align-items-center">
                             <div class="col-md-4">
                                 <div class="car-img">
-                                    <img loading="lazy" th:src="@{${car.images != null && !car.images.isEmpty()} ? '/uploads/' + ${car.images[0]} : '/img/car/01.jpg'}" th:alt="${car.make + ' ' + car.model}">
+                                    <a class="inventory-result-link-overlay" th:href="@{/cars/{id}(id=${car.id})}" th:attr="aria-label=#{listing.viewDetails}">
+                                        <img loading="lazy" th:src="@{${car.images != null && !car.images.isEmpty()} ? '/uploads/' + ${car.images[0]} : '/img/car/01.jpg'}" th:alt="${car.make + ' ' + car.model}">
+                                    </a>
                                 </div>
                             </div>
                             <div class="col-md-8">
@@ -40,13 +42,28 @@
                                     <div class="d-flex justify-content-between gap-3 flex-wrap">
                                         <div>
                                             <div class="d-flex gap-2 mb-2">
-                                                <span class="badge bg-dark" th:text="${car.category}">PASSENGER_CAR</span>
-                                                <span class="badge bg-secondary" th:text="${car.condition}">OCASION</span>
+                                                <span class="badge bg-dark" th:text="${#messages.msg(car.category.messageKey)}">PASSENGER_CAR</span>
+                                                <span class="badge bg-secondary" th:text="${car.condition == T(com.cardealer.model.enums.CarCondition).NUEVO ? #messages.msg('listing.badge.new') : car.condition}">OCASION</span>
                                             </div>
-                                            <h3><a th:href="@{/cars/{id}(id=${car.id})}" th:text="${car.make + ' ' + car.model}">Vehículo</a></h3>
-                                            <p class="mb-0 text-muted" th:text="${car.description} ?: 'Vehículo disponible.'">Descripción</p>
+                                            <h3>
+                                                <a th:href="@{/cars/{id}(id=${car.id})}"
+                                                   th:text="${car.make + ' ' + car.model + (car.variant != null ? ' ' + car.variant : '') + (car.powerHp != null ? ' · ' + car.powerHp + ' HP' : '')}">
+                                                    Vehículo
+                                                </a>
+                                            </h3>
+                                            <p class="mb-0 text-muted inventory-result-summary"
+                                               th:text="${car.description != null && car.description.length() > 160 ? car.description.substring(0, 160) + '…' : (car.description != null ? car.description : #messages.msg('listing.summary.fallback'))}">
+                                                Descripción
+                                            </p>
                                         </div>
-                                        <span class="car-price" th:text="${#numbers.formatDecimal(car.price, 0, 'COMMA', 2, 'POINT')} + ' €'">0 €</span>
+                                        <div class="inventory-result-pricing text-md-end">
+                                            <span class="car-price d-block" th:text="${#numbers.formatDecimal(car.price, 0, 'COMMA', 2, 'POINT')} + ' €'">0 €</span>
+                                            <span class="inventory-export-price"
+                                                  th:if="${car.exportPrice != null}"
+                                                  th:text="#{listing.exportPriceLabel} + ' ' + ${#numbers.formatDecimal(car.exportPrice, 0, 'COMMA', 2, 'POINT')} + ' €'">
+                                                Export
+                                            </span>
+                                        </div>
                                     </div>
                                     <ul class="car-list mt-3">
                                         <li><i class="far fa-car"></i><span th:text="${car.year}">2024</span></li>

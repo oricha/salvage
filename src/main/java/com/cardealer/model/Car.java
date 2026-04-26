@@ -34,11 +34,16 @@ public class Car {
     @Column(nullable = false)
     private String model;
 
+    private String variant;
+
     @Column(name = "car_year", nullable = false)
     private Integer year;
 
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal price;
+
+    @Column(precision = 10, scale = 2)
+    private BigDecimal exportPrice;
 
     @Column(nullable = false)
     private Integer mileage;
@@ -73,6 +78,7 @@ public class Car {
     private Integer doors;
 
     private String engine;
+    private Integer powerHp;
     private Boolean registrationAvailable;
     private Boolean awaitingVerification;
     private Boolean fullInstructionBooklet;

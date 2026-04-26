@@ -23,8 +23,8 @@
 
                 <div class="vehicle-type-strip">
                     <a th:each="vehicleType : ${primaryVehicleTypes}" th:href="${vehicleType.url}" class="vehicle-type-chip">
-                        <i th:class="${vehicleType.icon}"></i>
-                        <span th:text="${vehicleType.label}">Passenger Cars</span>
+                        <i th:if="${vehicleType.icon != null && !#strings.isEmpty(vehicleType.icon)}" th:class="${vehicleType.icon}"></i>
+                        <span th:text="${#messages.msg(vehicleType.labelKey)}">Passenger Cars</span>
                     </a>
                     <button class="vehicle-type-more" type="button" data-bs-toggle="collapse" data-bs-target="#moreVehicleTypes" aria-expanded="false" aria-controls="moreVehicleTypes">
                         More vehicle types
@@ -34,7 +34,7 @@
                 <div id="moreVehicleTypes" class="collapse">
                     <div class="vehicle-type-more-grid">
                         <a th:each="vehicleType : ${extraVehicleTypes}" th:href="${vehicleType.url}" class="vehicle-type-chip secondary">
-                            <span th:text="${vehicleType.label}">Buses</span>
+                            <span th:text="${#messages.msg(vehicleType.labelKey)}">Buses</span>
                         </a>
                     </div>
                 </div>
@@ -249,14 +249,18 @@
     <section class="dealer-search-band">
         <div class="container">
             <div class="dealer-search-content">
-                <span class="section-kicker">Find a dealer</span>
-                <h2>Search by company name, place of business or province</h2>
+                <span class="section-kicker">Busca un distribuidor</span>
+                <h2>Filtra por empresa o region espanola</h2>
                 <form class="dealer-search-form" action="/dealers" method="get">
-                    <input type="text" name="query" list="dealerSearchList" placeholder="Search by company name, place of business or province">
+                    <input type="text" name="query" list="dealerSearchList" placeholder="Busca por empresa">
+                    <select name="region" aria-label="Region de distribuidor">
+                        <option value="">Todas las regiones</option>
+                        <option th:each="dealerRegion : ${dealerRegions}" th:value="${dealerRegion}" th:text="${dealerRegion}">Madrid</option>
+                    </select>
                     <datalist id="dealerSearchList">
                         <option th:each="dealerName : ${dealerSearchOptions}" th:value="${dealerName}">A-Team Automotive</option>
                     </datalist>
-                    <button type="submit" class="theme-btn">Search</button>
+                    <button type="submit" class="theme-btn">Buscar</button>
                 </form>
             </div>
         </div>
@@ -266,10 +270,10 @@
         <div class="container">
             <div class="section-head">
                 <div>
-                    <span class="section-kicker">Available dealers</span>
-                    <h2>Dealers</h2>
+                    <span class="section-kicker">Directorio profesional</span>
+                    <h2>Distribuidores por inicial</h2>
                 </div>
-                <span class="dealer-count" th:text="${dealerDirectoryCount} + ' dealers available'">500+ dealers available</span>
+                <span class="dealer-count" th:text="${dealerDirectoryCount} + ' distribuidores disponibles'">500+ distribuidores disponibles</span>
             </div>
 
             <div class="dealer-directory-grid">

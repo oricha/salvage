@@ -44,8 +44,16 @@
         </div>
 
         <form th:action="${formAction}" method="get" class="inventory-filter-form" data-inventory-filter-form="true">
-            <div class="inventory-form-group">
-                <label th:text="#{search.brand.label}">Brand</label>
+            <div class="inventory-form-group inventory-brand-group"
+                 th:classappend="${filters.brands != null && !filters.brands.isEmpty()} ? ' has-selected-brand' : ''">
+                <div class="inventory-brand-label-row">
+                    <label th:text="#{search.brand.label}">Brand</label>
+                    <span class="inventory-brand-selected-pill"
+                          th:if="${filters.brands != null && !filters.brands.isEmpty()}"
+                          th:text="#{search.brand.selected}">
+                        Selected
+                    </span>
+                </div>
                 <input type="text" class="form-control mb-2 inventory-brand-search" th:placeholder="#{search.brand.searchPlaceholder}">
                 <select class="form-select inventory-brand-select" name="brands">
                     <option value="" th:text="#{search.brand.placeholder}">choose brand</option>
@@ -104,13 +112,13 @@
             <div class="inventory-form-group inventory-advanced-toggle-group">
                 <button type="button"
                         class="inventory-advanced-toggle btn btn-outline-light w-100"
-                        th:attr="aria-expanded=${advancedFiltersExpanded},data-show-label=#{search.advanced.show},data-hide-label=#{search.advanced.hide}"
+                        th:attr="aria-expanded=${advancedFiltersExpanded},data-show-label=#{search.advanced.show},data-hide-label=#{search.advanced.hide},aria-controls='inventoryAdvancedSection'"
                         th:text="${advancedFiltersExpanded} ? #{search.advanced.hide} : #{search.advanced.show}">
                     Show advanced filters
                 </button>
             </div>
 
-            <section class="inventory-advanced-section" th:attr="hidden=${advancedFiltersExpanded} ? null : 'hidden'">
+            <section class="inventory-advanced-section" id="inventoryAdvancedSection" th:attr="hidden=${advancedFiltersExpanded} ? null : 'hidden'">
                 <div class="inventory-form-group">
                     <div class="d-flex justify-content-between align-items-center gap-2">
                         <label th:text="#{search.price.label}">Price</label>
@@ -302,7 +310,15 @@
                 <span th:text="#{search.primaryFiltersNotice}">Brand, model, year, fuel and transmission define the advanced search.</span>
             </div>
 
-            <button class="inventory-submit-btn" type="submit" th:text="#{search.submit}">Search</button>
+            <div class="inventory-form-actions">
+                <button class="inventory-submit-btn" type="submit" th:text="#{search.submit}">Search</button>
+                <button class="inventory-close-btn d-lg-none"
+                        type="button"
+                        data-bs-dismiss="offcanvas"
+                        th:text="#{search.close}">
+                    Close
+                </button>
+            </div>
 
             <div class="inventory-hidden-category-fields" th:if="${filters.categories != null}">
                 <input th:each="category : ${filters.categories}" type="hidden" name="categories" th:value="${category}">

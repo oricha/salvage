@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
 
-<head th:replace="~{fragments/header :: head('Portal de Coches - Concesionarios')}"></head>
+<head th:replace="~{fragments/header :: head('Portal de Coches - Distribuidores')}"></head>
 
 <body>
     <nav th:replace="~{fragments/header :: navbar}"></nav>
@@ -12,75 +12,113 @@
     <main class="main">
         <div class="site-breadcrumb" style="background: url(/img/breadcrumb/01.jpg)">
             <div class="container">
-                <h2 class="breadcrumb-title">Concesionarios</h2>
+                <h2 class="breadcrumb-title">Directorio de distribuidores</h2>
                 <ul class="breadcrumb-menu">
                     <li><a th:href="@{/}">Inicio</a></li>
-                    <li class="active">Concesionarios</li>
+                    <li class="active">Distribuidores</li>
                 </ul>
             </div>
         </div>
 
-        <div class="car-area bg py-120">
+        <section class="dealer-directory-hero py-120">
             <div class="container">
-                <div class="row">
-                    <div class="col-lg-12">
-                        <div class="col-md-12 mb-4">
-                            <h6>Mostrando <span th:text="${#lists.size(dealers)}">0</span> concesionarios</h6>
+                <div class="dealer-directory-intro">
+                    <span class="dealer-directory-kicker">Busqueda profesional</span>
+                    <h2>Busca distribuidores por empresa, especializacion o region</h2>
+                    <p>El directorio agrupa mas de 250 opciones de empresa y mas de 150 distribuidores profesionales repartidos por regiones de Espana.</p>
+                </div>
+
+                <form class="dealer-directory-form" th:action="@{/dealers}" method="get">
+                    <div class="dealer-directory-field">
+                        <label for="dealerQuery">Distribuidor</label>
+                        <input id="dealerQuery" type="text" name="query" th:value="${selectedQuery}" list="dealerSearchList"
+                               placeholder="Ej: Atlas Madrid Motex">
+                        <datalist id="dealerSearchList">
+                            <option th:each="dealerName : ${dealerSearchOptions}" th:value="${dealerName}">Atlas Madrid Motex</option>
+                        </datalist>
+                    </div>
+                    <div class="dealer-directory-field">
+                        <label for="dealerRegion">Region</label>
+                        <select id="dealerRegion" name="region">
+                            <option value="">Todas las regiones</option>
+                            <option th:each="dealerRegion : ${dealerRegions}" th:value="${dealerRegion}" th:text="${dealerRegion}"
+                                    th:selected="${dealerRegion == selectedRegion}">Madrid</option>
+                        </select>
+                    </div>
+                    <div class="dealer-directory-actions">
+                        <button type="submit" class="theme-btn">Buscar</button>
+                        <a class="theme-btn dealer-reset-btn" th:href="@{/dealers}">Limpiar</a>
+                    </div>
+                </form>
+
+                <div class="dealer-directory-summary">
+                    <div>
+                        <strong th:text="${#lists.size(dealerDirectory)}">0</strong>
+                        <span>distribuidores visibles</span>
+                    </div>
+                    <div>
+                        <strong th:text="${#lists.size(dealerSearchOptions)}">0</strong>
+                        <span>opciones en autocompletado</span>
+                    </div>
+                </div>
+
+                <div th:if="${error != null}" class="alert alert-danger mt-4" th:text="${error}">Error</div>
+
+                <div th:if="${dealerDirectory == null or dealerDirectory.isEmpty()}" class="alert alert-info mt-4 text-center">
+                    <i class="far fa-store" style="font-size: 3rem;"></i>
+                    <h4 class="mt-3">No hay distribuidores para esta combinacion</h4>
+                    <p>Ajusta la empresa o la region para ampliar el resultado.</p>
+                </div>
+
+                <div th:if="${dealerDirectory != null and !dealerDirectory.isEmpty()}" class="dealer-directory-grid">
+                    <article th:each="entry : ${dealerDirectory}" class="dealer-directory-card"
+                             th:classappend="${entry.realDealer} ? ' dealer-directory-card--real' : ''">
+                        <div class="dealer-directory-card__header">
+                            <span class="dealer-directory-badge" th:text="${entry.specialization}">Motex</span>
+                            <span class="dealer-directory-badge dealer-directory-badge--soft" th:text="${entry.region}">Madrid</span>
                         </div>
-                        
-                        <!-- Empty State -->
-                        <div th:if="${dealers == null or dealers.isEmpty()}" class="col-12">
-                            <div class="alert alert-info text-center">
-                                <i class="far fa-store" style="font-size: 3rem;"></i>
-                                <h4 class="mt-3">No hay concesionarios disponibles</h4>
-                                <p>Por favor, vuelva más tarde.</p>
-                            </div>
+                        <h3 class="dealer-directory-card__title">
+                            <a th:if="${entry.realDealer}" th:href="@{/dealers/{id}(id=${entry.dealerId})}" th:text="${entry.companyName}">Atlas Madrid Motex</a>
+                            <span th:unless="${entry.realDealer}" th:text="${entry.companyName}">Atlas Madrid Motex</span>
+                        </h3>
+                        <p class="dealer-directory-card__location" th:text="${entry.displayLocation}">Madrid, Madrid</p>
+                        <ul class="dealer-directory-card__meta">
+                            <li><i class="far fa-phone"></i> <a th:href="'tel:' + ${entry.phone}" th:text="${entry.phone}">+34 912 345 678</a></li>
+                            <li><i class="far fa-envelope"></i> <a th:href="'mailto:' + ${entry.email}" th:text="${entry.email}">dealer@example.com</a></li>
+                            <li><i class="far fa-car"></i> <span th:text="${entry.listingCount} + ' anuncios orientativos'">12 anuncios orientativos</span></li>
+                        </ul>
+                        <div class="dealer-directory-card__footer">
+                            <a th:if="${entry.realDealer}" class="theme-btn" th:href="@{/dealers/{id}(id=${entry.dealerId})}">Ver perfil</a>
+                            <a th:unless="${entry.realDealer}" class="theme-btn" th:href="@{/dealers(query=${entry.companyName})}">Filtrar por empresa</a>
                         </div>
-                        
-                        <div class="row">
-                            <div th:each="dealer : ${dealers}" class="col-md-6 col-lg-4">
-                                <div class="dealer-item">
-                                    <div class="dealer-img">
-                                        <span class="dealer-listing" th:text="${dealer.cars != null ? dealer.cars.size() : 0} + ' Listados'">0 Listing</span>
-                                        <img th:if="${dealer.logoUrl != null and !dealer.logoUrl.isEmpty()}" 
-                                             th:src="@{'/uploads/' + ${dealer.logoUrl}}" 
-                                             alt="Dealer logo">
-                                        <img th:unless="${dealer.logoUrl != null and !dealer.logoUrl.isEmpty()}" 
-                                             th:src="@{/img/dealer/01.png}" 
-                                             alt="Default logo">
-                                    </div>
-                                    <div class="dealer-content">
-                                        <h4>
-                                            <a th:href="@{/dealers/{id}(id=${dealer.id})}" th:text="${dealer.name}">Dealer Name</a>
-                                        </h4>
-                                        <ul>
-                                            <li th:if="${dealer.city != null}">
-                                                <i class="far fa-location-dot"></i> 
-                                                <span th:text="${dealer.address != null ? dealer.address + ', ' : ''} + ${dealer.city}">Location</span>
-                                            </li>
-                                            <li th:if="${dealer.phone != null}">
-                                                <i class="far fa-phone"></i> 
-                                                <a th:href="'tel:' + ${dealer.phone}" th:text="${dealer.phone}">Phone</a>
-                                            </li>
-                                            <li th:if="${dealer.email != null}">
-                                                <i class="far fa-envelope"></i> 
-                                                <a th:href="'mailto:' + ${dealer.email}" th:text="${dealer.email}">Email</a>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
+                    </article>
+                </div>
+
+                <div th:if="${dealersByLetter != null and !dealersByLetter.isEmpty()}" class="dealer-directory-alpha">
+                    <div class="section-head">
+                        <div>
+                            <span class="section-kicker">Indice alfabetico</span>
+                            <h3>Todos los agentes por inicial</h3>
+                        </div>
+                    </div>
+                    <div class="dealer-directory-alpha-grid">
+                        <div th:each="entry : ${dealersByLetter}" class="dealer-letter-group">
+                            <h4 th:text="${entry.key}">A</h4>
+                            <ul>
+                                <li th:each="dealerEntry : ${entry.value}">
+                                    <a th:if="${dealerEntry.realDealer}" th:href="@{/dealers/{id}(id=${dealerEntry.dealerId})}" th:text="${dealerEntry.companyName}">Atlas Madrid Motex</a>
+                                    <a th:unless="${dealerEntry.realDealer}" th:href="@{/dealers(query=${dealerEntry.companyName})}" th:text="${dealerEntry.companyName}">Atlas Madrid Motex</a>
+                                </li>
+                            </ul>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </section>
     </main>
 
     <footer th:replace="~{fragments/footer :: footer}"></footer>
-
     <div th:replace="~{fragments/footer :: scroll-top}"></div>
-
     <div th:replace="~{fragments/header :: scripts}"></div>
 </body>
 </html>

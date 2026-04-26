@@ -10,6 +10,15 @@ document.addEventListener('DOMContentLoaded', () => {
     section.hidden = !expanded;
   };
 
+  const updateBrandState = form => {
+    const brandGroup = form.querySelector('.inventory-brand-group');
+    const brandSelect = form.querySelector('.inventory-brand-select');
+    if (!brandGroup || !brandSelect) {
+      return;
+    }
+    brandGroup.classList.toggle('has-selected-brand', Boolean(brandSelect.value));
+  };
+
   const updateModelOptions = (brandSelect, modelSelect) => {
     if (!brandSelect || !modelSelect) {
       return;
@@ -160,6 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
     brandSelect?.addEventListener('change', () => {
       modelSelect.dataset.selected = '';
       updateModelOptions(brandSelect, modelSelect);
+      updateBrandState(form);
     });
 
     brandSearch?.addEventListener('input', filterBrandOptions);
@@ -203,6 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     filterBrandOptions();
     updateModelOptions(brandSelect, modelSelect);
+    updateBrandState(form);
     hydrateLocation(form);
   });
 });

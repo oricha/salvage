@@ -30,22 +30,40 @@
                     <div th:if="${cars.isEmpty()}" class="alert alert-light border text-center">No hay vehículos que coincidan con los filtros seleccionados.</div>
                     <div class="row">
                         <div class="col-md-6 col-xl-4" th:each="car : ${cars}">
-                            <article class="car-item h-100">
+                            <article class="car-item h-100 inventory-result-card">
                                 <div class="car-img">
-                                    <span class="car-status status-1" th:text="${car.condition}">OCASION</span>
-                                    <span class="car-status status-2" style="left:auto;right:15px;" th:text="${car.category}">PASSENGER_CAR</span>
-                                    <img loading="lazy" th:src="@{${car.images != null && !car.images.isEmpty()} ? '/uploads/' + ${car.images[0]} : '/img/car/01.jpg'}" th:alt="${car.make + ' ' + car.model}">
+                                    <span class="car-status status-1" th:text="${car.condition == T(com.cardealer.model.enums.CarCondition).NUEVO ? #messages.msg('listing.badge.new') : car.condition}">OCASION</span>
+                                    <span class="car-status status-2" style="left:auto;right:15px;" th:text="${#messages.msg(car.category.messageKey)}">PASSENGER_CAR</span>
+                                    <a class="inventory-result-link-overlay" th:href="@{/cars/{id}(id=${car.id})}" th:attr="aria-label=#{listing.viewDetails}">
+                                        <img loading="lazy" th:src="@{${car.images != null && !car.images.isEmpty()} ? '/uploads/' + ${car.images[0]} : '/img/car/01.jpg'}" th:alt="${car.make + ' ' + car.model}">
+                                    </a>
                                 </div>
                                 <div class="car-content">
-                                    <h4><a th:href="@{/cars/{id}(id=${car.id})}" th:text="${car.make + ' ' + car.model}">Vehículo</a></h4>
+                                    <h4>
+                                        <a th:href="@{/cars/{id}(id=${car.id})}"
+                                           th:text="${car.make + ' ' + car.model + (car.variant != null ? ' ' + car.variant : '') + (car.powerHp != null ? ' · ' + car.powerHp + ' HP' : '')}">
+                                            Vehículo
+                                        </a>
+                                    </h4>
+                                    <p class="inventory-result-summary"
+                                       th:text="${car.description != null && car.description.length() > 140 ? car.description.substring(0, 140) + '…' : (car.description != null ? car.description : #messages.msg('listing.summary.fallback'))}">
+                                        Short summary
+                                    </p>
                                     <ul class="car-list">
-                                        <li><i class="far fa-road"></i><span th:text="${car.mileage + ' km'}">0 km</span></li>
                                         <li><i class="far fa-car"></i><span th:text="${car.year}">2024</span></li>
                                         <li><i class="far fa-gas-pump"></i><span th:text="${car.fuelType}">Fuel</span></li>
+                                        <li><i class="far fa-road"></i><span th:text="${car.mileage + ' km'}">0 km</span></li>
                                         <li><i class="far fa-steering-wheel"></i><span th:text="${car.transmission}">Transmission</span></li>
                                     </ul>
                                     <div class="car-footer">
-                                        <span class="car-price" th:text="${#numbers.formatDecimal(car.price, 0, 'COMMA', 2, 'POINT')} + ' €'">0 €</span>
+                                        <div class="inventory-result-pricing">
+                                            <span class="car-price" th:text="${#numbers.formatDecimal(car.price, 0, 'COMMA', 2, 'POINT')} + ' €'">0 €</span>
+                                            <span class="inventory-export-price"
+                                                  th:if="${car.exportPrice != null}"
+                                                  th:text="#{listing.exportPriceLabel} + ' ' + ${#numbers.formatDecimal(car.exportPrice, 0, 'COMMA', 2, 'POINT')} + ' €'">
+                                                Export
+                                            </span>
+                                        </div>
                                         <a class="theme-btn" th:href="@{/cars/{id}(id=${car.id})}"><span class="far fa-eye"></span> Ver detalle</a>
                                     </div>
                                 </div>

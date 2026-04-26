@@ -1,8 +1,9 @@
 package com.cardealer.controller;
 
+import com.cardealer.catalog.AdvancedSearchCatalog;
+import com.cardealer.catalog.VehicleCategoryCatalog;
 import com.cardealer.dto.ContactFormDTO;
 import com.cardealer.dto.BreadcrumbItem;
-import com.cardealer.model.Dealer;
 import com.cardealer.model.enums.BodyType;
 import com.cardealer.model.enums.VehicleCategory;
 import com.cardealer.service.CarService;
@@ -17,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.Arrays;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -45,21 +45,10 @@ public class HomeController {
         model.addAttribute("featuredHeroTabs", List.of(
             Map.of("label", "Damaged", "description", "Repairable vehicles with full listing data", "url", "/cars?categories=DAMAGED"),
             Map.of("label", "Desguace", "description", "Salvage stock ready for export or dismantling", "url", "/cars?categories=SALVAGE"),
-            Map.of("label", "Occasion", "description", "Occasion cars from professional sellers", "url", "/coming-soon?feature=occasion-vehicles")
+            Map.of("label", "Occasion", "description", "Occasion cars from professional sellers", "url", "/cars?categories=PASSENGER_CAR")
         ));
-        model.addAttribute("primaryVehicleTypes", List.of(
-            Map.of("label", "Passenger Cars", "icon", "far fa-car-side", "url", "/cars?categories=PASSENGER_CAR"),
-            Map.of("label", "Commercial Vehicles", "icon", "far fa-van-shuttle", "url", "/cars?categories=COMMERCIAL_VEHICLE"),
-            Map.of("label", "Motor Cycles", "icon", "far fa-motorcycle", "url", "/cars?categories=MOTORCYCLE"),
-            Map.of("label", "Campers", "icon", "far fa-caravan", "url", "/coming-soon?feature=occasion-vehicles"),
-            Map.of("label", "Trucks", "icon", "far fa-truck", "url", "/cars?categories=COMMERCIAL_VEHICLE")
-        ));
-        model.addAttribute("extraVehicleTypes", List.of(
-            Map.of("label", "Buses", "url", "/coming-soon?feature=occasion-vehicles"),
-            Map.of("label", "Trailers", "url", "/coming-soon?feature=used-parts"),
-            Map.of("label", "Quads", "url", "/coming-soon?feature=occasion-vehicles"),
-            Map.of("label", "Vans", "url", "/cars?categories=COMMERCIAL_VEHICLE")
-        ));
+        model.addAttribute("primaryVehicleTypes", VehicleCategoryCatalog.primaryCategories());
+        model.addAttribute("extraVehicleTypes", VehicleCategoryCatalog.secondaryCategories());
         model.addAttribute("searchBrands", buildSearchBrands());
         model.addAttribute("modelsByMake", buildModelsByMake());
         model.addAttribute("fuelOptions", List.of("Petrol", "Diesel", "LPG", "Electric", "Hybrid", "Plug-in hybrid"));
@@ -70,16 +59,11 @@ public class HomeController {
         model.addAttribute("originOptions", List.of("Netherlands", "Belgium", "Germany", "France", "Spain", "Italy", "Austria"));
         model.addAttribute("detailOptions", List.of("Registration papers available", "All keys available", "Complete manual", "Maintenance history", "Service book"));
         model.addAttribute("damageOptions", List.of("Engine damage", "Steering damage", "Airbags intact", "Moving vehicle", "Driveable", "Rear damage", "Front damage", "Side impact"));
-        model.addAttribute("dealerSearchOptions", buildDealerSearchOptions());
-        model.addAttribute("dealersByLetter", buildDealersByLetter());
-        model.addAttribute("dealerDirectoryCount", buildDealerSearchOptions().size());
-        model.addAttribute("makesForDamageGrid", List.of(
-            "Alfa Romeo", "Audi", "BMW", "Chevrolet", "Citroën", "Cupra", "Dacia", "DS Automobiles",
-            "Fiat", "Ford", "Honda", "Hyundai", "Jaguar", "Jeep", "Kia", "Land Rover",
-            "Lexus", "Mazda", "Mercedes", "MG", "Mini", "Mitsubishi", "Nissan", "Opel",
-            "Peugeot", "Porsche", "Renault", "Saab", "Seat", "Skoda", "Smart", "Suzuki",
-            "Tesla", "Toyota", "Volkswagen", "Volvo"
-        ));
+        model.addAttribute("dealerSearchOptions", dealerService.getDealerSearchOptions());
+        model.addAttribute("dealersByLetter", dealerService.getDealerNamesByLetter());
+        model.addAttribute("dealerDirectoryCount", dealerService.getDealerSearchOptions().size());
+        model.addAttribute("dealerRegions", dealerService.getDealerRegions());
+        model.addAttribute("makesForDamageGrid", AdvancedSearchCatalog.mergedBrands(carService.getAvailableBrands()).stream().limit(36).toList());
         model.addAttribute("extraStylesheets", List.of("/css/home-salvage.css"));
         model.addAttribute("featuredVehiclesByCategory", Map.of(
             VehicleCategory.DAMAGED, carService.findCarsByCategory(VehicleCategory.DAMAGED, org.springframework.data.domain.PageRequest.of(0, 4)).getContent(),
@@ -241,54 +225,6 @@ public class HomeController {
         models.put("Nissan", List.of("Micra", "Qashqai", "Juke", "X-Trail", "Navara"));
         models.put("Tesla", List.of("Model 3", "Model S", "Model X", "Model Y"));
         return models;
-    }
-
-    private List<String> buildDealerSearchOptions() {
-        List<String> names = new ArrayList<>();
-        try {
-            names.addAll(dealerService.getAllActiveDealers().stream()
-                .map(Dealer::getName)
-                .filter(name -> name != null && !name.isBlank())
-                .toList());
-        } catch (Exception ignored) {
-        }
-
-        List<String> prefixes = List.of(
-            "A & R", "A-Team", "Auto", "Best", "Car", "Damage", "Euro", "First", "Garage", "Green",
-            "Holland", "Inter", "Jumbo", "King", "Lowlands", "Mega", "Nordic", "Orange", "Prime", "Quick",
-            "Royal", "Select", "Top", "United", "Value", "West"
-        );
-        List<String> suffixes = List.of(
-            "Schadeautos", "Auto Parts", "Salvage", "Mobility", "Dismantlers", "Export", "Recovery", "Automotive",
-            "Truck Parts", "Campers", "Car Center", "Occasion Hub", "Vehicle Traders", "Auto Recycling",
-            "Damage Cars", "Dealers", "Motors", "Commercials", "Auto Group", "Drive Solutions"
-        );
-
-        for (char letter = 'A'; letter <= 'W'; letter++) {
-            if (letter == 'Q' || letter == 'X' || letter == 'Y' || letter == 'Z') {
-                continue;
-            }
-            for (int i = 0; i < 24; i++) {
-                String prefix = prefixes.get(i % prefixes.size());
-                String suffix = suffixes.get((i + letter) % suffixes.size());
-                names.add(letter + " " + prefix + " " + suffix);
-            }
-        }
-
-        return names.stream()
-            .distinct()
-            .sorted(String.CASE_INSENSITIVE_ORDER)
-            .toList();
-    }
-
-    private Map<String, List<String>> buildDealersByLetter() {
-        Map<String, List<String>> grouped = new LinkedHashMap<>();
-        buildDealerSearchOptions().forEach(name -> {
-            String letter = name.substring(0, 1).toUpperCase(Locale.ROOT);
-            grouped.computeIfAbsent(letter, key -> new ArrayList<>()).add(name);
-        });
-        grouped.values().forEach(list -> list.sort(Comparator.naturalOrder()));
-        return grouped;
     }
 
     private String renderInfoPage(Model model,

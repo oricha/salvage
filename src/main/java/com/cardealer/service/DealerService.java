@@ -1,5 +1,7 @@
 package com.cardealer.service;
 
+import com.cardealer.catalog.DealerDirectoryCatalog;
+import com.cardealer.dto.DealerDirectoryEntry;
 import com.cardealer.exception.ResourceNotFoundException;
 import com.cardealer.model.Dealer;
 import com.cardealer.model.User;
@@ -11,7 +13,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -81,6 +90,95 @@ public class DealerService {
         log.debug("Fetching all active dealers");
         return dealerRepository.findByActiveTrue();
     }
+
+    public List<DealerDirectoryEntry> getDealerDirectoryEntries(String query, String region) {
+        Map<String, DealerDirectoryEntry> merged = new LinkedHashMap<>();
+
+        DealerDirectoryCatalog.entries().forEach(entry ->
+            merged.put(normalizeKey(entry.getCompanyName()), entry)
+        );
+        getAllActiveDealers().stream()
+            .map(this::buildDirectoryEntry)
+            .forEach(entry -> merged.put(normalizeKey(entry.getCompanyName()), entry));
+
+        return merged.values().stream()
+            .filter(entry -> matchesQuery(entry, query))
+            .filter(entry -> matchesRegion(entry, region))
+            .sorted(Comparator.comparing(DealerDirectoryEntry::getCompanyName, String.CASE_INSENSITIVE_ORDER))
+            .toList();
+    }
+
+    public Map<String, List<DealerDirectoryEntry>> getDealerDirectoryByLetter(String query, String region) {
+        Map<String, List<DealerDirectoryEntry>> grouped = new LinkedHashMap<>();
+        getDealerDirectoryEntries(query, region).forEach(entry ->
+            grouped.computeIfAbsent(entry.getAlphabetLetter(), key -> new ArrayList<>()).add(entry)
+        );
+        return grouped;
+    }
+
+    public List<String> getDealerSearchOptions() {
+        return getDealerDirectoryEntries(null, null).stream()
+            .map(DealerDirectoryEntry::getCompanyName)
+            .distinct()
+            .sorted(String.CASE_INSENSITIVE_ORDER)
+            .toList();
+    }
+
+    public List<String> getDealerRegions() {
+        return DealerDirectoryCatalog.supportedRegions();
+    }
+
+    public Map<String, List<String>> getDealerNamesByLetter() {
+        return getDealerDirectoryEntries(null, null).stream()
+            .collect(Collectors.groupingBy(
+                DealerDirectoryEntry::getAlphabetLetter,
+                LinkedHashMap::new,
+                Collectors.mapping(DealerDirectoryEntry::getCompanyName, Collectors.toList())
+            ));
+    }
+
+    public DealerDirectoryEntry buildDirectoryEntry(Dealer dealer) {
+        String region = DealerDirectoryCatalog.regionForCity(dealer.getCity());
+        return DealerDirectoryEntry.builder()
+            .dealerId(dealer.getId())
+            .companyName(dealer.getName())
+            .specialization(deriveSpecialization(dealer))
+            .region(region)
+            .city(dealer.getCity())
+            .email(dealer.getEmail())
+            .phone(dealer.getPhone())
+            .logoUrl(resolveMediaPath(dealer.getLogoUrl(), "/img/dealer/01.png"))
+            .listingCount(dealer.getCars() != null ? dealer.getCars().size() : 0)
+            .realDealer(true)
+            .build();
+    }
+
+    public String deriveSpecialization(Dealer dealer) {
+        String description = Optional.ofNullable(dealer.getDescription()).orElse("").toLowerCase(Locale.ROOT);
+        if (description.contains("desguace") || description.contains("recicl")) {
+            return "Desguace";
+        }
+        if (description.contains("alta gama") || description.contains("premium") || description.contains("deportivo")) {
+            return "Motex Premium";
+        }
+        if (description.contains("ocasion")) {
+            return "Ocasion";
+        }
+        if (description.contains("comercial") || description.contains("industrial")) {
+            return "Vehiculo comercial";
+        }
+        return "Motex";
+    }
+
+    public String resolveMediaPath(String path, String fallback) {
+        if (path == null || path.isBlank()) {
+            return fallback;
+        }
+        if (path.startsWith("/")) {
+            return path;
+        }
+        return "/uploads/" + path;
+    }
     
     /**
      * Get dealer by user ID
@@ -117,5 +215,33 @@ public class DealerService {
         dealerRepository.save(dealer);
         
         log.info("Dealer activated successfully with ID: {}", id);
+    }
+
+    private boolean matchesQuery(DealerDirectoryEntry entry, String query) {
+        if (query == null || query.isBlank()) {
+            return true;
+        }
+        String needle = query.trim().toLowerCase(Locale.ROOT);
+        return containsIgnoreCase(entry.getCompanyName(), needle)
+            || containsIgnoreCase(entry.getSpecialization(), needle)
+            || containsIgnoreCase(entry.getRegion(), needle)
+            || containsIgnoreCase(entry.getCity(), needle);
+    }
+
+    private boolean matchesRegion(DealerDirectoryEntry entry, String region) {
+        if (region == null || region.isBlank()) {
+            return true;
+        }
+        return region.trim().equalsIgnoreCase(Optional.ofNullable(entry.getRegion()).orElse(""));
+    }
+
+    private boolean containsIgnoreCase(String value, String needle) {
+        return value != null && value.toLowerCase(Locale.ROOT).contains(needle);
+    }
+
+    private String normalizeKey(String value) {
+        return Optional.ofNullable(value)
+            .map(candidate -> candidate.trim().toLowerCase(Locale.ROOT))
+            .orElse("");
     }
 }

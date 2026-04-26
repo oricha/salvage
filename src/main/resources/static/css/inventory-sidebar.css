@@ -85,6 +85,37 @@
   margin-bottom: 8px;
 }
 
+.inventory-brand-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.inventory-brand-selected-pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 4px 9px;
+  text-transform: uppercase;
+}
+
+.inventory-brand-group.has-selected-brand .inventory-brand-select,
+.inventory-brand-group.has-selected-brand .inventory-brand-search {
+  border-color: #ffc85c;
+  box-shadow: 0 0 0 3px rgba(255, 200, 92, 0.18);
+}
+
+.inventory-brand-group.has-selected-brand label {
+  color: #ffd98b;
+  font-weight: 700;
+}
+
 .inventory-filter-form input,
 .inventory-filter-form select {
   width: 100%;
@@ -195,8 +226,28 @@
   margin-bottom: 15px;
 }
 
+.inventory-form-actions {
+  display: grid;
+  gap: 10px;
+}
+
 .inventory-submit-btn:hover {
   background-color: #f5f5f5;
+}
+
+.inventory-close-btn {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+  background: transparent;
+  color: #fff;
+  font-weight: 700;
+}
+
+.inventory-close-btn:hover,
+.inventory-close-btn:focus {
+  background: rgba(255, 255, 255, 0.12);
 }
 
 .inventory-toggle-btn {

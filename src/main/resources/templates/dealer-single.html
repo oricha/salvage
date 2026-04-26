@@ -37,6 +37,10 @@
                                 <div class="dealer-banner-info">
                                     <h4 th:text="${dealer.name}">Dealer Name</h4>
                                     <span th:text="${totalListings} + ' Coches Listados'">0 Car Listed</span>
+                                    <div class="dealer-profile-pills" th:if="${dealerProfile != null}">
+                                        <span class="dealer-profile-pill" th:text="${dealerProfile.specialization}">Motex</span>
+                                        <span class="dealer-profile-pill dealer-profile-pill--soft" th:text="${dealerProfile.region}">Madrid</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -140,11 +144,19 @@
                                         <i class="far fa-map"></i>
                                         <span th:text="${dealer.city + (dealer.postalCode != null ? ' - ' + dealer.postalCode : '')}">City</span>
                                     </li>
+                                    <li th:if="${dealerProfile != null and dealerProfile.specialization != null}">
+                                        <i class="far fa-badge-check"></i>
+                                        <span th:text="${dealerProfile.specialization}">Motex</span>
+                                    </li>
+                                    <li th:if="${dealerProfile != null and dealerProfile.region != null}">
+                                        <i class="far fa-location-crosshairs"></i>
+                                        <span th:text="${dealerProfile.region}">Madrid</span>
+                                    </li>
                                 </ul>
                             </div>
                         </div>
                         
-                        <div class="car-single-widget mt-4">
+                        <div class="car-single-widget mt-4" th:if="${dealer.user != null}">
                             <h5 class="mb-3">Contactar Concesionario</h5>
                             <div class="car-single-form">
                                 <form th:action="@{/messages/send}" method="post">
@@ -165,6 +177,10 @@
                                     </div>
                                 </form>
                             </div>
+                        </div>
+                        <div class="car-single-widget mt-4" th:if="${dealer.user == null}">
+                            <h5 class="mb-3">Contacto pendiente</h5>
+                            <p class="mb-0">Este perfil no tiene todavia un usuario de mensajeria asociado.</p>
                         </div>
                     </div>
                 </div>

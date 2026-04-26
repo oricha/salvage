@@ -71,7 +71,7 @@
                                 <label class="form-label">Categoría *</label>
                                 <select th:field="*{category}" class="form-control" th:classappend="${#fields.hasErrors('category')} ? ' is-invalid'">
                                     <option value="">Seleccionar</option>
-                                    <option th:each="category : ${categories}" th:value="${category.name()}" th:text="${category}">PASSENGER_CAR</option>
+                                    <option th:each="category : ${categories}" th:value="${category.name()}" th:text="${#messages.msg(category.messageKey)}">PASSENGER_CAR</option>
                                 </select>
                                 <div class="invalid-feedback" th:errors="*{category}"></div>
                             </div>

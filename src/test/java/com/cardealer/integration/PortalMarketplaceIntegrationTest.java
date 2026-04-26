@@ -6,9 +6,11 @@ import com.cardealer.config.WebConfig;
 import com.cardealer.controller.CarController;
 import com.cardealer.controller.ContactController;
 import com.cardealer.controller.DashboardController;
+import com.cardealer.controller.DealerController;
 import com.cardealer.controller.GlobalModelAttributesController;
 import com.cardealer.controller.HomeController;
 import com.cardealer.dto.CarFilterDTO;
+import com.cardealer.dto.DealerDirectoryEntry;
 import com.cardealer.model.Car;
 import com.cardealer.model.Dealer;
 import com.cardealer.model.User;
@@ -64,7 +66,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-@WebMvcTest(controllers = {DashboardController.class, HomeController.class, CarController.class, ContactController.class})
+@WebMvcTest(controllers = {DashboardController.class, HomeController.class, CarController.class, ContactController.class, DealerController.class})
 @AutoConfigureMockMvc(addFilters = false)
 @Import({GlobalModelAttributesController.class, LocaleConfig.class, LocaleInterceptor.class, WebConfig.class})
 class PortalMarketplaceIntegrationTest {
@@ -130,6 +132,17 @@ class PortalMarketplaceIntegrationTest {
         ));
         when(userService.getUserByEmail(SELLER_EMAIL)).thenReturn(sampleUser(1L, SELLER_EMAIL, UserRole.VENDEDOR));
         when(dealerService.getDealerByUserId(1L)).thenReturn(sampleDealer(1L, SELLER_EMAIL));
+        when(dealerService.getDealerSearchOptions()).thenReturn(sampleDealerSearchOptions());
+        when(dealerService.getDealerRegions()).thenReturn(List.of("Madrid", "Catalunya", "Andalucia"));
+        when(dealerService.getDealerDirectoryEntries(any(), any())).thenReturn(sampleDealerDirectory());
+        when(dealerService.getDealerDirectoryByLetter(any(), any())).thenReturn(sampleDealerDirectoryByLetter());
+        when(dealerService.getDealerNamesByLetter()).thenReturn(Map.of(
+            "A", List.of("Atlas Madrid Motex"),
+            "B", List.of("Boreal Barcelona Desguace")
+        ));
+        when(dealerService.getDealerById(1L)).thenReturn(sampleDealer(1L, "automax@example.com"));
+        when(dealerService.buildDirectoryEntry(any())).thenReturn(sampleDealerDirectory().get(0));
+        when(carService.getCarsByDealer(1L)).thenReturn(List.of(sampleCar(21L, VehicleCategory.DAMAGED, CarCondition.ACCIDENTADO)));
     }
 
     @Test
@@ -318,6 +331,73 @@ class PortalMarketplaceIntegrationTest {
     }
 
     @Test
+    void searchControlsExposeExplicitButtonsAndBrandSelectedState() throws Exception {
+        mockMvc.perform(get("/cars")
+                .param("brands", "Audi"))
+            .andExpect(status().isOk())
+            .andExpect(content().string(containsString("Show advanced filters")))
+            .andExpect(content().string(containsString(">Close<")))
+            .andExpect(content().string(containsString("inventory-brand-group")))
+            .andExpect(content().string(containsString("has-selected-brand")))
+            .andExpect(content().string(containsString("Selected")))
+            .andExpect(content().string(containsString("data-bs-dismiss=\"offcanvas\"")));
+    }
+
+    @Test
+    void resultsListingShowsEnrichedVehicleSummaryAndExportPrice() throws Exception {
+        when(recentlyViewedService.getRecentlyViewedCars(any(), eq(5))).thenReturn(List.of(sampleCar(11L, VehicleCategory.SALVAGE, CarCondition.NUEVO)));
+
+        mockMvc.perform(get("/cars"))
+            .andExpect(status().isOk())
+            .andExpect(content().string(containsString("Focus Titanium")))
+            .andExpect(content().string(containsString("150 HP")))
+            .andExpect(content().string(containsString("inventory-export-price")))
+            .andExpect(content().string(containsString("inventory-recently-viewed-card")))
+            .andExpect(content().string(containsString("inventory-result-card")));
+    }
+
+    @Test
+    void listViewShowsNewBadgeAndRichSummary() throws Exception {
+        when(carService.findCarsWithFilters(any(), any())).thenReturn(new PageImpl<>(
+            List.of(sampleCar(12L, VehicleCategory.PASSENGER_CAR, CarCondition.NUEVO)),
+            PageRequest.of(0, 12),
+            1
+        ));
+
+        mockMvc.perform(get("/cars/list"))
+            .andExpect(status().isOk())
+            .andExpect(content().string(containsString("150 HP")))
+            .andExpect(content().string(containsString("inventory-export-price")))
+            .andExpect(content().string(containsString("inventory-result-summary")));
+    }
+
+    @Test
+    void homepageExposesExpandedVehicleCategoriesAndDamagedByMakeLinks() throws Exception {
+        mockMvc.perform(get("/"))
+            .andExpect(status().isOk())
+            .andExpect(content().string(containsString("/cars?categories=PASSENGER_CAR")))
+            .andExpect(content().string(containsString("/cars?categories=COMMERCIAL_VEHICLE")))
+            .andExpect(content().string(containsString("/cars?categories=MOTORCYCLE")))
+            .andExpect(content().string(containsString("/cars?categories=CAMPER")))
+            .andExpect(content().string(containsString("/cars?categories=TRUCK")))
+            .andExpect(content().string(containsString("/cars?categories=CARAVAN")))
+            .andExpect(content().string(containsString("/cars?categories=TRAILER")))
+            .andExpect(content().string(containsString("/cars?categories=BUS")))
+            .andExpect(content().string(containsString("/cars?categories=OTHER")))
+            .andExpect(content().string(containsString("/cars?brands=Audi&amp;categories=DAMAGED")));
+    }
+
+    @Test
+    void categoryRouteAcceptsExpandedVehicleCategory() throws Exception {
+        mockMvc.perform(get("/cars/category/MOTORCYCLE"))
+            .andExpect(status().isOk());
+
+        ArgumentCaptor<CarFilterDTO> captor = ArgumentCaptor.forClass(CarFilterDTO.class);
+        verify(carService, times(1)).findCarsWithFilters(captor.capture(), any());
+        assertEquals(List.of(VehicleCategory.MOTORCYCLE), captor.getValue().getCategories());
+    }
+
+    @Test
     void mainAndSecondaryNavigationExposeApprovedRoutes() throws Exception {
         mockMvc.perform(get("/terms"))
             .andExpect(status().isOk())
@@ -343,6 +423,35 @@ class PortalMarketplaceIntegrationTest {
         mockMvc.perform(get("/quality-codes")).andExpect(status().isOk());
     }
 
+    @Test
+    void homepageExposesSpanishDealerSearchAndDirectoryCount() throws Exception {
+        mockMvc.perform(get("/"))
+            .andExpect(status().isOk())
+            .andExpect(content().string(containsString("Filtra por empresa o region espanola")))
+            .andExpect(content().string(containsString("Atlas Madrid Motex")))
+            .andExpect(content().string(containsString("distribuidores disponibles")));
+    }
+
+    @Test
+    void dealerDirectoryShowsSearchRegionAndAlphabeticalGrouping() throws Exception {
+        mockMvc.perform(get("/dealers").param("query", "Atlas").param("region", "Madrid"))
+            .andExpect(status().isOk())
+            .andExpect(content().string(containsString("Distribuidor")))
+            .andExpect(content().string(containsString("Todas las regiones")))
+            .andExpect(content().string(containsString("Indice alfabetico")))
+            .andExpect(content().string(containsString("Atlas Madrid Motex")))
+            .andExpect(content().string(containsString("Madrid")));
+    }
+
+    @Test
+    void dealerDetailShowsSpecializationAndRegion() throws Exception {
+        mockMvc.perform(get("/dealers/1"))
+            .andExpect(status().isOk())
+            .andExpect(content().string(containsString("Motex")))
+            .andExpect(content().string(containsString("Madrid")))
+            .andExpect(content().string(containsString("Vehículos de este Concesionario")));
+    }
+
     private Car sampleCar(Long id, VehicleCategory category, CarCondition condition) {
         Dealer dealer = sampleDealer(3L, "dealer@example.com");
 
@@ -350,13 +459,17 @@ class PortalMarketplaceIntegrationTest {
         car.setId(id);
         car.setMake("Ford");
         car.setModel("Focus");
+        car.setVariant("Titanium");
         car.setYear(2022);
         car.setPrice(BigDecimal.valueOf(17500));
+        car.setExportPrice(BigDecimal.valueOf(16100));
         car.setMileage(45000);
         car.setColor("Blue");
+        car.setPowerHp(150);
         car.setCategory(category);
         car.setCondition(condition);
         car.setLocale("es");
+        car.setDescription("nap, cámara, keyless entry y mantenimiento al día para una compra clara y rápida.");
         car.setImages(List.of("car-" + id + ".jpg"));
         car.setDealer(dealer);
         return car;
@@ -365,10 +478,49 @@ class PortalMarketplaceIntegrationTest {
     private Dealer sampleDealer(Long id, String email) {
         Dealer dealer = new Dealer();
         dealer.setId(id);
-        dealer.setName("Dealer");
+        dealer.setName("AutoMax Madrid");
         dealer.setEmail(email);
         dealer.setPhone("+34123456789");
+        dealer.setCity("Madrid");
+        dealer.setDescription("Concesionario especializado en vehiculo de ocasion y Motex profesional.");
         return dealer;
+    }
+
+    private List<String> sampleDealerSearchOptions() {
+        return List.of("Atlas Madrid Motex", "Boreal Barcelona Desguace", "Delta Sevilla Export");
+    }
+
+    private List<DealerDirectoryEntry> sampleDealerDirectory() {
+        return List.of(
+            DealerDirectoryEntry.builder()
+                .dealerId(1L)
+                .companyName("Atlas Madrid Motex")
+                .specialization("Motex")
+                .region("Madrid")
+                .city("Madrid")
+                .email("atlas@example.com")
+                .phone("+34911111222")
+                .listingCount(18)
+                .realDealer(true)
+                .build(),
+            DealerDirectoryEntry.builder()
+                .companyName("Boreal Barcelona Desguace")
+                .specialization("Desguace")
+                .region("Catalunya")
+                .city("Barcelona")
+                .email("boreal@example.com")
+                .phone("+34933334444")
+                .listingCount(14)
+                .realDealer(false)
+                .build()
+        );
+    }
+
+    private Map<String, List<DealerDirectoryEntry>> sampleDealerDirectoryByLetter() {
+        return Map.of(
+            "A", List.of(sampleDealerDirectory().get(0)),
+            "B", List.of(sampleDealerDirectory().get(1))
+        );
     }
 
     private User sampleUser(Long id, String email, UserRole role) {
