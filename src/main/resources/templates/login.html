@@ -1,140 +1,125 @@
-<head th:replace="~{fragments/header :: head('Iniciar Sesión - Portal de Coches')}"></head>
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/header :: head('Acceso agente - Portal de Coches')}"></head>
 
 <body>
     <nav th:replace="~{fragments/header :: navbar}"></nav>
 
-
-    <!-- sidebar-popup -->
-    <div class="sidebar-popup">
-        <div class="sidebar-wrapper">
-            <div class="sidebar-content">
-                <button type="button" class="close-sidebar-popup"><i class="far fa-xmark"></i></button>
-                <div class="sidebar-logo">
-                    <img src="/img/logo/logo.png" alt="">
-                </div>
-                <div class="sidebar-about">
-                    <h4>About Us</h4>
-                    <p>There are many variations of passages available sure there majority have suffered alteration in
-                        some form by injected humour or randomised words which don't look even slightly believable.</p>
-                </div>
-                <div class="sidebar-contact">
-                    <h4>Contact Info</h4>
-                    <ul>
-                        <li>
-                            <h6>Email</h6>
-                            <a href="mailto:info@example.com"><i class="far fa-envelope"></i>info@example.com</a>
-                        </li>
-                        <li>
-                            <h6>Phone</h6>
-                            <a href="tel:+21236547898"><i class="far fa-phone"></i>+2 123 654 7898</a>
-                        </li>
-                        <li>
-                            <h6>Address</h6>
-                            <a href="#"><i class="far fa-location-dot"></i>25/B Milford Road, New York</a>
-                        </li>
-                    </ul>
-                </div>
-                <div class="sidebar-social">
-                    <h4>Follow Us</h4>
-                    <a href="#"><i class="fab fa-facebook"></i></a>
-                    <a href="#"><i class="fab fa-twitter"></i></a>
-                    <a href="#"><i class="fab fa-instagram"></i></a>
-                    <a href="#"><i class="fab fa-linkedin"></i></a>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- sidebar-popup end -->
-
-
     <main class="main">
-
-        <!-- breadcrumb -->
         <div class="site-breadcrumb" style="background: url(/img/breadcrumb/01.jpg)">
             <div class="container">
-                <h2 class="breadcrumb-title">Login</h2>
+                <h2 class="breadcrumb-title" th:text="#{secondary.agentAccess}">Acceso agente</h2>
                 <ul class="breadcrumb-menu">
-                    <li><a th:href="@{/}">Home</a></li>
-                    <li class="active">Login</li>
+                    <li><a th:href="@{/}" th:text="#{nav.home}">Inicio</a></li>
+                    <li class="active" th:text="#{secondary.agentAccess}">Acceso agente</li>
                 </ul>
             </div>
         </div>
-        <!-- breadcrumb end -->
 
-
-        <!-- login area -->
-        <div class="login-area py-120">
+        <section class="login-area py-120">
             <div class="container">
-                <div class="col-md-5 mx-auto">
-                    <div class="login-form">
-                        <div class="login-header">
-                            <img th:src="@{/img/logo/logo.png}" alt="">
-                            <p>Login with your motex account</p>
-                        </div>
-                        
-                        <!-- Success message -->
-                        <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
-                        
-                        <!-- Error message -->
-                        <div class="alert alert-danger" th:if="${param.error}">
-                            Invalid email or password
-                        </div>
-                        <div class="alert alert-info" th:if="${param.logout}">
-                            You have been logged out successfully
-                        </div>
-                        
-                        <form th:action="@{/login}" method="post">
-                            <div class="form-group">
-                                <label>Email Address</label>
-                                <input type="email" name="username" class="form-control"
-                                       placeholder="Your Email" required>
+                <div class="row g-4 align-items-start justify-content-center">
+                    <div class="col-lg-5">
+                        <div class="contact-content">
+                            <div class="site-heading mb-3">
+                                <span class="site-title-tagline" th:text="#{login.agent.tagline}">Portal profesional</span>
+                                <h1 class="site-title" th:text="#{login.agent.title}">Acceso para vendedores y distribuidores</h1>
                             </div>
-                            <div class="form-group">
-                                <label>Password</label>
-                                <input type="password" name="password" class="form-control"
-                                       placeholder="Your Password" required>
-                            </div>
-                            <div class="d-flex justify-content-between mb-4">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox"
-                                           name="remember-me" id="remember">
-                                    <label class="form-check-label" for="remember">
-                                        Remember Me
-                                    </label>
+                            <p class="about-text mb-4" th:text="#{login.agent.lead}">
+                                Entra con tu cuenta profesional para gestionar anuncios, responder consultas y mantener tu inventario actualizado.
+                            </p>
+                            <ul class="about-list list-unstyled">
+                                <li><i class="fas fa-check-circle"></i><span th:text="#{login.agent.point1}">Gestiona anuncios y disponibilidad.</span></li>
+                                <li><i class="fas fa-check-circle"></i><span th:text="#{login.agent.point2}">Revisa mensajes y peticiones de compradores.</span></li>
+                                <li><i class="fas fa-check-circle"></i><span th:text="#{login.agent.point3}">Actualiza tu perfil profesional y datos de empresa.</span></li>
+                            </ul>
+
+                            <div class="row g-3 mt-4">
+                                <div class="col-sm-6">
+                                    <a class="feature-item rounded-3 h-100 d-block" th:href="@{/contact}">
+                                        <span class="feature-item-icon"><i class="far fa-headset"></i></span>
+                                        <div class="feature-item-info">
+                                            <h5 th:text="#{footer.supportTitle}">Soporte</h5>
+                                            <p class="mb-0" th:text="#{login.help.contactLead}">Contacta con soporte si necesitas ayuda con el acceso.</p>
+                                        </div>
+                                    </a>
                                 </div>
-                                <a th:href="@{/forgot-password}" class="forgot-pass">Forgot Password?</a>
-                            </div>
-                            <div class="d-flex align-items-center">
-                                <button type="submit" class="theme-btn"><i class="far fa-sign-in"></i> Login</button>
-                            </div>
-                        </form>
-                        <div class="login-footer">
-                            <p>Don't have an account? <a th:href="@{/register}">Register.</a></p>
-                            <div class="social-login">
-                                <p>Continue with social media</p>
-                                <div class="social-login-list">
-                                    <a href="#"><i class="fab fa-facebook-f"></i></a>
-                                    <a href="#"><i class="fab fa-google"></i></a>
-                                    <a href="#"><i class="fab fa-twitter"></i></a>
+                                <div class="col-sm-6">
+                                    <a class="feature-item rounded-3 h-100 d-block" th:href="@{/faq}">
+                                        <span class="feature-item-icon"><i class="far fa-circle-question"></i></span>
+                                        <div class="feature-item-info">
+                                            <h5 th:text="#{secondary.faq}">Preguntas frecuentes</h5>
+                                            <p class="mb-0" th:text="#{login.help.faqLead}">Consulta respuestas rápidas sobre el uso del portal.</p>
+                                        </div>
+                                    </a>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-5">
+                        <div class="login-form">
+                            <div class="login-header">
+                                <img th:src="@{/img/logo/logo.png}" alt="">
+                                <p th:text="#{login.form.lead}">Accede a tu área de agente para gestionar anuncios.</p>
+                            </div>
+
+                            <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
+                            <div class="alert alert-danger" th:if="${param.error}" th:text="#{login.error.invalidCredentials}">
+                                Email o contraseña no válidos
+                            </div>
+                            <div class="alert alert-info" th:if="${param.logout}" th:text="#{login.logout.success}">
+                                Has cerrado sesión correctamente
+                            </div>
+
+                            <form th:action="@{/login}" method="post">
+                                <div class="form-group">
+                                    <label th:text="#{login.form.email}">Email</label>
+                                    <input type="email" name="username" class="form-control"
+                                           th:placeholder="#{login.form.emailPlaceholder}" required>
+                                </div>
+                                <div class="form-group">
+                                    <label th:text="#{login.form.password}">Contraseña</label>
+                                    <input type="password" name="password" class="form-control"
+                                           th:placeholder="#{login.form.passwordPlaceholder}" required>
+                                </div>
+                                <div class="d-flex justify-content-between mb-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox"
+                                               name="remember-me" id="remember">
+                                        <label class="form-check-label" for="remember" th:text="#{login.form.rememberMe}">
+                                            Recordarme
+                                        </label>
+                                    </div>
+                                    <a th:href="@{/forgot-password}" class="forgot-pass" th:text="#{login.form.forgotPassword}">¿Has olvidado tu contraseña?</a>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <button type="submit" class="theme-btn">
+                                        <i class="far fa-sign-in"></i> <span th:text="#{nav.login}">Iniciar sesión</span>
+                                    </button>
+                                </div>
+                            </form>
+
+                            <div class="login-footer">
+                                <p>
+                                    <span th:text="#{login.footer.noAccount}">¿Todavía no tienes cuenta profesional?</span>
+                                    <a th:href="@{/register}" th:text="#{login.footer.register}">Regístrate</a>
+                                </p>
+                                <p class="mb-0" th:text="#{login.footer.managementLead}">
+                                    Desde tu portal podrás gestionar anuncios y responder consultas del marketplace.
+                                </p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <!-- login area end -->
-
+        </section>
     </main>
 
-
-
     <footer th:replace="~{fragments/footer :: footer}"></footer>
-
     <div th:replace="~{fragments/footer :: scroll-top}"></div>
-
     <div th:replace="~{fragments/header :: scripts}"></div>
-
 </body>
 
 </html>

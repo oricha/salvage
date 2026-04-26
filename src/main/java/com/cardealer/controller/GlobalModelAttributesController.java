@@ -1,11 +1,13 @@
 package com.cardealer.controller;
 
 import com.cardealer.model.User;
+import com.cardealer.service.FavoriteService;
 import com.cardealer.service.LocalizationService;
 import com.cardealer.service.MessageService;
 import com.cardealer.service.RecentlyViewedService;
 import com.cardealer.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -20,7 +22,17 @@ import java.util.Locale;
 @RequiredArgsConstructor
 public class GlobalModelAttributesController {
 
+    @Value("${marketplace.analytics.ga-measurement-id:}")
+    private String gaMeasurementId;
+
+    @Value("${marketplace.analytics.hotjar-enabled:false}")
+    private boolean hotjarEnabled;
+
+    @Value("${marketplace.analytics.vwo-enabled:false}")
+    private boolean vwoEnabled;
+
     private final UserService userService;
+    private final FavoriteService favoriteService;
     private final MessageService messageService;
     private final LocalizationService localizationService;
     private final RecentlyViewedService recentlyViewedService;
@@ -61,7 +73,24 @@ public class GlobalModelAttributesController {
         if (attributes == null || attributes.getRequest().getSession(false) == null) {
             return List.of();
         }
+        recentlyViewedService.hydrateSessionFromCookie(attributes.getRequest().getSession(false), attributes.getRequest());
         return recentlyViewedService.getRecentlyViewedCars(attributes.getRequest().getSession(false), 5);
+    }
+
+    @ModelAttribute("favoriteCount")
+    public long favoriteCount(Authentication authentication) {
+        if (authentication == null
+                || !authentication.isAuthenticated()
+                || "anonymousUser".equals(authentication.getName())) {
+            return 0L;
+        }
+
+        try {
+            User user = userService.getUserByEmail(authentication.getName());
+            return favoriteService.countUserFavorites(user.getId());
+        } catch (Exception ignored) {
+            return 0L;
+        }
     }
 
     @ModelAttribute("currentUrl")
@@ -71,5 +100,25 @@ public class GlobalModelAttributesController {
             return "/";
         }
         return new ServletWebRequest(attributes.getRequest()).getRequest().getRequestURI();
+    }
+
+    @ModelAttribute("gaMeasurementId")
+    public String gaMeasurementId() {
+        return gaMeasurementId;
+    }
+
+    @ModelAttribute("analyticsEnabled")
+    public boolean analyticsEnabled() {
+        return gaMeasurementId != null && !gaMeasurementId.isBlank();
+    }
+
+    @ModelAttribute("hotjarEnabled")
+    public boolean hotjarEnabled() {
+        return hotjarEnabled;
+    }
+
+    @ModelAttribute("vwoEnabled")
+    public boolean vwoEnabled() {
+        return vwoEnabled;
     }
 }

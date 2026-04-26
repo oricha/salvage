@@ -3,20 +3,29 @@
 <body>
 <section th:fragment="recentlyViewed(cars)" class="recently-viewed-area py-80" th:if="${cars != null && !cars.isEmpty()}">
     <div class="container">
-        <div class="mb-4">
-            <h3 class="site-title mb-1">Vehículos vistos recientemente</h3>
-            <p class="mb-0 text-muted">Acceso rápido a los últimos 5 vehículos visitados.</p>
+        <div class="mb-4 inventory-recently-viewed-head">
+            <h3 class="site-title mb-1" th:text="#{listing.recentlyViewed.title}">Vehículos vistos recientemente</h3>
+            <p class="mb-0 text-muted" th:text="#{listing.recentlyViewed.subtitle}">Acceso rápido a los últimos 5 vehículos visitados.</p>
         </div>
         <div class="row g-4">
             <div class="col-sm-6 col-lg-15" th:each="car : ${cars}">
-                <a class="car-item d-block h-100" th:href="@{/cars/{id}(id=${car.id})}">
+                <a class="car-item d-block h-100 inventory-result-card inventory-recently-viewed-card" th:href="@{/cars/{id}(id=${car.id})}">
                     <div class="car-img">
                         <img loading="lazy" th:src="@{${car.images != null && !car.images.isEmpty()} ? '/uploads/' + ${car.images[0]} : '/img/car/01.jpg'}" th:alt="${car.make + ' ' + car.model}">
                     </div>
                     <div class="car-content">
-                        <span class="badge bg-dark mb-2" th:text="${car.category}">PASSENGER_CAR</span>
-                        <h6 th:text="${car.make + ' ' + car.model}">Vehículo</h6>
-                        <span class="car-price" th:text="${#numbers.formatDecimal(car.price, 0, 'COMMA', 2, 'POINT')} + ' €'">0 €</span>
+                        <span class="badge bg-dark mb-2" th:text="${#messages.msg(car.category.messageKey)}">PASSENGER_CAR</span>
+                        <h6 th:text="${car.make + ' ' + car.model + (car.variant != null ? ' ' + car.variant : '')}">Vehículo</h6>
+                        <p class="inventory-result-summary small mb-2"
+                           th:text="${car.description != null && car.description.length() > 90 ? car.description.substring(0, 90) + '…' : (car.description != null ? car.description : #messages.msg('listing.summary.fallback'))}">
+                            Resumen
+                        </p>
+                        <span class="car-price d-block" th:text="${#numbers.formatDecimal(car.price, 0, 'COMMA', 2, 'POINT')} + ' €'">0 €</span>
+                        <span class="inventory-export-price"
+                              th:if="${car.exportPrice != null}"
+                              th:text="#{listing.exportPriceLabel} + ' ' + ${#numbers.formatDecimal(car.exportPrice, 0, 'COMMA', 2, 'POINT')} + ' €'">
+                            Export
+                        </span>
                     </div>
                 </a>
             </div>

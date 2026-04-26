@@ -76,10 +76,14 @@ application-local.properties
 application-dev.properties
 .env
 
+# OpenSpec (local changes / specs)
+/openspec/
+
 # Kiro (local specs / agent)
 .kiro/
 .claude/
 .agent/
+.codex/
 
 # Claude
 .claude/

@@ -13,82 +13,57 @@
             </ul>
         </div>
     </div>
-    <section class="car-area grid bg py-120">
+    <section class="car-area grid bg py-120 inventory-page-shell">
         <div class="container">
-            <div class="row">
-                <div class="col-lg-3">
-                    <div class="car-sidebar">
-                        <form th:action="@{/cars}" method="get">
-                            <div class="car-widget">
-                                <h4 class="car-widget-title">Búsqueda</h4>
-                                <input class="form-control" type="text" name="searchQuery" th:value="${filters.searchQuery ?: filters.searchText}" placeholder="Marca, modelo o descripción">
-                            </div>
-                            <div class="car-widget">
-                                <h4 class="car-widget-title">Categorías</h4>
-                                <ul>
-                                    <li th:each="category, iterStat : ${categories}">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" name="categories" th:id="'category-' + ${iterStat.index}" th:value="${category}" th:checked="${filters.categories != null && filters.categories.contains(category)}">
-                                            <label class="form-check-label" th:for="'category-' + ${iterStat.index}" th:text="${category}">PASSENGER_CAR</label>
-                                        </div>
-                                    </li>
-                                </ul>
-                            </div>
-                            <div class="car-widget">
-                                <h4 class="car-widget-title">Condiciones</h4>
-                                <ul>
-                                    <li th:each="condition, iterStat : ${conditions}">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" name="conditions" th:id="'condition-' + ${iterStat.index}" th:value="${condition}" th:checked="${filters.conditions != null && filters.conditions.contains(condition)}">
-                                            <label class="form-check-label" th:for="'condition-' + ${iterStat.index}" th:text="${condition}">OCASION</label>
-                                        </div>
-                                    </li>
-                                </ul>
-                            </div>
-                            <div class="car-widget">
-                                <h4 class="car-widget-title">Precio</h4>
-                                <input class="form-control mb-2" type="number" name="minPrice" th:value="${filters.minPrice}" placeholder="Desde">
-                                <input class="form-control" type="number" name="maxPrice" th:value="${filters.maxPrice}" placeholder="Hasta">
-                            </div>
-                            <div class="car-widget">
-                                <h4 class="car-widget-title">Kilometraje</h4>
-                                <input class="form-control mb-2" type="number" name="minMileage" th:value="${filters.minMileage}" placeholder="Mínimo">
-                                <input class="form-control" type="number" name="maxMileage" th:value="${filters.maxMileage}" placeholder="Máximo">
-                            </div>
-                            <div class="car-widget">
-                                <button class="theme-btn w-100" type="submit">Aplicar filtros</button>
-                                <a th:href="@{/cars}" class="theme-btn theme-btn2 w-100 mt-2">Limpiar</a>
-                            </div>
-                        </form>
-                    </div>
+            <div class="row g-4">
+                <div class="col-lg-4 col-xl-3">
+                    <div th:replace="~{fragments/inventory-sidebar :: sidebar(@{/cars}, ${filters}, ${availableBrands}, ${modelsByMake}, ${sidebarFuelOptions}, ${sidebarTransmissionOptions})}"></div>
                 </div>
-                <div class="col-lg-9">
+                <div class="col-lg-8 col-xl-9">
                     <div class="car-sort mb-4">
                         <h6 th:text="'Mostrando ' + ${cars.numberOfElements} + ' de ' + ${totalItems} + ' resultados'">Mostrando resultados</h6>
                         <div class="car-sort-list-grid">
-                            <a class="car-sort-grid active" th:href="@{/cars}"><i class="far fa-grid-2"></i></a>
-                            <a class="car-sort-list" th:href="@{/cars/list}"><i class="far fa-list-ul"></i></a>
+                            <a class="car-sort-grid active" th:href="${gridViewUrl}"><i class="far fa-grid-2"></i></a>
+                            <a class="car-sort-list" th:href="${listViewUrl}"><i class="far fa-list-ul"></i></a>
                         </div>
                     </div>
                     <div th:if="${cars.isEmpty()}" class="alert alert-light border text-center">No hay vehículos que coincidan con los filtros seleccionados.</div>
                     <div class="row">
                         <div class="col-md-6 col-xl-4" th:each="car : ${cars}">
-                            <article class="car-item h-100">
+                            <article class="car-item h-100 inventory-result-card">
                                 <div class="car-img">
-                                    <span class="car-status status-1" th:text="${car.condition}">OCASION</span>
-                                    <span class="car-status status-2" style="left:auto;right:15px;" th:text="${car.category}">PASSENGER_CAR</span>
-                                    <img loading="lazy" th:src="@{${car.images != null && !car.images.isEmpty()} ? '/uploads/' + ${car.images[0]} : '/img/car/01.jpg'}" th:alt="${car.make + ' ' + car.model}">
+                                    <span class="car-status status-1" th:text="${car.condition == T(com.cardealer.model.enums.CarCondition).NUEVO ? #messages.msg('listing.badge.new') : car.condition}">OCASION</span>
+                                    <span class="car-status status-2" style="left:auto;right:15px;" th:text="${#messages.msg(car.category.messageKey)}">PASSENGER_CAR</span>
+                                    <a class="inventory-result-link-overlay" th:href="@{/cars/{id}(id=${car.id})}" th:attr="aria-label=#{listing.viewDetails}">
+                                        <img loading="lazy" th:src="@{${car.images != null && !car.images.isEmpty()} ? '/uploads/' + ${car.images[0]} : '/img/car/01.jpg'}" th:alt="${car.make + ' ' + car.model}">
+                                    </a>
                                 </div>
                                 <div class="car-content">
-                                    <h4><a th:href="@{/cars/{id}(id=${car.id})}" th:text="${car.make + ' ' + car.model}">Vehículo</a></h4>
+                                    <h4>
+                                        <a th:href="@{/cars/{id}(id=${car.id})}"
+                                           th:text="${car.make + ' ' + car.model + (car.variant != null ? ' ' + car.variant : '') + (car.powerHp != null ? ' · ' + car.powerHp + ' HP' : '')}">
+                                            Vehículo
+                                        </a>
+                                    </h4>
+                                    <p class="inventory-result-summary"
+                                       th:text="${car.description != null && car.description.length() > 140 ? car.description.substring(0, 140) + '…' : (car.description != null ? car.description : #messages.msg('listing.summary.fallback'))}">
+                                        Short summary
+                                    </p>
                                     <ul class="car-list">
-                                        <li><i class="far fa-road"></i><span th:text="${car.mileage + ' km'}">0 km</span></li>
                                         <li><i class="far fa-car"></i><span th:text="${car.year}">2024</span></li>
                                         <li><i class="far fa-gas-pump"></i><span th:text="${car.fuelType}">Fuel</span></li>
+                                        <li><i class="far fa-road"></i><span th:text="${car.mileage + ' km'}">0 km</span></li>
                                         <li><i class="far fa-steering-wheel"></i><span th:text="${car.transmission}">Transmission</span></li>
                                     </ul>
                                     <div class="car-footer">
-                                        <span class="car-price" th:text="${#numbers.formatDecimal(car.price, 0, 'COMMA', 2, 'POINT')} + ' €'">0 €</span>
+                                        <div class="inventory-result-pricing">
+                                            <span class="car-price" th:text="${#numbers.formatDecimal(car.price, 0, 'COMMA', 2, 'POINT')} + ' €'">0 €</span>
+                                            <span class="inventory-export-price"
+                                                  th:if="${car.exportPrice != null}"
+                                                  th:text="#{listing.exportPriceLabel} + ' ' + ${#numbers.formatDecimal(car.exportPrice, 0, 'COMMA', 2, 'POINT')} + ' €'">
+                                                Export
+                                            </span>
+                                        </div>
                                         <a class="theme-btn" th:href="@{/cars/{id}(id=${car.id})}"><span class="far fa-eye"></span> Ver detalle</a>
                                     </div>
                                 </div>
@@ -103,5 +78,9 @@
 <footer th:replace="~{fragments/footer :: footer}"></footer>
 <div th:replace="~{fragments/footer :: scroll-top}"></div>
 <div th:replace="~{fragments/header :: scripts}"></div>
+<script th:inline="javascript">
+    window.inventoryModelsByMake = /*[[${modelsByMake}]]*/ {};
+</script>
+<script src="/js/inventory-sidebar.js"></script>
 </body>
 </html>

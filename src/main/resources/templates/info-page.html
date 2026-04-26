@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/header :: head(${#messages.msg(titleKey)})}"></head>
+
+<body>
+    <nav th:replace="~{fragments/header :: navbar}"></nav>
+
+    <main class="main">
+        <div class="site-breadcrumb" style="background: url(/img/breadcrumb/01.jpg)">
+            <div class="container">
+                <h2 class="breadcrumb-title" th:text="${#messages.msg(titleKey)}">Information</h2>
+                <ul class="breadcrumb-menu">
+                    <li><a th:href="@{/}" th:text="#{nav.home}">Inicio</a></li>
+                    <li class="active" th:text="${#messages.msg(titleKey)}">Information</li>
+                </ul>
+            </div>
+        </div>
+
+        <section class="about-area py-120">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-lg-10 col-xl-8">
+                        <div class="about-right">
+                            <div class="site-heading mb-3 text-center">
+                                <span class="site-title-tagline" th:text="${#messages.msg(subtitleKey)}">Support</span>
+                                <h1 class="site-title" th:text="${#messages.msg(titleKey)}">Information</h1>
+                            </div>
+                            <p class="about-text text-center" th:text="${#messages.msg(leadKey)}">
+                                This page explains the current policy and navigation entry point.
+                            </p>
+
+                            <div class="about-list-wrapper mt-5">
+                                <ul class="about-list list-unstyled">
+                                    <li th:each="pointKey : ${pointKeys}">
+                                        <i class="fas fa-check-circle"></i>
+                                        <span th:text="${#messages.msg(pointKey)}">Point</span>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <div class="mt-5">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <div class="contact-content h-100">
+                                            <div class="site-heading mb-3">
+                                                <span class="site-title-tagline" th:text="#{info.support.tagline}">Soporte</span>
+                                                <h2 class="site-title fs-3" th:text="#{info.support.title}">¿Necesitas ayuda adicional?</h2>
+                                            </div>
+                                            <p class="about-text mb-3" th:text="#{info.support.lead}">
+                                                Si tu caso requiere revisión manual, soporte te orienta y deriva la consulta correcta.
+                                            </p>
+                                            <div class="d-flex flex-wrap gap-3 justify-content-center justify-content-md-start">
+                                                <a th:href="@{/contact}" class="theme-btn" th:text="#{info.contactCta}">Contact us</a>
+                                                <a th:href="@{/login}" class="theme-btn theme-btn2" th:text="#{secondary.agentAccess}">Acceso agente</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="contact-content h-100">
+                                            <div class="site-heading mb-3">
+                                                <span class="site-title-tagline" th:text="#{info.support.quickLinksTagline}">Enlaces útiles</span>
+                                                <h2 class="site-title fs-3" th:text="#{info.support.quickLinksTitle}">Accesos rápidos</h2>
+                                            </div>
+                                            <ul class="about-list list-unstyled">
+                                                <li><i class="fas fa-check-circle"></i><a th:href="@{/faq}" th:text="#{secondary.faq}">Preguntas frecuentes</a></li>
+                                                <li><i class="fas fa-check-circle"></i><a th:href="@{/terms}" th:text="#{secondary.terms}">Términos y condiciones</a></li>
+                                                <li><i class="fas fa-check-circle"></i><a th:href="@{/privacy}" th:text="#{secondary.privacy}">Declaración de privacidad</a></li>
+                                                <li><i class="fas fa-check-circle"></i><a th:href="@{/contact}" th:text="#{secondary.contact}">Contacto</a></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
+    <div th:replace="~{fragments/footer :: scroll-top}"></div>
+    <div th:replace="~{fragments/header :: scripts}"></div>
+</body>
+
+</html>

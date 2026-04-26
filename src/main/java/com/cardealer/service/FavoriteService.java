@@ -93,6 +93,10 @@ public class FavoriteService {
         return favoriteRepository.findByUserIdOrderByCreatedAtDesc(userId, pageable);
     }
 
+    public long countUserFavorites(Long userId) {
+        return favoriteRepository.findByUserIdOrderByCreatedAtDesc(userId).size();
+    }
+
     /**
      * Check if a car is in user's favorites
      */

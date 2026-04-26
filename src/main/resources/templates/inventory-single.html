@@ -11,10 +11,10 @@
                 <div class="col-lg-8">
                     <div class="car-single-widget">
                         <div class="d-flex gap-2 mb-3">
-                            <span class="badge bg-dark" th:text="${car.category}">PASSENGER_CAR</span>
+                            <span class="badge bg-dark" th:text="${#messages.msg(car.category.messageKey)}">PASSENGER_CAR</span>
                             <span class="badge bg-secondary" th:text="${car.condition}">OCASION</span>
                         </div>
-                        <h1 class="car-single-title" th:text="${car.make + ' ' + car.model}">Vehicle</h1>
+                        <h1 class="car-single-title" th:text="${car.make + ' ' + car.model + (car.variant != null ? ' ' + car.variant : '')}">Vehicle</h1>
                         <ul class="car-single-meta">
                             <li><i class="far fa-clock"></i> Publicado: <span th:text="${#temporals.format(car.createdAt, 'dd/MM/yyyy')}">01/01/2026</span></li>
                             <li><i class="far fa-rotate"></i> Actualizado: <span th:text="${#temporals.format(car.updatedAt, 'dd/MM/yyyy')}">01/01/2026</span></li>
@@ -45,6 +45,33 @@
                             <div class="col-md-4"><strong>Transmisión</strong><p th:text="${car.transmission}">Transmission</p></div>
                             <div class="col-md-4"><strong>Carrocería</strong><p th:text="${car.bodyType}">Body</p></div>
                             <div class="col-md-4"><strong>Color</strong><p th:text="${car.color}">Color</p></div>
+                            <div class="col-md-4" th:if="${car.variant != null}"><strong>Variante</strong><p th:text="${car.variant}">Variant</p></div>
+                            <div class="col-md-4" th:if="${car.powerHp != null}"><strong>Potencia</strong><p th:text="${car.powerHp + ' HP'}">150 HP</p></div>
+                            <div class="col-md-4" th:if="${car.colorCode != null}"><strong>Código de color</strong><p th:text="${car.colorCode}">BG1</p></div>
+                            <div class="col-md-4" th:if="${car.origin != null}"><strong>Origen</strong><p th:text="${car.origin}">GERMANY</p></div>
+                            <div class="col-md-4" th:if="${car.engine != null}"><strong>Motor</strong><p th:text="${car.engine}">2.0 TDI</p></div>
+                            <div class="col-md-4" th:if="${car.doors != null}"><strong>Puertas</strong><p th:text="${car.doors}">5</p></div>
+                        </div>
+                    </div>
+                    <div class="car-single-widget" th:if="${car.registrationAvailable != null || car.awaitingVerification != null || car.fullInstructionBooklet != null || car.allKeysAvailable != null}">
+                        <h4 class="mb-4">Documentación y opciones</h4>
+                        <div class="row g-3">
+                            <div class="col-md-6" th:if="${car.registrationAvailable != null}"><strong>Matrícula disponible</strong><p th:text="${car.registrationAvailable ? 'Sí' : 'No'}">Sí</p></div>
+                            <div class="col-md-6" th:if="${car.awaitingVerification != null}"><strong>Esperando verificación</strong><p th:text="${car.awaitingVerification ? 'Sí' : 'No'}">No</p></div>
+                            <div class="col-md-6" th:if="${car.fullInstructionBooklet != null}"><strong>Libro de instrucciones completo</strong><p th:text="${car.fullInstructionBooklet ? 'Sí' : 'No'}">Sí</p></div>
+                            <div class="col-md-6" th:if="${car.allKeysAvailable != null}"><strong>Todas las llaves disponibles</strong><p th:text="${car.allKeysAvailable ? 'Sí' : 'No'}">Sí</p></div>
+                            <div class="col-md-6" th:if="${car.refinedFuelType != null}"><strong>Combustible refinado</strong><p th:text="${car.refinedFuelType ? 'Sí' : 'No'}">Sí</p></div>
+                        </div>
+                    </div>
+                    <div class="car-single-widget" th:if="${car.engineDamage != null || car.lowerDamage != null || car.drivable != null || car.movable != null || car.engineRuns != null || car.airbagsIntact != null}">
+                        <h4 class="mb-4">Estado del vehículo</h4>
+                        <div class="row g-3">
+                            <div class="col-md-6" th:if="${car.engineDamage != null}"><strong>Daño en motor</strong><p th:text="${car.engineDamage ? 'Sí' : 'No'}">No</p></div>
+                            <div class="col-md-6" th:if="${car.lowerDamage != null}"><strong>Daño inferior</strong><p th:text="${car.lowerDamage ? 'Sí' : 'No'}">No</p></div>
+                            <div class="col-md-6" th:if="${car.drivable != null}"><strong>Puede ser conducido</strong><p th:text="${car.drivable ? 'Sí' : 'No'}">Sí</p></div>
+                            <div class="col-md-6" th:if="${car.movable != null}"><strong>Se puede mover</strong><p th:text="${car.movable ? 'Sí' : 'No'}">Sí</p></div>
+                            <div class="col-md-6" th:if="${car.engineRuns != null}"><strong>El motor funciona</strong><p th:text="${car.engineRuns ? 'Sí' : 'No'}">Sí</p></div>
+                            <div class="col-md-6" th:if="${car.airbagsIntact != null}"><strong>Airbags intactos</strong><p th:text="${car.airbagsIntact ? 'Sí' : 'No'}">Sí</p></div>
                         </div>
                     </div>
                     <div class="car-single-widget">
@@ -72,8 +99,9 @@
                     <aside class="car-single-sidebar">
                         <div class="car-single-widget">
                             <h4 class="car-single-price" th:text="${#numbers.formatDecimal(car.price, 0, 'COMMA', 2, 'POINT')} + ' €'">0 €</h4>
+                            <p class="text-muted mb-3" th:if="${car.exportPrice != null}" th:text="'Precio exportación: ' + ${#numbers.formatDecimal(car.exportPrice, 0, 'COMMA', 2, 'POINT')} + ' €'">Precio exportación</p>
                             <ul class="car-list">
-                                <li><strong>Categoría:</strong> <span th:text="${car.category}">PASSENGER_CAR</span></li>
+                                <li><strong>Categoría:</strong> <span th:text="${#messages.msg(car.category.messageKey)}">PASSENGER_CAR</span></li>
                                 <li><strong>Condición:</strong> <span th:text="${car.condition}">OCASION</span></li>
                                 <li><strong>Dealer:</strong> <span th:text="${car.dealer != null ? car.dealer.name : 'No disponible'}">Dealer</span></li>
                             </ul>

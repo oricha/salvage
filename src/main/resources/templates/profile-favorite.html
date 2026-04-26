@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 
-<head th:replace="~{fragments/header :: head('Favoritos - Portal de Coches')}"></head>
+<head th:replace="~{fragments/header :: head('Parking - Portal de Coches')}"></head>
 
 <body>
     <nav th:replace="~{fragments/header :: navbar}"></nav>
@@ -9,11 +9,10 @@
     <main class="main">
         <div class="site-breadcrumb" style="background: url(/img/breadcrumb/01.jpg)">
             <div class="container">
-                <h2 class="breadcrumb-title">Favoritos</h2>
+                <h2 class="breadcrumb-title">Parking de vehículos</h2>
                 <ul class="breadcrumb-menu">
                     <li><a th:href="@{/}">Inicio</a></li>
-                    <li><a th:href="@{/dashboard}">Dashboard</a></li>
-                    <li class="active">Favoritos</li>
+                    <li class="active">Parking</li>
                 </ul>
             </div>
         </div>
@@ -21,22 +20,28 @@
         <div class="user-profile py-120">
             <div class="container">
                 <div class="user-profile-card profile-favorite">
-                    <h4 class="user-profile-card-title">Mis favoritos</h4>
+                    <div class="section-head">
+                        <div>
+                            <span class="section-kicker">Parking</span>
+                            <h4 class="user-profile-card-title">Vehículos guardados</h4>
+                        </div>
+                        <a th:href="@{/cars}" class="theme-btn">Seguir buscando</a>
+                    </div>
 
                     <div th:if="${favoriteCars == null or favoriteCars.isEmpty()}" class="text-center py-5">
                         <i class="far fa-heart" style="font-size: 4rem; color: #ccc;"></i>
-                        <p class="text-muted mt-3">No tienes coches favoritos aún.</p>
+                        <p class="text-muted mt-3">No tienes coches guardados todavía.</p>
                         <a th:href="@{/cars}" class="theme-btn mt-3">Explorar inventario</a>
                     </div>
 
                     <div class="row" th:if="${favoriteCars != null and !favoriteCars.isEmpty()}">
-                        <div th:each="car : ${favoriteCars}" class="col-md-6 col-lg-4">
+                        <div th:each="car : ${favoriteCars}" class="col-md-6 col-lg-4 favorite-card-shell">
                             <div class="car-item">
                                 <div class="car-img">
                                     <img th:src="@{${car.images != null and !car.images.isEmpty()} ? '/uploads/' + ${car.images[0]} : '/img/car/01.jpg'}"
                                          alt="Imagen del coche">
                                     <div class="car-btns">
-                                        <a href="#" class="remove-favorite" th:data-car-id="${car.id}" title="Eliminar de favoritos">
+                                        <a href="#" class="remove-favorite" th:data-car-id="${car.id}" title="Eliminar del parking">
                                             <i class="far fa-trash-can"></i>
                                         </a>
                                         <a th:href="@{/cars/{id}(id=${car.id})}" title="Ver detalle">
@@ -62,18 +67,32 @@
                         </div>
                     </div>
 
-                    <div class="pagination-area" th:if="${totalPages > 1}">
-                        <ul class="pagination">
-                            <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
-                                <a class="page-link" th:href="@{/dashboard/favorites(page=${currentPage - 1}, size=9)}"><i class="far fa-arrow-left"></i></a>
-                            </li>
-                            <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}" th:classappend="${i == currentPage} ? 'active'">
-                                <a class="page-link" th:href="@{/dashboard/favorites(page=${i}, size=9)}" th:text="${i + 1}">1</a>
-                            </li>
-                            <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
-                                <a class="page-link" th:href="@{/dashboard/favorites(page=${currentPage + 1}, size=9)}"><i class="far fa-arrow-right"></i></a>
-                            </li>
-                        </ul>
+                    <div class="recently-viewed-block mt-5" th:if="${recentlyViewedCars != null and !recentlyViewedCars.isEmpty()}">
+                        <div class="section-head">
+                            <div>
+                                <span class="section-kicker">Últimos vistos</span>
+                                <h5>Retoma tu búsqueda reciente</h5>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div th:each="car : ${recentlyViewedCars}" class="col-md-6 col-xl-3">
+                                <div class="car-item">
+                                    <div class="car-img">
+                                        <img th:src="@{${car.images != null and !car.images.isEmpty()} ? '/uploads/' + ${car.images[0]} : '/img/car/01.jpg'}"
+                                             alt="Imagen del coche">
+                                    </div>
+                                    <div class="car-content">
+                                        <h4>
+                                            <a th:href="@{/cars/{id}(id=${car.id})}" th:text="${car.make + ' ' + car.model}">Vehículo</a>
+                                        </h4>
+                                        <div class="car-footer">
+                                            <span class="car-price" th:text="${#numbers.formatDecimal(car.price, 0, 2)} + ' €'">22.000 €</span>
+                                            <a th:href="@{/cars/{id}(id=${car.id})}" class="theme-btn">Ver de nuevo</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -86,15 +105,19 @@
     <script>
         $(document).on('click', '.remove-favorite', function (e) {
             e.preventDefault();
+            if (!window.confirm('¿Seguro que quieres eliminar este vehículo del parking?')) {
+                return;
+            }
+
             const carId = $(this).data('car-id');
-            const $card = $(this).closest('.col-md-6');
+            const $card = $(this).closest('.favorite-card-shell');
 
             $.post('/favorites/remove/' + carId)
                 .done(function (response) {
                     if (response.success) {
                         $card.fadeOut(250, function () {
                             $(this).remove();
-                            if ($('.car-item').length === 0) {
+                            if ($('.favorite-card-shell').length === 0) {
                                 window.location.reload();
                             }
                         });

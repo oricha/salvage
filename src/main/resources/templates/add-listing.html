@@ -45,6 +45,10 @@
                                 <div class="invalid-feedback" th:errors="*{model}"></div>
                             </div>
                             <div class="col-md-4">
+                                <label class="form-label">Variante / Trim</label>
+                                <input th:field="*{variant}" class="form-control">
+                            </div>
+                            <div class="col-md-4">
                                 <label class="form-label">Año *</label>
                                 <input type="number" th:field="*{year}" class="form-control" th:classappend="${#fields.hasErrors('year')} ? ' is-invalid'">
                                 <div class="invalid-feedback" th:errors="*{year}"></div>
@@ -53,6 +57,10 @@
                                 <label class="form-label">Precio *</label>
                                 <input type="number" step="0.01" th:field="*{price}" class="form-control" th:classappend="${#fields.hasErrors('price')} ? ' is-invalid'">
                                 <div class="invalid-feedback" th:errors="*{price}"></div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Precio exportación</label>
+                                <input type="number" step="0.01" th:field="*{exportPrice}" class="form-control">
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label">Kilometraje</label>
@@ -71,7 +79,7 @@
                                 <label class="form-label">Categoría *</label>
                                 <select th:field="*{category}" class="form-control" th:classappend="${#fields.hasErrors('category')} ? ' is-invalid'">
                                     <option value="">Seleccionar</option>
-                                    <option th:each="category : ${categories}" th:value="${category.name()}" th:text="${category}">PASSENGER_CAR</option>
+                                    <option th:each="category : ${categories}" th:value="${category.name()}" th:text="${#messages.msg(category.messageKey)}">PASSENGER_CAR</option>
                                 </select>
                                 <div class="invalid-feedback" th:errors="*{category}"></div>
                             </div>
@@ -103,6 +111,17 @@
                                 <input th:field="*{color}" class="form-control">
                             </div>
                             <div class="col-md-4">
+                                <label class="form-label">Código de color</label>
+                                <input th:field="*{colorCode}" class="form-control">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Origen</label>
+                                <select th:field="*{origin}" class="form-control">
+                                    <option value="">Seleccionar</option>
+                                    <option th:each="origin : ${origins}" th:value="${origin.name()}" th:text="${origin}">GERMANY</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
                                 <label class="form-label">Puertas</label>
                                 <input type="number" th:field="*{doors}" class="form-control" th:classappend="${#fields.hasErrors('doors')} ? ' is-invalid'">
                                 <div class="invalid-feedback" th:errors="*{doors}"></div>
@@ -110,6 +129,19 @@
                             <div class="col-md-4">
                                 <label class="form-label">Motor</label>
                                 <input th:field="*{engine}" class="form-control">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Potencia (HP)</label>
+                                <input type="number" th:field="*{powerHp}" class="form-control" th:classappend="${#fields.hasErrors('powerHp')} ? ' is-invalid'">
+                                <div class="invalid-feedback" th:errors="*{powerHp}"></div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Combustible refinado</label>
+                                <select th:field="*{refinedFuelType}" class="form-control">
+                                    <option th:value="${null}">No especificado</option>
+                                    <option th:value="true">Sí</option>
+                                    <option th:value="false">No</option>
+                                </select>
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label">Idioma del anuncio *</label>
@@ -120,6 +152,84 @@
                             <div class="col-12">
                                 <label class="form-label">Descripción</label>
                                 <textarea th:field="*{description}" class="form-control" rows="5"></textarea>
+                            </div>
+
+                            <div class="col-12">
+                                <h6 class="mb-3">Documentación y opciones</h6>
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <label class="form-label">Matrícula disponible</label>
+                                        <select th:field="*{registrationAvailable}" class="form-control">
+                                            <option th:value="${null}">No especificado</option>
+                                            <option th:value="true">Sí</option>
+                                            <option th:value="false">No</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Libro de instrucciones completo</label>
+                                        <select th:field="*{fullInstructionBooklet}" class="form-control">
+                                            <option th:value="${null}">No especificado</option>
+                                            <option th:value="true">Sí</option>
+                                            <option th:value="false">No</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Todas las llaves disponibles</label>
+                                        <select th:field="*{allKeysAvailable}" class="form-control">
+                                            <option th:value="${null}">No especificado</option>
+                                            <option th:value="true">Sí</option>
+                                            <option th:value="false">No</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-check mt-4">
+                                            <input class="form-check-input" type="checkbox" th:field="*{awaitingVerification}">
+                                            <label class="form-check-label">Esperando verificación</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <h6 class="mb-3">Estado de daños</h6>
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" th:field="*{engineDamage}">
+                                            <label class="form-check-label">Daño en motor</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" th:field="*{lowerDamage}">
+                                            <label class="form-check-label">Daño inferior</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" th:field="*{drivable}">
+                                            <label class="form-check-label">Puede ser conducido</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" th:field="*{movable}">
+                                            <label class="form-check-label">Se puede mover</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" th:field="*{engineRuns}">
+                                            <label class="form-check-label">El motor funciona</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" th:field="*{airbagsIntact}">
+                                            <label class="form-check-label">Airbags intactos</label>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                             <div class="col-12">

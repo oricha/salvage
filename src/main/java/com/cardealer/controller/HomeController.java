@@ -1,14 +1,16 @@
 package com.cardealer.controller;
 
+import com.cardealer.catalog.AdvancedSearchCatalog;
+import com.cardealer.catalog.VehicleCategoryCatalog;
 import com.cardealer.dto.ContactFormDTO;
 import com.cardealer.dto.BreadcrumbItem;
-import com.cardealer.model.Dealer;
 import com.cardealer.model.enums.BodyType;
 import com.cardealer.model.enums.VehicleCategory;
 import com.cardealer.service.CarService;
 import com.cardealer.service.DealerService;
 import com.cardealer.service.SEOService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.Arrays;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -30,6 +31,7 @@ public class HomeController {
     private final CarService carService;
     private final DealerService dealerService;
     private final SEOService seoService;
+    private final MessageSource messageSource;
 
     @GetMapping("/")
     public String home(Model model, Locale locale) {
@@ -43,21 +45,31 @@ public class HomeController {
         model.addAttribute("featuredHeroTabs", List.of(
             Map.of("label", "Damaged", "description", "Repairable vehicles with full listing data", "url", "/cars?categories=DAMAGED"),
             Map.of("label", "Desguace", "description", "Salvage stock ready for export or dismantling", "url", "/cars?categories=SALVAGE"),
-            Map.of("label", "Occasion", "description", "Occasion cars from professional sellers", "url", "/coming-soon?feature=occasion-vehicles")
+            Map.of("label", "Occasion", "description", "Occasion cars from professional sellers", "url", "/cars?categories=PASSENGER_CAR")
         ));
-        model.addAttribute("primaryVehicleTypes", List.of(
-            Map.of("label", "Passenger Cars", "icon", "far fa-car-side", "url", "/cars?categories=PASSENGER_CAR"),
-            Map.of("label", "Commercial Vehicles", "icon", "far fa-van-shuttle", "url", "/cars?categories=COMMERCIAL_VEHICLE"),
-            Map.of("label", "Motor Cycles", "icon", "far fa-motorcycle", "url", "/cars?categories=MOTORCYCLE"),
-            Map.of("label", "Campers", "icon", "far fa-caravan", "url", "/coming-soon?feature=occasion-vehicles"),
-            Map.of("label", "Trucks", "icon", "far fa-truck", "url", "/cars?categories=COMMERCIAL_VEHICLE")
+        model.addAttribute("homepageStats", List.of(
+            Map.of("value", "10.000+", "label", "coches dañados disponibles"),
+            Map.of("value", "20.000+", "label", "coches de desguace"),
+            Map.of("value", "3.000.000", "label", "piezas usadas catalogadas"),
+            Map.of("value", "~2.000", "label", "vehiculos de ocasion"),
+            Map.of("value", "250+", "label", "empresas participantes")
         ));
-        model.addAttribute("extraVehicleTypes", List.of(
-            Map.of("label", "Buses", "url", "/coming-soon?feature=occasion-vehicles"),
-            Map.of("label", "Trailers", "url", "/coming-soon?feature=used-parts"),
-            Map.of("label", "Quads", "url", "/coming-soon?feature=occasion-vehicles"),
-            Map.of("label", "Vans", "url", "/cars?categories=COMMERCIAL_VEHICLE")
+        model.addAttribute("homepageValueProps", List.of(
+            Map.of(
+                "title", "One-Stop-Shop",
+                "description", "Encuentra coches dañados, siniestrados y vehiculos de ocasion dentro de un unico marketplace profesional."
+            ),
+            Map.of(
+                "title", "Plataforma unificada",
+                "description", "Trabajamos con multiples categorias, distribuidores y regiones para simplificar la busqueda y comparacion."
+            ),
+            Map.of(
+                "title", "Transparencia y calidad",
+                "description", "Las fichas y distribuidores se presentan con estructura clara, trazabilidad y foco en calidad profesional."
+            )
         ));
+        model.addAttribute("primaryVehicleTypes", VehicleCategoryCatalog.primaryCategories());
+        model.addAttribute("extraVehicleTypes", VehicleCategoryCatalog.secondaryCategories());
         model.addAttribute("searchBrands", buildSearchBrands());
         model.addAttribute("modelsByMake", buildModelsByMake());
         model.addAttribute("fuelOptions", List.of("Petrol", "Diesel", "LPG", "Electric", "Hybrid", "Plug-in hybrid"));
@@ -68,16 +80,11 @@ public class HomeController {
         model.addAttribute("originOptions", List.of("Netherlands", "Belgium", "Germany", "France", "Spain", "Italy", "Austria"));
         model.addAttribute("detailOptions", List.of("Registration papers available", "All keys available", "Complete manual", "Maintenance history", "Service book"));
         model.addAttribute("damageOptions", List.of("Engine damage", "Steering damage", "Airbags intact", "Moving vehicle", "Driveable", "Rear damage", "Front damage", "Side impact"));
-        model.addAttribute("dealerSearchOptions", buildDealerSearchOptions());
-        model.addAttribute("dealersByLetter", buildDealersByLetter());
-        model.addAttribute("dealerDirectoryCount", buildDealerSearchOptions().size());
-        model.addAttribute("makesForDamageGrid", List.of(
-            "Alfa Romeo", "Audi", "BMW", "Chevrolet", "Citroën", "Cupra", "Dacia", "DS Automobiles",
-            "Fiat", "Ford", "Honda", "Hyundai", "Jaguar", "Jeep", "Kia", "Land Rover",
-            "Lexus", "Mazda", "Mercedes", "MG", "Mini", "Mitsubishi", "Nissan", "Opel",
-            "Peugeot", "Porsche", "Renault", "Saab", "Seat", "Skoda", "Smart", "Suzuki",
-            "Tesla", "Toyota", "Volkswagen", "Volvo"
-        ));
+        model.addAttribute("dealerSearchOptions", dealerService.getDealerSearchOptions());
+        model.addAttribute("dealersByLetter", dealerService.getDealerNamesByLetter());
+        model.addAttribute("dealerDirectoryCount", dealerService.getDealerSearchOptions().size());
+        model.addAttribute("dealerRegions", dealerService.getDealerRegions());
+        model.addAttribute("makesForDamageGrid", AdvancedSearchCatalog.mergedBrands(carService.getAvailableBrands()).stream().limit(36).toList());
         model.addAttribute("extraStylesheets", List.of("/css/home-salvage.css"));
         model.addAttribute("featuredVehiclesByCategory", Map.of(
             VehicleCategory.DAMAGED, carService.findCarsByCategory(VehicleCategory.DAMAGED, org.springframework.data.domain.PageRequest.of(0, 4)).getContent(),
@@ -113,6 +120,84 @@ public class HomeController {
         model.addAttribute("pageKeywords", "contacto, soporte coches, ayuda portal");
         model.addAttribute("ogTitle", "Contacto");
         return "contact";
+    }
+
+    @GetMapping("/terms")
+    public String terms(Model model, Locale locale) {
+        return renderInfoPage(
+            model,
+            locale,
+            "info.terms.title",
+            "info.terms.subtitle",
+            "info.terms.lead",
+            List.of("info.terms.point1", "info.terms.point2", "info.terms.point3"),
+            "/terms"
+        );
+    }
+
+    @GetMapping("/disclaimer")
+    public String disclaimer(Model model, Locale locale) {
+        return renderInfoPage(
+            model,
+            locale,
+            "info.disclaimer.title",
+            "info.disclaimer.subtitle",
+            "info.disclaimer.lead",
+            List.of("info.disclaimer.point1", "info.disclaimer.point2", "info.disclaimer.point3"),
+            "/disclaimer"
+        );
+    }
+
+    @GetMapping("/privacy")
+    public String privacy(Model model, Locale locale) {
+        return renderInfoPage(
+            model,
+            locale,
+            "info.privacy.title",
+            "info.privacy.subtitle",
+            "info.privacy.lead",
+            List.of("info.privacy.point1", "info.privacy.point2", "info.privacy.point3"),
+            "/privacy"
+        );
+    }
+
+    @GetMapping("/faq")
+    public String faq(Model model, Locale locale) {
+        return renderInfoPage(
+            model,
+            locale,
+            "info.faq.title",
+            "info.faq.subtitle",
+            "info.faq.lead",
+            List.of("info.faq.point1", "info.faq.point2", "info.faq.point3"),
+            "/faq"
+        );
+    }
+
+    @GetMapping("/parts-order-status")
+    public String partsOrderStatus(Model model, Locale locale) {
+        return renderInfoPage(
+            model,
+            locale,
+            "info.partsOrderStatus.title",
+            "info.partsOrderStatus.subtitle",
+            "info.partsOrderStatus.lead",
+            List.of("info.partsOrderStatus.point1", "info.partsOrderStatus.point2", "info.partsOrderStatus.point3"),
+            "/parts-order-status"
+        );
+    }
+
+    @GetMapping("/quality-codes")
+    public String qualityCodes(Model model, Locale locale) {
+        return renderInfoPage(
+            model,
+            locale,
+            "info.qualityCodes.title",
+            "info.qualityCodes.subtitle",
+            "info.qualityCodes.lead",
+            List.of("info.qualityCodes.point1", "info.qualityCodes.point2", "info.qualityCodes.point3"),
+            "/quality-codes"
+        );
     }
 
     @GetMapping("/coming-soon")
@@ -163,51 +248,27 @@ public class HomeController {
         return models;
     }
 
-    private List<String> buildDealerSearchOptions() {
-        List<String> names = new ArrayList<>();
-        try {
-            names.addAll(dealerService.getAllActiveDealers().stream()
-                .map(Dealer::getName)
-                .filter(name -> name != null && !name.isBlank())
-                .toList());
-        } catch (Exception ignored) {
-        }
-
-        List<String> prefixes = List.of(
-            "A & R", "A-Team", "Auto", "Best", "Car", "Damage", "Euro", "First", "Garage", "Green",
-            "Holland", "Inter", "Jumbo", "King", "Lowlands", "Mega", "Nordic", "Orange", "Prime", "Quick",
-            "Royal", "Select", "Top", "United", "Value", "West"
-        );
-        List<String> suffixes = List.of(
-            "Schadeautos", "Auto Parts", "Salvage", "Mobility", "Dismantlers", "Export", "Recovery", "Automotive",
-            "Truck Parts", "Campers", "Car Center", "Occasion Hub", "Vehicle Traders", "Auto Recycling",
-            "Damage Cars", "Dealers", "Motors", "Commercials", "Auto Group", "Drive Solutions"
-        );
-
-        for (char letter = 'A'; letter <= 'W'; letter++) {
-            if (letter == 'Q' || letter == 'X' || letter == 'Y' || letter == 'Z') {
-                continue;
-            }
-            for (int i = 0; i < 24; i++) {
-                String prefix = prefixes.get(i % prefixes.size());
-                String suffix = suffixes.get((i + letter) % suffixes.size());
-                names.add(letter + " " + prefix + " " + suffix);
-            }
-        }
-
-        return names.stream()
-            .distinct()
-            .sorted(String.CASE_INSENSITIVE_ORDER)
-            .toList();
-    }
-
-    private Map<String, List<String>> buildDealersByLetter() {
-        Map<String, List<String>> grouped = new LinkedHashMap<>();
-        buildDealerSearchOptions().forEach(name -> {
-            String letter = name.substring(0, 1).toUpperCase(Locale.ROOT);
-            grouped.computeIfAbsent(letter, key -> new ArrayList<>()).add(name);
-        });
-        grouped.values().forEach(list -> list.sort(Comparator.naturalOrder()));
-        return grouped;
+    private String renderInfoPage(Model model,
+                                  Locale locale,
+                                  String titleKey,
+                                  String subtitleKey,
+                                  String leadKey,
+                                  List<String> pointKeys,
+                                  String path) {
+        Locale effectiveLocale = locale != null ? locale : Locale.forLanguageTag("es");
+        String resolvedTitle = messageSource.getMessage(titleKey, null, effectiveLocale);
+        String resolvedLead = messageSource.getMessage(leadKey, null, effectiveLocale);
+        model.addAttribute("titleKey", titleKey);
+        model.addAttribute("subtitleKey", subtitleKey);
+        model.addAttribute("leadKey", leadKey);
+        model.addAttribute("pointKeys", pointKeys);
+        model.addAttribute("pageDescription", resolvedLead);
+        model.addAttribute("pageKeywords", "navigation, information, legal, support");
+        model.addAttribute("ogTitle", resolvedTitle);
+        model.addAllAttributes(seoService.toModelAttributes(
+            seoService.generatePageMetadata(path.substring(1), effectiveLocale),
+            path
+        ));
+        return "info-page";
     }
 }
