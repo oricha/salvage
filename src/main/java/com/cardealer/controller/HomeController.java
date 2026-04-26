@@ -50,7 +50,7 @@ public class HomeController {
         model.addAttribute("homepageStats", List.of(
             Map.of("value", "10.000+", "label", "coches dañados disponibles"),
             Map.of("value", "20.000+", "label", "coches de desguace"),
-            Map.of("value", "3.000.000", "label", "piezas usadas catalogadas"),
+            Map.of("value", "3.000.000", "label", "interacciones de inventario"),
             Map.of("value", "~2.000", "label", "vehiculos de ocasion"),
             Map.of("value", "250+", "label", "empresas participantes")
         ));
@@ -175,16 +175,8 @@ public class HomeController {
     }
 
     @GetMapping("/parts-order-status")
-    public String partsOrderStatus(Model model, Locale locale) {
-        return renderInfoPage(
-            model,
-            locale,
-            "info.partsOrderStatus.title",
-            "info.partsOrderStatus.subtitle",
-            "info.partsOrderStatus.lead",
-            List.of("info.partsOrderStatus.point1", "info.partsOrderStatus.point2", "info.partsOrderStatus.point3"),
-            "/parts-order-status"
-        );
+    public String partsOrderStatus() {
+        return "redirect:/contact";
     }
 
     @GetMapping("/quality-codes")
@@ -201,10 +193,13 @@ public class HomeController {
     }
 
     @GetMapping("/coming-soon")
-    public String comingSoon(@RequestParam(defaultValue = "used-parts") String feature, Model model, Locale locale) {
+    public String comingSoon(@RequestParam(defaultValue = "occasion-vehicles") String feature, Model model, Locale locale) {
+        if ("used-parts".equals(feature)) {
+            return "redirect:/contact";
+        }
         String featureKey = switch (feature) {
             case "occasion-vehicles" -> "feature.occasionVehicles";
-            default -> "feature.usedParts";
+            default -> "feature.occasionVehicles";
         };
 
         model.addAttribute("feature", feature);

@@ -71,7 +71,19 @@
                                         <li><i class="far fa-gas-pump"></i><span th:text="${car.fuelType}">Fuel</span></li>
                                         <li><i class="far fa-steering-wheel"></i><span th:text="${car.transmission}">Transmission</span></li>
                                     </ul>
-                                    <a th:href="@{/cars/{id}(id=${car.id})}" class="theme-btn mt-3">Ver detalle</a>
+                                    <div class="d-flex gap-2 align-items-center flex-wrap mt-3">
+                                        <a th:href="@{/cars/{id}(id=${car.id})}" class="theme-btn">Ver detalle</a>
+                                        <button
+                                            type="button"
+                                            class="inventory-favorite-toggle"
+                                            th:classappend="${favoriteCarIds != null && favoriteCarIds.contains(car.id)} ? ' active' : ''"
+                                            data-favorite-toggle
+                                            th:attr="data-car-id=${car.id},data-login-url=@{/login},data-label-active=#{flow.favorite.saved},data-label-inactive=#{flow.favorite.save},aria-pressed=${favoriteCarIds != null && favoriteCarIds.contains(car.id)}">
+                                            <i th:class="${favoriteCarIds != null && favoriteCarIds.contains(car.id)} ? 'fas fa-heart' : 'far fa-heart'"></i>
+                                            <span data-favorite-label th:text="${favoriteCarIds != null && favoriteCarIds.contains(car.id)} ? #{flow.favorite.saved} : #{flow.favorite.save}">Guardar</span>
+                                        </button>
+                                    </div>
+                                    <a class="inventory-dealer-link mt-3 d-inline-flex" th:if="${car.dealer != null}" th:href="@{/dealers/{id}(id=${car.dealer.id})}" th:text="${#messages.msg('flow.dealer.inventoryLink')} + ' ' + ${car.dealer.name}">Ver agente</a>
                                 </div>
                             </div>
                         </div>
@@ -88,5 +100,6 @@
     window.inventoryModelsByMake = /*[[${modelsByMake}]]*/ {};
 </script>
 <script src="/js/inventory-sidebar.js"></script>
+<script src="/js/favorite-toggle.js"></script>
 </body>
 </html>

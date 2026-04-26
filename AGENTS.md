@@ -1,36 +1,38 @@
 # Repository Guidelines
 
-This repository contains the UI templates and assets for a car marketplace. It is organized to be Spring Boot–friendly, but the backend scaffolding is not yet included. Use this guide to stay consistent when extending the project.
+This repository contains a layered Spring Boot marketplace for damaged and salvage vehicles. It includes backend code, Thymeleaf templates, static assets, PostgreSQL integration, Flyway migrations, and MVC tests. Use this guide to stay consistent when extending the project.
 
 ## Project Structure & Module Organization
 
-- src/main/resources/templates: Thymeleaf-ready HTML pages (e.g., `index.html`, `login.html`).
-- src/main/resources/templates/static: Static assets grouped by type (`css`, `js`, `img`, `fonts`).
-- Future backend (if added): `src/main/java/...` for source and `src/test/java/...` for tests.
+- `src/main/java/com/cardealer`: Spring Boot application code (`controller`, `service`, `repository`, `model`, `dto`, `config`, etc.).
+- `src/test/java/com/cardealer`: MVC, security, and service-oriented tests.
+- `src/main/resources/templates`: Thymeleaf pages and fragments.
+- `src/main/resources/static`: Static assets grouped by type (`css`, `js`, `img`, `fonts`).
+- `src/main/resources/db/migration`: Flyway SQL migrations.
 
 ## Build, Test, and Development Commands
 
-- Quick preview (static):
-  - `cd src/main/resources/templates && python3 -m http.server 8000`
-  - Open `http://localhost:8000/index.html` to browse pages.
-- Spring Boot (when backend exists):
-  - Maven: `./mvnw spring-boot:run`
-  - Gradle: `./gradlew bootRun`
-- Asset edits: no build step required; edit files under `static/` and refresh the browser.
+- Start PostgreSQL locally:
+  - `docker compose up -d db`
+- Run the app:
+  - `./gradlew bootRun`
+- Run tests:
+  - `./gradlew test`
+- Asset edits: no frontend build step is required; edit files under `src/main/resources/static/` and refresh the browser.
 
 ## Coding Style & Naming Conventions
 
 - HTML/CSS/JS: 2-space indentation; keep lines concise; prefer semantic HTML.
-- Java (when present): 4-space indentation; follow standard Spring naming.
+- Java: 4-space indentation; follow standard Spring naming.
 - Filenames: use `kebab-case` for HTML/CSS/JS (e.g., `profile-setting.html`, `main.css`, `car-list.js`).
-- Paths: reference assets with relative paths from templates (e.g., `static/js/main.js`).
+- Paths: prefer Spring Boot static asset paths such as `/js/main.js` or `/css/style.css` from templates.
 - Formatting: run Prettier (optional) on templates/static; avoid inline scripts/styles when possible.
 
 ## Testing Guidelines
 
 - Frontend: add lightweight smoke tests if introducing tooling (e.g., Playwright). Place under `tests/` and document commands.
-- Backend (future): JUnit 5 with Spring Boot test starter; mirror package structure under `src/test/java`.
-- Aim for meaningful coverage on services/controllers; keep UI tests fast and focused.
+- Use JUnit 5 with Spring Boot test support; mirror package structure under `src/test/java`.
+- Aim for meaningful coverage on controllers, services, security rules, and user flows; keep UI tests fast and focused.
 
 ## Commit & Pull Request Guidelines
 
@@ -41,6 +43,5 @@ This repository contains the UI templates and assets for a car marketplace. It i
 ## Security & Configuration Tips
 
 - Keep third-party libraries under `static/` up to date; remove unused files.
-- When adding backend, enable Spring Security early and externalize secrets via environment variables.
+- Spring Security is already part of the stack; preserve role-based access and externalize secrets via environment variables.
 - Prefer CSP-friendly patterns: no inline JS; use separate `.js` files.
-

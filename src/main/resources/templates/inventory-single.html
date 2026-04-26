@@ -9,6 +9,8 @@
         <div class="container">
             <div class="row g-5">
                 <div class="col-lg-8">
+                    <div class="alert alert-success" th:if="${success}" th:text="${success}">Mensaje enviado</div>
+                    <div class="alert alert-danger" th:if="${error}" th:text="${error}">Error</div>
                     <div class="car-single-widget">
                         <div class="d-flex gap-2 mb-3">
                             <span class="badge bg-dark" th:text="${#messages.msg(car.category.messageKey)}">PASSENGER_CAR</span>
@@ -100,6 +102,21 @@
                         <div class="car-single-widget">
                             <h4 class="car-single-price" th:text="${#numbers.formatDecimal(car.price, 0, 'COMMA', 2, 'POINT')} + ' €'">0 €</h4>
                             <p class="text-muted mb-3" th:if="${car.exportPrice != null}" th:text="'Precio exportación: ' + ${#numbers.formatDecimal(car.exportPrice, 0, 'COMMA', 2, 'POINT')} + ' €'">Precio exportación</p>
+                            <div class="inventory-detail-actions">
+                                <button
+                                    type="button"
+                                    class="inventory-favorite-toggle inventory-favorite-toggle-detail"
+                                    th:classappend="${isFavorite} ? ' active' : ''"
+                                    data-favorite-toggle
+                                    th:attr="data-car-id=${car.id},data-login-url=@{/login},data-label-active=#{flow.favorite.saved},data-label-inactive=#{flow.favorite.save},aria-pressed=${isFavorite}">
+                                    <i th:class="${isFavorite} ? 'fas fa-heart' : 'far fa-heart'"></i>
+                                    <span data-favorite-label th:text="${isFavorite} ? #{flow.favorite.saved} : #{flow.favorite.save}">Guardar</span>
+                                </button>
+                                <a class="theme-btn theme-btn2" th:if="${car.dealer != null}" th:href="@{/dealers/{id}(id=${car.dealer.id})}">
+                                    <span class="far fa-building"></span>
+                                    <span th:text="#{flow.dealer.openProfile}">Ver agente</span>
+                                </a>
+                            </div>
                             <ul class="car-list">
                                 <li><strong>Categoría:</strong> <span th:text="${#messages.msg(car.category.messageKey)}">PASSENGER_CAR</span></li>
                                 <li><strong>Condición:</strong> <span th:text="${car.condition}">OCASION</span></li>
@@ -113,7 +130,35 @@
                                 <li><i class="far fa-phone"></i><a class="contact-track" data-interaction="PHONE" th:attr="data-car-id=${car.id}" th:href="'tel:' + ${car.dealer.phone}" th:text="${car.dealer.phone}">phone</a></li>
                                 <li><i class="far fa-envelope"></i><a class="contact-track" data-interaction="EMAIL" th:attr="data-car-id=${car.id}" th:href="'mailto:' + ${car.dealer.email}" th:text="${car.dealer.email}">email</a></li>
                                 <li><i class="fab fa-whatsapp"></i><a class="contact-track" data-interaction="WHATSAPP" th:attr="data-car-id=${car.id}" target="_blank" rel="noopener" th:href="'https://wa.me/' + ${#strings.replace(car.dealer.phone, ' ', '')} + '?text=' + ${'Hola, me interesa el vehículo ' + car.make + ' ' + car.model}">WhatsApp</a></li>
+                                <li th:if="${car.dealer.id != null}"><i class="far fa-building"></i><a th:href="@{/dealers/{id}(id=${car.dealer.id})}" th:text="#{flow.dealer.moreVehicles}">Ver más vehículos de este agente</a></li>
                             </ul>
+                        </div>
+                        <div class="car-single-widget" th:if="${car.dealer != null && car.dealer.user != null && canSendDealerMessage}">
+                            <h4 class="mb-3" th:text="#{flow.contact.title}">Contactar agente</h4>
+                            <form th:action="@{/messages/send}" method="post" th:object="${messageDTO}" class="inventory-contact-form">
+                                <input type="hidden" th:field="*{receiverId}">
+                                <input type="hidden" th:field="*{carId}">
+                                <div class="form-group mb-3">
+                                    <label class="form-label" for="messageSubject" th:text="#{flow.contact.subject}">Asunto</label>
+                                    <input id="messageSubject" class="form-control" type="text" th:field="*{subject}" th:placeholder="#{flow.contact.subjectPlaceholder}">
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label class="form-label" for="messageContent" th:text="#{flow.contact.message}">Mensaje</label>
+                                    <textarea id="messageContent" class="form-control" rows="5" th:field="*{content}" th:placeholder="#{flow.contact.messagePlaceholder}" required></textarea>
+                                </div>
+                                <button type="submit" class="theme-btn">
+                                    <span class="far fa-paper-plane"></span>
+                                    <span th:text="#{flow.contact.submit}">Enviar mensaje</span>
+                                </button>
+                            </form>
+                        </div>
+                        <div class="car-single-widget" th:if="${car.dealer != null && car.dealer.user != null && !canSendDealerMessage}">
+                            <h4 class="mb-3" th:text="#{flow.contact.title}">Contactar agente</h4>
+                            <p class="mb-3" th:text="#{flow.contact.loginRequired}">Necesitas iniciar sesión para enviar un mensaje al distribuidor.</p>
+                            <a class="theme-btn" th:href="@{/login}">
+                                <span class="far fa-arrow-right-to-arc"></span>
+                                <span th:text="#{nav.login}">Iniciar sesión</span>
+                            </a>
                         </div>
                     </aside>
                 </div>
@@ -124,6 +169,7 @@
 <footer th:replace="~{fragments/footer :: footer}"></footer>
 <div th:replace="~{fragments/footer :: scroll-top}"></div>
 <div th:replace="~{fragments/header :: scripts}"></div>
+<script src="/js/favorite-toggle.js"></script>
 <script>
 document.querySelectorAll('.contact-track').forEach(link => {
   link.addEventListener('click', () => {

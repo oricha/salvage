@@ -2,7 +2,21 @@
 
 This project is a Spring Boot marketplace focused on salvage and damaged vehicles rather than a traditional car dealership website. It allows dealers to publish listings for damaged, salvage, passenger, commercial, and motorcycle vehicles, while buyers can browse inventory, filter by category and condition, review large image galleries, and contact sellers through multiple channels.
 
-The application is built with Spring Boot, Thymeleaf, PostgreSQL, and Flyway. It also includes multilingual support, SEO metadata generation, recently viewed vehicle tracking, dashboard statistics, and image handling for 20 to 25 photos per vehicle.
+The application is built with Spring Boot, Thymeleaf, PostgreSQL, and Flyway. It also includes Spring Security, multilingual support, SEO metadata generation, recently viewed vehicle tracking, dashboard statistics, and image handling for 20 to 25 photos per vehicle.
+
+## Stack Summary
+
+- Java 21
+- Spring Boot 3.2.0
+- Spring Web MVC + Thymeleaf
+- Spring Data JPA + Hibernate
+- Spring Security
+- PostgreSQL 16
+- Flyway migrations
+- Caffeine cache
+- Bootstrap 5 + jQuery + vendored frontend libraries
+
+See [docs/technology-stack.md](/Users/zion/dev/project/salvage/docs/technology-stack.md) for the concise technical reference.
 
 ## Core Features
 
@@ -107,4 +121,4 @@ This repository is no longer centered on a generic dealership experience. The cu
 - Internationalized browsing experience
 - Search and filtering by category and condition
 - Buyer-to-dealer contact workflows with interaction tracking
-- Future expansion paths for used parts and occasion vehicles
+- Vehicle-only marketplace scope with dealer, search, contact, and parking flows

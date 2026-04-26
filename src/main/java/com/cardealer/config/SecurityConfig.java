@@ -35,7 +35,6 @@ public class SecurityConfig {
                     "/disclaimer",
                     "/privacy",
                     "/faq",
-                    "/parts-order-status",
                     "/quality-codes",
                     "/coming-soon",
                     "/sitemap.xml",

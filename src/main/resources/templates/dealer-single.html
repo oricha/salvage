@@ -81,9 +81,13 @@
                                              th:src="@{/img/car/01.jpg}" 
                                              alt="No image">
                                         <div class="car-btns">
-                                            <a href="#" class="favorite-btn" th:data-car-id="${car.id}">
+                                            <button
+                                                type="button"
+                                                class="favorite-btn"
+                                                data-favorite-toggle
+                                                th:attr="data-car-id=${car.id},data-login-url=@{/login},data-label-active=#{flow.favorite.saved},data-label-inactive=#{flow.favorite.save},aria-pressed=false">
                                                 <i class="far fa-heart"></i>
-                                            </a>
+                                            </button>
                                         </div>
                                     </div>
                                     <div class="car-content">
@@ -193,31 +197,6 @@
     <div th:replace="~{fragments/footer :: scroll-top}"></div>
 
     <div th:replace="~{fragments/header :: scripts}"></div>
-    <script>
-        // Handle favorite toggle
-        $(document).on('click', '.favorite-btn', function(e) {
-            e.preventDefault();
-            var $btn = $(this);
-            var carId = $btn.data('car-id');
-            var isActive = $btn.hasClass('active');
-            var url = isActive ? '/favorites/remove/' + carId : '/favorites/add/' + carId;
-            
-            $.ajax({
-                url: url,
-                type: 'POST',
-                success: function(response) {
-                    if (response.success) {
-                        $btn.toggleClass('active');
-                        $btn.find('i').toggleClass('far fas');
-                    } else {
-                        alert(response.message || 'Error al actualizar favoritos');
-                    }
-                },
-                error: function() {
-                    alert('Debes iniciar sesión para añadir favoritos');
-                }
-            });
-        });
-    </script>
+    <script src="/js/favorite-toggle.js"></script>
 </body>
 </html>

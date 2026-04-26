@@ -7,6 +7,7 @@ import com.cardealer.controller.FavoriteController;
 import com.cardealer.controller.MessageController;
 import com.cardealer.controller.UserController;
 import com.cardealer.dto.DashboardStats;
+import com.cardealer.dto.MarketplaceKpiSnapshot;
 import com.cardealer.model.Dealer;
 import com.cardealer.model.User;
 import com.cardealer.model.enums.UserRole;
@@ -15,6 +16,7 @@ import com.cardealer.service.CarService;
 import com.cardealer.service.DealerService;
 import com.cardealer.service.FavoriteService;
 import com.cardealer.service.LocalizationService;
+import com.cardealer.service.MarketplaceMetricsService;
 import com.cardealer.service.MessageService;
 import com.cardealer.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
@@ -102,6 +104,8 @@ class ApplicationLoginSecurityTest {
 
     @MockBean
     private LocalizationService localizationService;
+    @MockBean
+    private MarketplaceMetricsService marketplaceMetricsService;
 
     @BeforeEach
     void setUp() {
@@ -109,6 +113,9 @@ class ApplicationLoginSecurityTest {
         when(userService.getUserByEmail("buyer@example.com")).thenReturn(sampleUser(2L, "buyer@example.com", UserRole.COMPRADOR, true));
         when(dealerService.getDealerByUserId(1L)).thenReturn(sampleDealer(10L, "seller@example.com"));
         when(carService.getDealerStats(10L)).thenReturn(new DashboardStats(0L, 0L, 0L, List.of(), Map.of()));
+        when(marketplaceMetricsService.getMarketplaceKpis()).thenReturn(
+            new MarketplaceKpiSnapshot(0L, 0L, 0L, 0L, 0L, java.math.BigDecimal.ZERO)
+        );
     }
 
     @Test

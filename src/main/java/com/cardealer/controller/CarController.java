@@ -14,6 +14,7 @@ import com.cardealer.model.enums.VehicleCategory;
 import com.cardealer.service.CarService;
 import com.cardealer.service.CommentService;
 import com.cardealer.service.FavoriteService;
+import com.cardealer.service.MarketplaceMetricsService;
 import com.cardealer.service.RecentlyViewedService;
 import com.cardealer.service.SEOService;
 import com.cardealer.service.UserService;
@@ -54,6 +55,7 @@ public class CarController {
     private final UserService userService;
     private final RecentlyViewedService recentlyViewedService;
     private final SEOService seoService;
+    private final MarketplaceMetricsService marketplaceMetricsService;
 
     /**
      * List cars with filters and pagination
@@ -64,8 +66,9 @@ public class CarController {
             @RequestParam MultiValueMap<String, String> requestParams,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "12") int size,
-            Model model) {
-        buildCarsListing(filters, requestParams, page, size, model);
+            Model model,
+            Authentication authentication) {
+        buildCarsListing(filters, requestParams, page, size, model, authentication, "GRID");
         model.addAllAttributes(seoService.toModelAttributes(
             seoService.generatePageMetadata("inventory", Locale.forLanguageTag(filters.getLocale() != null ? filters.getLocale() : "es")),
             "/cars"
@@ -79,8 +82,9 @@ public class CarController {
             @RequestParam MultiValueMap<String, String> requestParams,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "12") int size,
-            Model model) {
-        buildCarsListing(filters, requestParams, page, size, model);
+            Model model,
+            Authentication authentication) {
+        buildCarsListing(filters, requestParams, page, size, model, authentication, "LIST");
         model.addAllAttributes(seoService.toModelAttributes(
             seoService.generatePageMetadata("inventory", Locale.forLanguageTag(filters.getLocale() != null ? filters.getLocale() : "es")),
             "/cars/list"
@@ -92,18 +96,20 @@ public class CarController {
     public String damagedCars(@ModelAttribute CarFilterDTO filters,
                               @RequestParam(defaultValue = "0") int page,
                               @RequestParam(defaultValue = "12") int size,
-                              Model model) {
+                              Model model,
+                              Authentication authentication) {
         filters.setCategories(List.of(VehicleCategory.DAMAGED));
-        return listCars(filters, new org.springframework.util.LinkedMultiValueMap<>(), page, size, model);
+        return listCars(filters, new org.springframework.util.LinkedMultiValueMap<>(), page, size, model, authentication);
     }
 
     @GetMapping("/salvage")
     public String salvageCars(@ModelAttribute CarFilterDTO filters,
                               @RequestParam(defaultValue = "0") int page,
                               @RequestParam(defaultValue = "12") int size,
-                              Model model) {
+                              Model model,
+                              Authentication authentication) {
         filters.setCategories(List.of(VehicleCategory.SALVAGE));
-        return listCars(filters, new org.springframework.util.LinkedMultiValueMap<>(), page, size, model);
+        return listCars(filters, new org.springframework.util.LinkedMultiValueMap<>(), page, size, model, authentication);
     }
 
     @GetMapping("/category/{category}")
@@ -111,9 +117,10 @@ public class CarController {
                                  @ModelAttribute CarFilterDTO filters,
                                  @RequestParam(defaultValue = "0") int page,
                                  @RequestParam(defaultValue = "12") int size,
-                                 Model model) {
+                                 Model model,
+                                 Authentication authentication) {
         filters.setCategories(List.of(category));
-        return listCars(filters, new org.springframework.util.LinkedMultiValueMap<>(), page, size, model);
+        return listCars(filters, new org.springframework.util.LinkedMultiValueMap<>(), page, size, model, authentication);
     }
 
     @GetMapping("/locale/{locale}")
@@ -121,9 +128,10 @@ public class CarController {
                                @ModelAttribute CarFilterDTO filters,
                                @RequestParam(defaultValue = "0") int page,
                                @RequestParam(defaultValue = "12") int size,
-                               Model model) {
+                               Model model,
+                               Authentication authentication) {
         filters.setLocale(locale);
-        return listCars(filters, new org.springframework.util.LinkedMultiValueMap<>(), page, size, model);
+        return listCars(filters, new org.springframework.util.LinkedMultiValueMap<>(), page, size, model, authentication);
     }
 
     /**
@@ -144,6 +152,7 @@ public class CarController {
             new BreadcrumbItem("Inventario", "/cars", false),
             new BreadcrumbItem(car.getMake() + " " + car.getModel(), null, true)
         ));
+        model.addAttribute("extraStylesheets", List.of("/css/inventory-results.css"));
         model.addAllAttributes(seoService.toModelAttributes(
             seoService.generateCarMetadata(car, Locale.forLanguageTag(car.getLocale())),
             "/cars/" + car.getId()
@@ -165,10 +174,10 @@ public class CarController {
             messageDTO.setReceiverId(car.getDealer().getUser().getId());
         }
         model.addAttribute("messageDTO", messageDTO);
+        model.addAttribute("canSendDealerMessage", currentUser != null);
         
         // Check if car is in user's favorites (if authenticated)
         if (authentication != null && authentication.isAuthenticated()) {
-            String email = authentication.getName();
             boolean isFavorite = favoriteService.isFavorite(currentUser.getId(), id);
             model.addAttribute("isFavorite", isFavorite);
         } else {
@@ -206,14 +215,31 @@ public class CarController {
         return "compare";
     }
 
-    private Page<Car> buildCarsListing(CarFilterDTO filters, MultiValueMap<String, String> requestParams, int page, int size, Model model) {
+    private Page<Car> buildCarsListing(
+            CarFilterDTO filters,
+            MultiValueMap<String, String> requestParams,
+            int page,
+            int size,
+            Model model,
+            Authentication authentication,
+            String viewMode) {
         normalizeTechnicalAliases(filters, requestParams);
         normalizeAdvancedSearchFilters(filters);
         Pageable pageable = PageRequest.of(page, size);
         Page<Car> carsPage = carService.findCarsWithFilters(filters, pageable);
+        marketplaceMetricsService.recordSearchExecution(filters.getLocale(), viewMode, carsPage.getTotalElements());
+        Set<Long> favoriteCarIds = Set.of();
+        if (authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getName())) {
+            var currentUser = userService.getUserByEmail(authentication.getName());
+            favoriteCarIds = favoriteService.getUserFavorites(currentUser.getId())
+                .stream()
+                .map(Car::getId)
+                .collect(Collectors.toSet());
+        }
 
         model.addAttribute("cars", carsPage);
         model.addAttribute("filters", filters);
+        model.addAttribute("favoriteCarIds", favoriteCarIds);
         model.addAttribute("availableBrands", AdvancedSearchCatalog.mergedBrands(carService.getAvailableBrands()));
         model.addAttribute("modelsByMake", AdvancedSearchCatalog.modelsByBrand());
         model.addAttribute("fuelTypes", Arrays.asList(FuelType.values()));

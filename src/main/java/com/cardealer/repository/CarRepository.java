@@ -58,4 +58,7 @@ public interface CarRepository extends JpaRepository<Car, Long>, JpaSpecificatio
     // Sum views by dealer
     @Query("SELECT SUM(c.views) FROM Car c WHERE c.dealer.id = :dealerId")
     Long sumViewsByDealerId(@Param("dealerId") Long dealerId);
+
+    @Query("SELECT COALESCE(SUM(c.views), 0) FROM Car c WHERE c.active = true")
+    Long sumViewsByActiveTrue();
 }

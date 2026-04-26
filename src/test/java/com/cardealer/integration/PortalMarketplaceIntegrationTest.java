@@ -10,13 +10,16 @@ import com.cardealer.controller.DealerController;
 import com.cardealer.controller.FavoriteController;
 import com.cardealer.controller.GlobalModelAttributesController;
 import com.cardealer.controller.HomeController;
+import com.cardealer.controller.MessageController;
 import com.cardealer.controller.UserController;
 import com.cardealer.dto.CarDTO;
 import com.cardealer.dto.CarFilterDTO;
 import com.cardealer.dto.DealerDirectoryEntry;
+import com.cardealer.dto.DashboardStats;
 import com.cardealer.model.Car;
 import com.cardealer.model.Dealer;
 import com.cardealer.model.User;
+import com.cardealer.dto.MarketplaceKpiSnapshot;
 import com.cardealer.model.enums.BodyType;
 import com.cardealer.model.enums.CarCondition;
 import com.cardealer.model.enums.FuelType;
@@ -31,6 +34,7 @@ import com.cardealer.service.ContactService;
 import com.cardealer.service.DealerService;
 import com.cardealer.service.FavoriteService;
 import com.cardealer.service.LocalizationService;
+import com.cardealer.service.MarketplaceMetricsService;
 import com.cardealer.service.MessageService;
 import com.cardealer.service.RecentlyViewedService;
 import com.cardealer.service.SEOService;
@@ -74,7 +78,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-@WebMvcTest(controllers = {DashboardController.class, HomeController.class, CarController.class, ContactController.class, DealerController.class, FavoriteController.class, UserController.class})
+@WebMvcTest(controllers = {DashboardController.class, HomeController.class, CarController.class, ContactController.class, DealerController.class, FavoriteController.class, MessageController.class, UserController.class})
 @AutoConfigureMockMvc(addFilters = false)
 @Import({GlobalModelAttributesController.class, LocaleConfig.class, LocaleInterceptor.class, WebConfig.class})
 @TestPropertySource(properties = {
@@ -109,6 +113,8 @@ class PortalMarketplaceIntegrationTest {
     private LocalizationService localizationService;
     @MockBean
     private ContactService contactService;
+    @MockBean
+    private MarketplaceMetricsService marketplaceMetricsService;
 
     @BeforeEach
     void setUp() throws Exception {
@@ -143,9 +149,13 @@ class PortalMarketplaceIntegrationTest {
             PageRequest.of(0, 12),
             1
         ));
+        when(marketplaceMetricsService.getMarketplaceKpis()).thenReturn(
+            new MarketplaceKpiSnapshot(120L, 25L, 340L, 890L, 46L, BigDecimal.valueOf(5.17))
+        );
         when(userService.getUserByEmail(SELLER_EMAIL)).thenReturn(sampleUser(1L, SELLER_EMAIL, UserRole.VENDEDOR));
         when(userService.getUserByEmail("buyer@example.com")).thenReturn(sampleUser(2L, "buyer@example.com", UserRole.COMPRADOR));
         when(dealerService.getDealerByUserId(1L)).thenReturn(sampleDealer(1L, SELLER_EMAIL));
+        when(carService.getDealerStats(1L)).thenReturn(new DashboardStats(3L, 45L, 8L, List.of(sampleCar(21L, VehicleCategory.DAMAGED, CarCondition.ACCIDENTADO)), Map.of()));
         when(favoriteService.getUserFavorites(2L)).thenReturn(List.of(sampleCar(31L, VehicleCategory.PASSENGER_CAR, CarCondition.OCASION)));
         when(favoriteService.countUserFavorites(2L)).thenReturn(1L);
         when(dealerService.getDealerSearchOptions()).thenReturn(sampleDealerSearchOptions());
@@ -547,8 +557,8 @@ class PortalMarketplaceIntegrationTest {
             .andExpect(content().string(containsString("href=\"/disclaimer\"")))
             .andExpect(content().string(containsString("href=\"/privacy\"")))
             .andExpect(content().string(containsString("href=\"/faq\"")))
-            .andExpect(content().string(containsString("href=\"/parts-order-status\"")))
             .andExpect(content().string(containsString("href=\"/quality-codes\"")))
+            .andExpect(content().string(not(containsString("href=\"/parts-order-status\""))))
             .andExpect(content().string(not(containsString("href=\"/coming-soon?feature=used-parts\""))));
     }
 
@@ -557,8 +567,14 @@ class PortalMarketplaceIntegrationTest {
         mockMvc.perform(get("/disclaimer")).andExpect(status().isOk());
         mockMvc.perform(get("/privacy")).andExpect(status().isOk());
         mockMvc.perform(get("/faq")).andExpect(status().isOk());
-        mockMvc.perform(get("/parts-order-status")).andExpect(status().isOk());
         mockMvc.perform(get("/quality-codes")).andExpect(status().isOk());
+    }
+
+    @Test
+    void legacyPartsOrderStatusRedirectsToContact() throws Exception {
+        mockMvc.perform(get("/parts-order-status"))
+            .andExpect(status().is3xxRedirection())
+            .andExpect(redirectedUrl("/contact"));
     }
 
     @Test
@@ -567,12 +583,13 @@ class PortalMarketplaceIntegrationTest {
             .andExpect(status().isOk())
             .andExpect(content().string(containsString("Estamos disponibles para ayudarte")))
             .andExpect(content().string(containsString("href=\"/faq\"")))
-            .andExpect(content().string(containsString("href=\"/parts-order-status\"")))
+            .andExpect(content().string(containsString("href=\"/about\"")))
             .andExpect(content().string(containsString("href=\"/quality-codes\"")))
             .andExpect(content().string(containsString("href=\"/terms\"")))
             .andExpect(content().string(containsString("href=\"/disclaimer\"")))
             .andExpect(content().string(containsString("href=\"/privacy\"")))
             .andExpect(content().string(containsString("href=\"/login\"")))
+            .andExpect(content().string(not(containsString("href=\"/parts-order-status\""))))
             .andExpect(content().string(containsString("Envíanos tu consulta")));
     }
 
@@ -614,11 +631,30 @@ class PortalMarketplaceIntegrationTest {
             .andExpect(status().isOk())
             .andExpect(content().string(containsString("Un coche dañado puede ser la solución cuando está buscando un coche usado a buen precio")))
             .andExpect(content().string(containsString("10.000+")))
-            .andExpect(content().string(containsString("3.000.000")))
+            .andExpect(content().string(containsString("interacciones de inventario")))
             .andExpect(content().string(containsString("One-Stop-Shop para coches dañados y accesorios")))
             .andExpect(content().string(containsString("Acerca de Schadeautos")))
             .andExpect(content().string(containsString("Visitamos personalmente a las empresas participantes")))
             .andExpect(content().string(containsString(">Leer más<")));
+    }
+
+    @Test
+    void dashboardShowsMarketplaceKpisForSeller() throws Exception {
+        mockMvc.perform(get("/dashboard").principal(new UsernamePasswordAuthenticationToken(
+                SELLER_EMAIL,
+                "password",
+                List.of(new SimpleGrantedAuthority("ROLE_VENDEDOR"))
+            )))
+            .andExpect(status().isOk())
+            .andExpect(content().string(containsString("KPIs del marketplace")))
+            .andExpect(content().string(containsString("Vehículos activos")))
+            .andExpect(content().string(containsString("Distribuidores activos")))
+            .andExpect(content().string(containsString("Búsquedas ejecutadas")))
+            .andExpect(content().string(containsString("Visualizaciones de vehículo")))
+            .andExpect(content().string(containsString("Interacciones de contacto")))
+            .andExpect(content().string(containsString("Conversión a contacto")))
+            .andExpect(content().string(containsString("5.17%")))
+            .andExpect(content().string(containsString("El inventario de piezas no forma parte de este panel.")));
     }
 
     @Test
@@ -654,8 +690,29 @@ class PortalMarketplaceIntegrationTest {
     }
 
     @Test
+    void inventoryResultsExposeParkingAndDealerActions() throws Exception {
+        when(favoriteService.getUserFavorites(2L)).thenReturn(List.of(sampleCar(8L, VehicleCategory.DAMAGED, CarCondition.ACCIDENTADO)));
+
+        mockMvc.perform(get("/cars").principal(new UsernamePasswordAuthenticationToken(
+                "buyer@example.com",
+                "password",
+                List.of(new SimpleGrantedAuthority("ROLE_COMPRADOR"))
+            )).param("lang", "es"))
+            .andExpect(status().isOk())
+            .andExpect(content().string(containsString("data-favorite-toggle")))
+            .andExpect(content().string(containsString("data-label-active=\"Guardado en parking\"")))
+            .andExpect(content().string(containsString("data-label-inactive=\"Guardar en parking\"")))
+            .andExpect(content().string(containsString("inventory-dealer-link")))
+            .andExpect(content().string(containsString("href=\"/dealers/3\"")));
+    }
+
+    @Test
     void vehicleDetailShowsStructuredVehicleData() throws Exception {
-        mockMvc.perform(get("/cars/5"))
+        mockMvc.perform(get("/cars/5").principal(new UsernamePasswordAuthenticationToken(
+                "buyer@example.com",
+                "password",
+                List.of(new SimpleGrantedAuthority("ROLE_COMPRADOR"))
+            )).param("lang", "es"))
             .andExpect(status().isOk())
             .andExpect(content().string(containsString("Titanium")))
             .andExpect(content().string(containsString("Código de color")))
@@ -664,7 +721,21 @@ class PortalMarketplaceIntegrationTest {
             .andExpect(content().string(containsString("GERMANY")))
             .andExpect(content().string(containsString("Documentación y opciones")))
             .andExpect(content().string(containsString("Estado del vehículo")))
-            .andExpect(content().string(containsString("Precio exportación")));
+            .andExpect(content().string(containsString("Precio exportación")))
+            .andExpect(content().string(containsString("data-label-inactive=\"Guardar en parking\"")))
+            .andExpect(content().string(containsString("form action=\"/messages/send\"")))
+            .andExpect(content().string(containsString("name=\"receiverId\"")))
+            .andExpect(content().string(containsString("name=\"carId\"")))
+            .andExpect(content().string(containsString("Ver más vehículos de este agente")))
+            .andExpect(content().string(containsString("href=\"/dealers/3\"")));
+    }
+
+    @Test
+    void anonymousVehicleDetailPromptsLoginBeforeMessaging() throws Exception {
+        mockMvc.perform(get("/cars/5").param("lang", "es"))
+            .andExpect(status().isOk())
+            .andExpect(content().string(containsString("Necesitas iniciar sesión para enviar un mensaje al distribuidor.")))
+            .andExpect(content().string(containsString("href=\"/login\"")));
     }
 
     @Test
@@ -732,6 +803,7 @@ class PortalMarketplaceIntegrationTest {
         dealer.setPhone("+34123456789");
         dealer.setCity("Madrid");
         dealer.setDescription("Concesionario especializado en vehiculo de ocasion y Motex profesional.");
+        dealer.setUser(sampleUser(30L + id, email, UserRole.VENDEDOR));
         return dealer;
     }
 

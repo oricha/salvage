@@ -3,6 +3,7 @@ package com.cardealer.controller;
 import com.cardealer.dto.CarDTO;
 import com.cardealer.dto.BreadcrumbItem;
 import com.cardealer.dto.DashboardStats;
+import com.cardealer.dto.MarketplaceKpiSnapshot;
 import com.cardealer.model.Car;
 import com.cardealer.model.Dealer;
 import com.cardealer.model.User;
@@ -16,6 +17,7 @@ import com.cardealer.service.CarService;
 import com.cardealer.service.DealerService;
 import com.cardealer.service.FavoriteService;
 import com.cardealer.service.MessageService;
+import com.cardealer.service.MarketplaceMetricsService;
 import com.cardealer.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -46,6 +48,7 @@ public class DashboardController {
     private final UserService userService;
     private final MessageService messageService;
     private final FavoriteService favoriteService;
+    private final MarketplaceMetricsService marketplaceMetricsService;
 
     /**
      * Show dashboard
@@ -57,6 +60,7 @@ public class DashboardController {
         User user = getAuthenticatedUser(authentication);
         Dealer dealer = getAuthenticatedDealer(authentication);
         DashboardStats stats = carService.getDealerStats(dealer.getId());
+        MarketplaceKpiSnapshot marketplaceKpis = marketplaceMetricsService.getMarketplaceKpis();
 
         model.addAttribute("user", user);
         model.addAttribute("dealer", dealer);
@@ -66,6 +70,7 @@ public class DashboardController {
         model.addAttribute("totalListings", stats.getTotalListings());
         model.addAttribute("recentListings", stats.getRecentListings());
         model.addAttribute("listingsByCategory", stats.getListingsByCategory().entrySet());
+        model.addAttribute("marketplaceKpis", marketplaceKpis);
         model.addAttribute("breadcrumbItems", List.of(
             new BreadcrumbItem("Inicio", "/", false),
             new BreadcrumbItem("Dashboard", null, true)
