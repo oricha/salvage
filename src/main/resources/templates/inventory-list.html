@@ -23,8 +23,8 @@
                     <div class="car-sort mb-4">
                         <h6 th:text="'Mostrando ' + ${cars.numberOfElements} + ' de ' + ${totalItems} + ' resultados'">Mostrando resultados</h6>
                         <div class="car-sort-list-grid">
-                            <a class="car-sort-grid" th:href="@{/cars}"><i class="far fa-grid-2"></i></a>
-                            <a class="car-sort-list active" th:href="@{/cars/list}"><i class="far fa-list-ul"></i></a>
+                            <a class="car-sort-grid" th:href="${gridViewUrl}"><i class="far fa-grid-2"></i></a>
+                            <a class="car-sort-list active" th:href="${listViewUrl}"><i class="far fa-list-ul"></i></a>
                         </div>
                     </div>
                     <div th:if="${cars.isEmpty()}" class="alert alert-light border text-center">No hay vehículos que coincidan con los filtros seleccionados.</div>

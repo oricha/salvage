@@ -5,6 +5,7 @@ import com.cardealer.model.enums.CarCondition;
 import com.cardealer.model.enums.FuelType;
 import com.cardealer.model.enums.TransmissionType;
 import com.cardealer.model.enums.VehicleCategory;
+import com.cardealer.model.enums.VehicleOrigin;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -45,8 +46,13 @@ public class Car {
     @Column(nullable = false)
     private String color;
 
+    @Column(length = 32)
+    private String colorCode;
+
     @Enumerated(EnumType.STRING)
     private FuelType fuelType;
+
+    private Boolean refinedFuelType;
 
     @Enumerated(EnumType.STRING)
     private TransmissionType transmission;
@@ -58,12 +64,25 @@ public class Car {
     private CarCondition condition;
 
     @Enumerated(EnumType.STRING)
+    private VehicleOrigin origin;
+
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private VehicleCategory category = VehicleCategory.PASSENGER_CAR;
 
     private Integer doors;
 
     private String engine;
+    private Boolean registrationAvailable;
+    private Boolean awaitingVerification;
+    private Boolean fullInstructionBooklet;
+    private Boolean allKeysAvailable;
+    private Boolean engineDamage;
+    private Boolean lowerDamage;
+    private Boolean drivable;
+    private Boolean movable;
+    private Boolean engineRuns;
+    private Boolean airbagsIntact;
 
     @Column(columnDefinition = "TEXT")
     private String description;

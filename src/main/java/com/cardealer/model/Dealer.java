@@ -32,6 +32,8 @@ public class Dealer {
     private String address;
     private String city;
     private String postalCode;
+    private Double latitude;
+    private Double longitude;
 
     @Column(length = 1000)
     private String description;
@@ -52,5 +54,4 @@ public class Dealer {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 }
-
 

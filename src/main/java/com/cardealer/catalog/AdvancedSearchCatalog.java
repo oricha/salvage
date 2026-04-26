@@ -1,12 +1,16 @@
 package com.cardealer.catalog;
 
+import com.cardealer.model.enums.BodyType;
 import com.cardealer.model.enums.FuelType;
 import com.cardealer.model.enums.TransmissionType;
+import com.cardealer.model.enums.VehicleOrigin;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeSet;
 
 public final class AdvancedSearchCatalog {
@@ -105,5 +109,128 @@ public final class AdvancedSearchCatalog {
             Map.of("value", TransmissionType.AUTOMATICO.name(), "labelKey", "search.transmission.automatic"),
             Map.of("value", TransmissionType.MANUAL.name(), "labelKey", "search.transmission.manual")
         );
+    }
+
+    public static List<Map<String, String>> colorOptions() {
+        return List.of(
+            Map.of("value", "AMARILLO", "labelKey", "search.color.yellow"),
+            Map.of("value", "AZUL", "labelKey", "search.color.blue"),
+            Map.of("value", "BEIGE", "labelKey", "search.color.beige"),
+            Map.of("value", "BLANCO", "labelKey", "search.color.white"),
+            Map.of("value", "CREMA", "labelKey", "search.color.cream"),
+            Map.of("value", "DORADO", "labelKey", "search.color.gold"),
+            Map.of("value", "GRIS", "labelKey", "search.color.gray"),
+            Map.of("value", "MARRON", "labelKey", "search.color.brown"),
+            Map.of("value", "MORADO", "labelKey", "search.color.purple"),
+            Map.of("value", "NARANJA", "labelKey", "search.color.orange"),
+            Map.of("value", "NEGRO", "labelKey", "search.color.black"),
+            Map.of("value", "PLATEADO", "labelKey", "search.color.silver"),
+            Map.of("value", "ROJO", "labelKey", "search.color.red"),
+            Map.of("value", "ROSA", "labelKey", "search.color.pink"),
+            Map.of("value", "VARIOS", "labelKey", "search.color.multiple"),
+            Map.of("value", "VERDE", "labelKey", "search.color.green")
+        );
+    }
+
+    public static List<Map<String, String>> colorCodeOptions() {
+        return List.of(
+            colorCode("Y01"), colorCode("Y02"), colorCode("B01"), colorCode("B02"), colorCode("BG1"),
+            colorCode("W01"), colorCode("W02"), colorCode("CR1"), colorCode("GD1"), colorCode("GY1"),
+            colorCode("GY2"), colorCode("BR1"), colorCode("PR1"), colorCode("OR1"), colorCode("BK1"),
+            colorCode("BK2"), colorCode("SV1"), colorCode("RD1"), colorCode("RD2"), colorCode("PK1"),
+            colorCode("MX1"), colorCode("GN1"), colorCode("GN2"), colorCode("BE1"), colorCode("ML1")
+        );
+    }
+
+    public static List<Map<String, String>> bodyTypeOptions() {
+        return List.of(
+            Map.of("value", "HATCHBACK", "labelKey", "search.bodyType.hatchback"),
+            Map.of("value", "COUPE", "labelKey", "search.bodyType.coupe"),
+            Map.of("value", "CONVERTIBLE", "labelKey", "search.bodyType.convertible"),
+            Map.of("value", "WAGON", "labelKey", "search.bodyType.wagon"),
+            Map.of("value", "DELIVERY_VAN", "labelKey", "search.bodyType.deliveryVan"),
+            Map.of("value", "MINIVAN", "labelKey", "search.bodyType.minivan"),
+            Map.of("value", "SEDAN", "labelKey", "search.bodyType.sedan"),
+            Map.of("value", "SUV", "labelKey", "search.bodyType.suv"),
+            Map.of("value", "MONOVA", "labelKey", "search.bodyType.monova"),
+            Map.of("value", "COMMERCIAL_VEHICLE", "labelKey", "search.bodyType.commercialVehicle")
+        );
+    }
+
+    public static Map<String, List<BodyType>> bodyTypeMappings() {
+        Map<String, List<BodyType>> mappings = new LinkedHashMap<>();
+        mappings.put("HATCHBACK", List.of(BodyType.HATCHBACK));
+        mappings.put("COUPE", List.of(BodyType.COUPE));
+        mappings.put("CONVERTIBLE", List.of(BodyType.CONVERTIBLE));
+        mappings.put("WAGON", List.of(BodyType.WAGON));
+        mappings.put("DELIVERY_VAN", List.of(BodyType.VAN));
+        mappings.put("MINIVAN", List.of(BodyType.VAN));
+        mappings.put("SEDAN", List.of(BodyType.SEDAN));
+        mappings.put("SUV", List.of(BodyType.SUV));
+        mappings.put("MONOVA", List.of(BodyType.VAN));
+        mappings.put("COMMERCIAL_VEHICLE", List.of(BodyType.PICKUP, BodyType.VAN));
+        return mappings;
+    }
+
+    public static Set<String> supportedColorValues() {
+        return extractValues(colorOptions());
+    }
+
+    public static Set<String> supportedColorCodes() {
+        return extractValues(colorCodeOptions());
+    }
+
+    public static Set<String> supportedBodyTypeValues() {
+        return extractValues(bodyTypeOptions());
+    }
+
+    public static List<Map<String, String>> originOptions() {
+        return List.of(
+            Map.of("value", VehicleOrigin.NETHERLANDS.name(), "labelKey", "search.origin.netherlands"),
+            Map.of("value", VehicleOrigin.BELGIUM.name(), "labelKey", "search.origin.belgium"),
+            Map.of("value", VehicleOrigin.GERMANY.name(), "labelKey", "search.origin.germany"),
+            Map.of("value", VehicleOrigin.ENGLAND.name(), "labelKey", "search.origin.england"),
+            Map.of("value", VehicleOrigin.POLAND.name(), "labelKey", "search.origin.poland"),
+            Map.of("value", VehicleOrigin.FRANCE.name(), "labelKey", "search.origin.france"),
+            Map.of("value", VehicleOrigin.OTHER_EUROPEAN_COUNTRIES.name(), "labelKey", "search.origin.otherEuropeanCountries"),
+            Map.of("value", VehicleOrigin.AMERICA.name(), "labelKey", "search.origin.america"),
+            Map.of("value", VehicleOrigin.JAPAN.name(), "labelKey", "search.origin.japan")
+        );
+    }
+
+    public static Set<String> supportedOriginValues() {
+        return extractValues(originOptions());
+    }
+
+    public static List<Integer> nearbyRadiusOptions() {
+        return List.of(5, 10, 25, 50, 75, 100, 150, 200);
+    }
+
+    public static Set<Integer> supportedNearbyRadiusOptions() {
+        return new LinkedHashSet<>(nearbyRadiusOptions());
+    }
+
+    public static List<Integer> pricePresets() {
+        return List.of(
+            1000, 2000, 3000, 5000, 7500, 10000, 15000, 20000, 30000, 40000, 50000,
+            75000, 100000, 150000, 200000, 250000, 300000
+        );
+    }
+
+    public static List<Integer> mileagePresets() {
+        return List.of(
+            10000, 20000, 30000, 50000, 75000, 100000, 150000, 200000, 300000,
+            400000, 500000, 750000, 1000000
+        );
+    }
+
+    private static Map<String, String> colorCode(String value) {
+        return Map.of("value", value, "labelKey", "search.colorCode." + value.toLowerCase());
+    }
+
+    private static Set<String> extractValues(List<Map<String, String>> options) {
+        Set<String> values = new LinkedHashSet<>();
+        options.forEach(option -> values.add(option.get("value")));
+        return values;
     }
 }

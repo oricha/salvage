@@ -13,6 +13,7 @@ import com.cardealer.model.Car;
 import com.cardealer.model.Dealer;
 import com.cardealer.model.User;
 import com.cardealer.model.enums.CarCondition;
+import com.cardealer.model.enums.TriStateOption;
 import com.cardealer.model.enums.UserRole;
 import com.cardealer.model.enums.VehicleCategory;
 import com.cardealer.service.CarService;
@@ -235,6 +236,85 @@ class PortalMarketplaceIntegrationTest {
         CarFilterDTO filters = captor.getValue();
         assertEquals(List.of("Audi"), filters.getBrands());
         assertEquals(null, filters.getModel());
+    }
+
+    @Test
+    void expandableAdvancedFiltersBindSupportedCriteria() throws Exception {
+        mockMvc.perform(get("/cars")
+                .param("minPrice", "1000")
+                .param("maxPrice", "300000")
+                .param("color", "AZUL")
+                .param("colorCode", "BG1")
+                .param("bodyTypes", "SUV", "COMMERCIAL_VEHICLE")
+                .param("refinedFuelType", "YES")
+                .param("minMileage", "10000")
+                .param("maxMileage", "200000")
+                .param("origins", "GERMANY", "JAPAN")
+                .param("nearbyRadiusKm", "50")
+                .param("referenceLatitude", "40.4168")
+                .param("referenceLongitude", "-3.7038")
+                .param("registrationAvailable", "NO")
+                .param("awaitingVerification", "true")
+                .param("fullInstructionBooklet", "YES")
+                .param("allKeysAvailable", "NO")
+                .param("engineDamage", "YES")
+                .param("lowerDamage", "NO")
+                .param("drivable", "YES")
+                .param("movable", "NO")
+                .param("engineRuns", "YES")
+                .param("airbagsIntact", "NO"))
+            .andExpect(status().isOk());
+
+        ArgumentCaptor<CarFilterDTO> captor = ArgumentCaptor.forClass(CarFilterDTO.class);
+        verify(carService, times(1)).findCarsWithFilters(captor.capture(), any());
+        CarFilterDTO filters = captor.getValue();
+        assertEquals(BigDecimal.valueOf(1000), filters.getMinPrice());
+        assertEquals(BigDecimal.valueOf(300000), filters.getMaxPrice());
+        assertEquals("AZUL", filters.getColor());
+        assertEquals("BG1", filters.getColorCode());
+        assertEquals(List.of("SUV", "COMMERCIAL_VEHICLE"), filters.getBodyTypes());
+        assertEquals(TriStateOption.YES, filters.getRefinedFuelType());
+        assertEquals(10000, filters.getMinMileage());
+        assertEquals(200000, filters.getMaxMileage());
+        assertEquals(List.of("GERMANY", "JAPAN"), filters.getOrigins());
+        assertEquals(50, filters.getNearbyRadiusKm());
+        assertEquals(40.4168, filters.getReferenceLatitude());
+        assertEquals(-3.7038, filters.getReferenceLongitude());
+        assertEquals(TriStateOption.NO, filters.getRegistrationAvailable());
+        assertTrue(filters.getAwaitingVerification());
+        assertEquals(TriStateOption.YES, filters.getFullInstructionBooklet());
+        assertEquals(TriStateOption.NO, filters.getAllKeysAvailable());
+        assertEquals(TriStateOption.YES, filters.getEngineDamage());
+        assertEquals(TriStateOption.NO, filters.getLowerDamage());
+        assertEquals(TriStateOption.YES, filters.getDrivable());
+        assertEquals(TriStateOption.NO, filters.getMovable());
+        assertEquals(TriStateOption.YES, filters.getEngineRuns());
+        assertEquals(TriStateOption.NO, filters.getAirbagsIntact());
+    }
+
+    @Test
+    void advancedFiltersNormalizeInvalidValuesAndPreserveViewSwitchLinks() throws Exception {
+        mockMvc.perform(get("/cars")
+                .param("minPrice", "-1")
+                .param("maxPrice", "-2")
+                .param("color", "NOT_A_COLOR")
+                .param("colorCode", "INVALID")
+                .param("bodyTypes", "INVALID", "SUV")
+                .param("origins", "INVALID", "JAPAN")
+                .param("nearbyRadiusKm", "13"))
+            .andExpect(status().isOk())
+            .andExpect(content().string(containsString("href=\"/cars/list?minPrice=0&amp;maxPrice=0&amp;bodyTypes=SUV&amp;origins=JAPAN\"")));
+
+        ArgumentCaptor<CarFilterDTO> captor = ArgumentCaptor.forClass(CarFilterDTO.class);
+        verify(carService, times(1)).findCarsWithFilters(captor.capture(), any());
+        CarFilterDTO filters = captor.getValue();
+        assertEquals(BigDecimal.ZERO, filters.getMinPrice());
+        assertEquals(BigDecimal.ZERO, filters.getMaxPrice());
+        assertEquals(null, filters.getColor());
+        assertEquals(null, filters.getColorCode());
+        assertEquals(List.of("SUV"), filters.getBodyTypes());
+        assertEquals(List.of("JAPAN"), filters.getOrigins());
+        assertEquals(null, filters.getNearbyRadiusKm());
     }
 
     @Test

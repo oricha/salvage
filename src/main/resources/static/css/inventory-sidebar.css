@@ -121,6 +121,66 @@
   margin: 8px 0 0;
 }
 
+.inventory-advanced-section {
+  border-top: 1px solid rgba(255, 255, 255, 0.16);
+  margin-top: 18px;
+  padding-top: 18px;
+}
+
+.inventory-advanced-toggle-group {
+  margin-top: 8px;
+}
+
+.inventory-advanced-toggle {
+  border-color: rgba(255, 255, 255, 0.22);
+  color: #fff;
+  font-weight: 700;
+}
+
+.inventory-advanced-toggle:hover,
+.inventory-advanced-toggle:focus {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.inventory-preset-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.inventory-preset-chip {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font-size: 12px;
+  line-height: 1;
+  padding: 8px 10px;
+}
+
+.inventory-preset-chip:hover,
+.inventory-preset-chip:focus {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.inventory-filter-form .form-check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.inventory-filter-form .form-check-input {
+  width: auto;
+  margin: 0;
+}
+
+.inventory-filter-form .form-check-label {
+  color: #fff;
+  margin: 0;
+}
+
 .inventory-submit-btn {
   width: 100%;
   padding: 12px;

@@ -8,7 +8,7 @@
     </button>
 
     <div class="inventory-filter-desktop d-none d-lg-block">
-        <div th:replace="~{fragments/inventory-sidebar :: sidebarContent(${formAction}, ${filters}, ${availableBrands}, ${modelsByMake}, ${sidebarFuelOptions}, ${sidebarTransmissionOptions})}"></div>
+        <div th:replace="~{fragments/inventory-sidebar :: sidebarContent(${formAction}, ${filters}, ${availableBrands}, ${modelsByMake}, ${sidebarFuelOptions}, ${sidebarTransmissionOptions}, ${advancedFiltersExpanded})}"></div>
     </div>
 
     <div class="offcanvas offcanvas-start inventory-filter-offcanvas" tabindex="-1" id="inventoryFilterDrawer" aria-labelledby="inventoryFilterDrawerLabel">
@@ -17,12 +17,12 @@
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
         <div class="offcanvas-body">
-            <div th:replace="~{fragments/inventory-sidebar :: sidebarContent(${formAction}, ${filters}, ${availableBrands}, ${modelsByMake}, ${sidebarFuelOptions}, ${sidebarTransmissionOptions})}"></div>
+            <div th:replace="~{fragments/inventory-sidebar :: sidebarContent(${formAction}, ${filters}, ${availableBrands}, ${modelsByMake}, ${sidebarFuelOptions}, ${sidebarTransmissionOptions}, ${advancedFiltersExpanded})}"></div>
         </div>
     </div>
 </aside>
 
-<div th:fragment="sidebarContent(formAction, filters, availableBrands, modelsByMake, sidebarFuelOptions, sidebarTransmissionOptions)"
+<div th:fragment="sidebarContent(formAction, filters, availableBrands, modelsByMake, sidebarFuelOptions, sidebarTransmissionOptions, advancedFiltersExpanded)"
      class="inventory-filter-sidebar"
      th:with="activeCategory=${filters.categories != null && !filters.categories.isEmpty() ? filters.categories[0].name() : 'DAMAGED'}">
     <div class="inventory-filter-sticky">
@@ -43,19 +43,19 @@
             </a>
         </div>
 
-        <form th:action="${formAction}" method="get" class="inventory-filter-form" id="inventoryFilterForm">
+        <form th:action="${formAction}" method="get" class="inventory-filter-form" data-inventory-filter-form="true">
             <div class="inventory-form-group">
-                <label for="sidebarBrandSearch" th:text="#{search.brand.label}">Brand</label>
-                <input id="sidebarBrandSearch" type="text" class="form-control mb-2" th:placeholder="#{search.brand.searchPlaceholder}">
-                <select id="sidebarBrand" class="form-select" name="brands">
+                <label th:text="#{search.brand.label}">Brand</label>
+                <input type="text" class="form-control mb-2 inventory-brand-search" th:placeholder="#{search.brand.searchPlaceholder}">
+                <select class="form-select inventory-brand-select" name="brands">
                     <option value="" th:text="#{search.brand.placeholder}">choose brand</option>
                     <option th:each="brand : ${availableBrands}" th:value="${brand}" th:text="${brand}" th:selected="${filters.brands != null && filters.brands.contains(brand)}">Hyundai</option>
                 </select>
             </div>
 
             <div class="inventory-form-group">
-                <label for="sidebarModel" th:text="#{search.model.label}">Model</label>
-                <select id="sidebarModel" class="form-select" name="model" th:attr="data-selected=${filters.model},data-placeholder=#{search.model.placeholder}">
+                <label th:text="#{search.model.label}">Model</label>
+                <select class="form-select inventory-model-select" name="model" th:attr="data-selected=${filters.model},data-placeholder=#{search.model.placeholder}">
                     <option value="" th:text="#{search.model.placeholder}">choose a model</option>
                 </select>
             </div>
@@ -63,12 +63,12 @@
             <div class="inventory-form-group">
                 <label th:text="#{search.year.label}">Manufacturing year</label>
                 <div class="inventory-range-row">
-                    <select class="form-select" name="yearFrom">
+                    <select class="form-select inventory-year-from" name="yearFrom">
                         <option value="" th:text="#{search.year.fromPlaceholder}">From</option>
                         <option th:each="year : ${#numbers.sequence(1936, 2026)}" th:value="${year}" th:text="${year}" th:selected="${filters.yearFrom == year}">1936</option>
                     </select>
                     <span th:text="#{search.year.toSeparator}">to</span>
-                    <select class="form-select" name="yearTo">
+                    <select class="form-select inventory-year-to" name="yearTo">
                         <option value="" th:text="#{search.year.toPlaceholder}">To</option>
                         <option th:each="year : ${#numbers.sequence(1936, 2026)}" th:value="${year}" th:text="${year}" th:selected="${filters.yearTo == year}">2026</option>
                     </select>
@@ -76,8 +76,8 @@
             </div>
 
             <div class="inventory-form-group">
-                <label for="sidebarFuel" th:text="#{search.fuel.label}">Fuel type</label>
-                <select id="sidebarFuel" class="form-select" name="fuelTypes" multiple size="6">
+                <label th:text="#{search.fuel.label}">Fuel type</label>
+                <select class="form-select" name="fuelTypes" multiple size="6">
                     <option th:each="fuel : ${sidebarFuelOptions}"
                             th:if="${!fuel.value.isEmpty()}"
                             th:value="${fuel.value}"
@@ -89,8 +89,8 @@
             </div>
 
             <div class="inventory-form-group">
-                <label for="sidebarTransmission" th:text="#{search.transmission.label}">Transmission</label>
-                <select id="sidebarTransmission" class="form-select" name="transmissions" multiple size="3">
+                <label th:text="#{search.transmission.label}">Transmission</label>
+                <select class="form-select" name="transmissions" multiple size="3">
                     <option th:each="transmission : ${sidebarTransmissionOptions}"
                             th:if="${!transmission.value.isEmpty()}"
                             th:value="${transmission.value}"
@@ -100,6 +100,203 @@
                     </option>
                 </select>
             </div>
+
+            <div class="inventory-form-group inventory-advanced-toggle-group">
+                <button type="button"
+                        class="inventory-advanced-toggle btn btn-outline-light w-100"
+                        th:attr="aria-expanded=${advancedFiltersExpanded},data-show-label=#{search.advanced.show},data-hide-label=#{search.advanced.hide}"
+                        th:text="${advancedFiltersExpanded} ? #{search.advanced.hide} : #{search.advanced.show}">
+                    Show advanced filters
+                </button>
+            </div>
+
+            <section class="inventory-advanced-section" th:attr="hidden=${advancedFiltersExpanded} ? null : 'hidden'">
+                <div class="inventory-form-group">
+                    <div class="d-flex justify-content-between align-items-center gap-2">
+                        <label th:text="#{search.price.label}">Price</label>
+                        <small th:text="#{search.price.rangeHint}">0 € to 300000+ €</small>
+                    </div>
+                    <div class="inventory-range-row">
+                        <input class="form-control" type="number" min="0" step="100" name="minPrice" th:value="${filters.minPrice}" th:placeholder="#{search.price.fromPlaceholder}">
+                        <span th:text="#{search.year.toSeparator}">to</span>
+                        <input class="form-control" type="number" min="0" step="100" name="maxPrice" th:value="${filters.maxPrice}" th:placeholder="#{search.price.toPlaceholder}">
+                    </div>
+                    <div class="inventory-preset-chips">
+                        <button th:each="preset : ${sidebarPricePresets}"
+                                type="button"
+                                class="inventory-preset-chip"
+                                data-preset-target="minPrice"
+                                th:attr="data-preset-value=${preset}"
+                                th:text="${#numbers.formatInteger(preset, 1, 'POINT')} + ' €'">1.000 €</button>
+                    </div>
+                </div>
+
+                <div class="inventory-form-group">
+                    <label th:text="#{search.color.label}">Color</label>
+                    <select class="form-select" name="color">
+                        <option value="" th:text="#{search.color.placeholder}">Select color</option>
+                        <option th:each="colorOption : ${sidebarColorOptions}"
+                                th:value="${colorOption.value}"
+                                th:text="${#messages.msg(colorOption.labelKey)}"
+                                th:selected="${filters.color == colorOption.value}">
+                            Blue
+                        </option>
+                    </select>
+                </div>
+
+                <div class="inventory-form-group">
+                    <label th:text="#{search.colorCode.label}">Color code</label>
+                    <input class="form-control text-uppercase"
+                           type="search"
+                           name="colorCode"
+                           list="inventoryColorCodes"
+                           maxlength="6"
+                           th:value="${filters.colorCode}"
+                           th:placeholder="#{search.colorCode.placeholder}">
+                    <datalist id="inventoryColorCodes">
+                        <option th:each="codeOption : ${sidebarColorCodeOptions}" th:value="${codeOption.value}" th:text="${#messages.msg(codeOption.labelKey)}">Y01</option>
+                    </datalist>
+                </div>
+
+                <div class="inventory-form-group">
+                    <label th:text="#{search.bodyType.label}">Body type</label>
+                    <select class="form-select" name="bodyTypes" multiple size="6">
+                        <option th:each="bodyTypeOption : ${sidebarBodyTypeOptions}"
+                                th:value="${bodyTypeOption.value}"
+                                th:text="${#messages.msg(bodyTypeOption.labelKey)}"
+                                th:selected="${filters.bodyTypes != null && filters.bodyTypes.contains(bodyTypeOption.value)}">
+                            Hatchback
+                        </option>
+                    </select>
+                </div>
+
+                <div class="inventory-form-group">
+                    <label th:text="#{search.refinedFuelType.label}">Refined fuel type</label>
+                    <select class="form-select" name="refinedFuelType">
+                        <option value="" th:text="#{search.tristate.both}">Both</option>
+                        <option value="YES" th:selected="${filters.refinedFuelType != null && filters.refinedFuelType.name() == 'YES'}" th:text="#{search.tristate.yes}">Yes</option>
+                        <option value="NO" th:selected="${filters.refinedFuelType != null && filters.refinedFuelType.name() == 'NO'}" th:text="#{search.tristate.no}">No</option>
+                    </select>
+                </div>
+
+                <div class="inventory-form-group">
+                    <div class="d-flex justify-content-between align-items-center gap-2">
+                        <label th:text="#{search.mileage.label}">Mileage</label>
+                        <small th:text="#{search.mileage.rangeHint}">10.000 to 1.000.000 km</small>
+                    </div>
+                    <div class="inventory-range-row">
+                        <input class="form-control" type="number" min="0" step="1000" name="minMileage" th:value="${filters.minMileage}" th:placeholder="#{search.mileage.fromPlaceholder}">
+                        <span th:text="#{search.year.toSeparator}">to</span>
+                        <input class="form-control" type="number" min="0" step="1000" name="maxMileage" th:value="${filters.maxMileage}" th:placeholder="#{search.mileage.toPlaceholder}">
+                    </div>
+                    <div class="inventory-preset-chips">
+                        <button th:each="preset : ${sidebarMileagePresets}"
+                                type="button"
+                                class="inventory-preset-chip"
+                                data-preset-target="maxMileage"
+                                th:attr="data-preset-value=${preset}"
+                                th:text="${#numbers.formatInteger(preset, 1, 'POINT')} + ' km'">10.000 km</button>
+                    </div>
+                </div>
+
+                <div class="inventory-form-group">
+                    <label th:text="#{search.origin.label}">Origin</label>
+                    <select class="form-select" name="origins" multiple size="6">
+                        <option th:each="originOption : ${sidebarOriginOptions}"
+                                th:value="${originOption.value}"
+                                th:text="${#messages.msg(originOption.labelKey)}"
+                                th:selected="${filters.origins != null && filters.origins.contains(originOption.value)}">
+                            Netherlands
+                        </option>
+                    </select>
+                </div>
+
+                <div class="inventory-form-group">
+                    <label th:text="#{search.nearbyRadius.label}">Nearby radius</label>
+                    <select class="form-select inventory-nearby-radius" name="nearbyRadiusKm">
+                        <option value="" th:text="#{search.nearbyRadius.placeholder}">Choose radius</option>
+                        <option th:each="radius : ${sidebarNearbyRadiusOptions}"
+                                th:value="${radius}"
+                                th:text="${radius} + ' km'"
+                                th:selected="${filters.nearbyRadiusKm == radius}">
+                            50 km
+                        </option>
+                    </select>
+                    <small class="text-muted d-block mt-2" th:text="#{search.nearbyRadius.helper}">Uses your current location if available.</small>
+                    <input type="hidden" name="referenceLatitude" th:value="${filters.referenceLatitude}" class="inventory-reference-latitude">
+                    <input type="hidden" name="referenceLongitude" th:value="${filters.referenceLongitude}" class="inventory-reference-longitude">
+                </div>
+
+                <div class="inventory-form-group">
+                    <h3 class="h6 text-white mb-3" th:text="#{search.documentation.label}">Documentation</h3>
+                    <label class="form-label" th:text="#{search.documentation.registrationAvailable}">Registration available</label>
+                    <select class="form-select mb-3" name="registrationAvailable">
+                        <option value="" th:text="#{search.tristate.both}">Both</option>
+                        <option value="YES" th:selected="${filters.registrationAvailable != null && filters.registrationAvailable.name() == 'YES'}" th:text="#{search.tristate.yes}">Yes</option>
+                        <option value="NO" th:selected="${filters.registrationAvailable != null && filters.registrationAvailable.name() == 'NO'}" th:text="#{search.tristate.no}">No</option>
+                    </select>
+                    <label class="form-check">
+                        <input class="form-check-input" type="checkbox" value="true" name="awaitingVerification" th:checked="${filters.awaitingVerification}">
+                        <span class="form-check-label" th:text="#{search.documentation.awaitingVerification}">Awaiting verification</span>
+                    </label>
+                </div>
+
+                <div class="inventory-form-group">
+                    <h3 class="h6 text-white mb-3" th:text="#{search.options.label}">Options</h3>
+                    <label class="form-label" th:text="#{search.options.fullInstructionBooklet}">Full instruction booklet</label>
+                    <select class="form-select mb-3" name="fullInstructionBooklet">
+                        <option value="" th:text="#{search.tristate.both}">Both</option>
+                        <option value="YES" th:selected="${filters.fullInstructionBooklet != null && filters.fullInstructionBooklet.name() == 'YES'}" th:text="#{search.tristate.yes}">Yes</option>
+                        <option value="NO" th:selected="${filters.fullInstructionBooklet != null && filters.fullInstructionBooklet.name() == 'NO'}" th:text="#{search.tristate.no}">No</option>
+                    </select>
+                    <label class="form-label" th:text="#{search.options.allKeysAvailable}">All keys available</label>
+                    <select class="form-select" name="allKeysAvailable">
+                        <option value="" th:text="#{search.tristate.both}">Both</option>
+                        <option value="YES" th:selected="${filters.allKeysAvailable != null && filters.allKeysAvailable.name() == 'YES'}" th:text="#{search.tristate.yes}">Yes</option>
+                        <option value="NO" th:selected="${filters.allKeysAvailable != null && filters.allKeysAvailable.name() == 'NO'}" th:text="#{search.tristate.no}">No</option>
+                    </select>
+                </div>
+
+                <div class="inventory-form-group">
+                    <h3 class="h6 text-white mb-3" th:text="#{search.damage.label}">Damage</h3>
+                    <label class="form-label" th:text="#{search.damage.engineDamage}">Engine damage</label>
+                    <select class="form-select mb-3" name="engineDamage">
+                        <option value="" th:text="#{search.tristate.both}">Both</option>
+                        <option value="YES" th:selected="${filters.engineDamage != null && filters.engineDamage.name() == 'YES'}" th:text="#{search.tristate.yes}">Yes</option>
+                        <option value="NO" th:selected="${filters.engineDamage != null && filters.engineDamage.name() == 'NO'}" th:text="#{search.tristate.no}">No</option>
+                    </select>
+                    <label class="form-label" th:text="#{search.damage.lowerDamage}">Lower damage</label>
+                    <select class="form-select mb-3" name="lowerDamage">
+                        <option value="" th:text="#{search.tristate.both}">Both</option>
+                        <option value="YES" th:selected="${filters.lowerDamage != null && filters.lowerDamage.name() == 'YES'}" th:text="#{search.tristate.yes}">Yes</option>
+                        <option value="NO" th:selected="${filters.lowerDamage != null && filters.lowerDamage.name() == 'NO'}" th:text="#{search.tristate.no}">No</option>
+                    </select>
+                    <label class="form-label" th:text="#{search.damage.drivable}">The car can be driven</label>
+                    <select class="form-select mb-3" name="drivable">
+                        <option value="" th:text="#{search.tristate.both}">Both</option>
+                        <option value="YES" th:selected="${filters.drivable != null && filters.drivable.name() == 'YES'}" th:text="#{search.tristate.yes}">Yes</option>
+                        <option value="NO" th:selected="${filters.drivable != null && filters.drivable.name() == 'NO'}" th:text="#{search.tristate.no}">No</option>
+                    </select>
+                    <label class="form-label" th:text="#{search.damage.movable}">The car can be moved</label>
+                    <select class="form-select mb-3" name="movable">
+                        <option value="" th:text="#{search.tristate.both}">Both</option>
+                        <option value="YES" th:selected="${filters.movable != null && filters.movable.name() == 'YES'}" th:text="#{search.tristate.yes}">Yes</option>
+                        <option value="NO" th:selected="${filters.movable != null && filters.movable.name() == 'NO'}" th:text="#{search.tristate.no}">No</option>
+                    </select>
+                    <label class="form-label" th:text="#{search.damage.engineRuns}">Engine runs</label>
+                    <select class="form-select mb-3" name="engineRuns">
+                        <option value="" th:text="#{search.tristate.both}">Both</option>
+                        <option value="YES" th:selected="${filters.engineRuns != null && filters.engineRuns.name() == 'YES'}" th:text="#{search.tristate.yes}">Yes</option>
+                        <option value="NO" th:selected="${filters.engineRuns != null && filters.engineRuns.name() == 'NO'}" th:text="#{search.tristate.no}">No</option>
+                    </select>
+                    <label class="form-label" th:text="#{search.damage.airbagsIntact}">All airbags intact</label>
+                    <select class="form-select" name="airbagsIntact">
+                        <option value="" th:text="#{search.tristate.both}">Both</option>
+                        <option value="YES" th:selected="${filters.airbagsIntact != null && filters.airbagsIntact.name() == 'YES'}" th:text="#{search.tristate.yes}">Yes</option>
+                        <option value="NO" th:selected="${filters.airbagsIntact != null && filters.airbagsIntact.name() == 'NO'}" th:text="#{search.tristate.no}">No</option>
+                    </select>
+                </div>
+            </section>
 
             <div class="inventory-price-indicator">
                 <span th:text="#{search.primaryFiltersNotice}">Brand, model, year, fuel and transmission define the advanced search.</span>

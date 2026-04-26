@@ -31,11 +31,14 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Arrays;
+import java.math.BigDecimal;
 import java.util.Locale;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Controller
@@ -214,6 +217,16 @@ public class CarController {
         model.addAttribute("categories", Arrays.asList(VehicleCategory.values()));
         model.addAttribute("sidebarFuelOptions", AdvancedSearchCatalog.fuelOptions());
         model.addAttribute("sidebarTransmissionOptions", AdvancedSearchCatalog.transmissionOptions());
+        model.addAttribute("sidebarColorOptions", AdvancedSearchCatalog.colorOptions());
+        model.addAttribute("sidebarColorCodeOptions", AdvancedSearchCatalog.colorCodeOptions());
+        model.addAttribute("sidebarBodyTypeOptions", AdvancedSearchCatalog.bodyTypeOptions());
+        model.addAttribute("sidebarOriginOptions", AdvancedSearchCatalog.originOptions());
+        model.addAttribute("sidebarNearbyRadiusOptions", AdvancedSearchCatalog.nearbyRadiusOptions());
+        model.addAttribute("sidebarPricePresets", AdvancedSearchCatalog.pricePresets());
+        model.addAttribute("sidebarMileagePresets", AdvancedSearchCatalog.mileagePresets());
+        model.addAttribute("advancedFiltersExpanded", hasAdvancedFilters(filters));
+        model.addAttribute("gridViewUrl", buildViewUrl("/cars", filters));
+        model.addAttribute("listViewUrl", buildViewUrl("/cars/list", filters));
         model.addAttribute("extraStylesheets", List.of("/css/inventory-sidebar.css"));
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", carsPage.getTotalPages());
@@ -232,6 +245,26 @@ public class CarController {
             filters.setYearTo(filters.getYearFrom());
         }
 
+        if (filters.getMinPrice() != null && filters.getMinPrice().compareTo(BigDecimal.ZERO) < 0) {
+            filters.setMinPrice(BigDecimal.ZERO);
+        }
+        if (filters.getMaxPrice() != null && filters.getMaxPrice().compareTo(BigDecimal.ZERO) < 0) {
+            filters.setMaxPrice(BigDecimal.ZERO);
+        }
+        if (filters.getMinPrice() != null && filters.getMaxPrice() != null && filters.getMinPrice().compareTo(filters.getMaxPrice()) > 0) {
+            filters.setMaxPrice(filters.getMinPrice());
+        }
+
+        if (filters.getMinMileage() != null && filters.getMinMileage() < 0) {
+            filters.setMinMileage(0);
+        }
+        if (filters.getMaxMileage() != null && filters.getMaxMileage() < 0) {
+            filters.setMaxMileage(0);
+        }
+        if (filters.getMinMileage() != null && filters.getMaxMileage() != null && filters.getMinMileage() > filters.getMaxMileage()) {
+            filters.setMaxMileage(filters.getMinMileage());
+        }
+
         if (filters.getBrands() != null) {
             filters.setBrands(filters.getBrands().stream().filter(brand -> brand != null && !brand.isBlank()).toList());
         }
@@ -247,6 +280,119 @@ public class CarController {
                     filters.setModel(null);
                 }
             }
+        }
+
+        if (filters.getColor() != null && !AdvancedSearchCatalog.supportedColorValues().contains(filters.getColor())) {
+            filters.setColor(null);
+        }
+
+        if (filters.getColorCode() != null) {
+            filters.setColorCode(filters.getColorCode().trim().toUpperCase(Locale.ROOT));
+            if (!filters.getColorCode().isEmpty() && !AdvancedSearchCatalog.supportedColorCodes().contains(filters.getColorCode())) {
+                filters.setColorCode(null);
+            }
+        }
+
+        if (filters.getBodyTypes() != null) {
+            Set<String> supportedBodyTypes = AdvancedSearchCatalog.supportedBodyTypeValues();
+            filters.setBodyTypes(filters.getBodyTypes().stream()
+                .filter(bodyType -> bodyType != null && supportedBodyTypes.contains(bodyType))
+                .distinct()
+                .toList());
+        }
+
+        if (filters.getOrigins() != null) {
+            Set<String> supportedOrigins = AdvancedSearchCatalog.supportedOriginValues();
+            filters.setOrigins(filters.getOrigins().stream()
+                .filter(origin -> origin != null && supportedOrigins.contains(origin))
+                .distinct()
+                .toList());
+        }
+
+        if (filters.getNearbyRadiusKm() != null && !AdvancedSearchCatalog.supportedNearbyRadiusOptions().contains(filters.getNearbyRadiusKm())) {
+            filters.setNearbyRadiusKm(null);
+        }
+        if (filters.getReferenceLatitude() != null && (filters.getReferenceLatitude() < -90 || filters.getReferenceLatitude() > 90)) {
+            filters.setReferenceLatitude(null);
+        }
+        if (filters.getReferenceLongitude() != null && (filters.getReferenceLongitude() < -180 || filters.getReferenceLongitude() > 180)) {
+            filters.setReferenceLongitude(null);
+        }
+    }
+
+    private boolean hasAdvancedFilters(CarFilterDTO filters) {
+        return filters.getMinPrice() != null
+            || filters.getMaxPrice() != null
+            || (filters.getColor() != null && !filters.getColor().isBlank())
+            || (filters.getColorCode() != null && !filters.getColorCode().isBlank())
+            || (filters.getBodyTypes() != null && !filters.getBodyTypes().isEmpty())
+            || filters.getRefinedFuelType() != null
+            || filters.getMinMileage() != null
+            || filters.getMaxMileage() != null
+            || (filters.getOrigins() != null && !filters.getOrigins().isEmpty())
+            || filters.getNearbyRadiusKm() != null
+            || filters.getRegistrationAvailable() != null
+            || Boolean.TRUE.equals(filters.getAwaitingVerification())
+            || filters.getFullInstructionBooklet() != null
+            || filters.getAllKeysAvailable() != null
+            || filters.getEngineDamage() != null
+            || filters.getLowerDamage() != null
+            || filters.getDrivable() != null
+            || filters.getMovable() != null
+            || filters.getEngineRuns() != null
+            || filters.getAirbagsIntact() != null;
+    }
+
+    private String buildViewUrl(String targetPath, CarFilterDTO filters) {
+        UriComponentsBuilder builder = UriComponentsBuilder.fromPath(targetPath);
+        addQueryParam(builder, "brands", filters.getBrands());
+        addQueryParam(builder, "model", filters.getModel());
+        addQueryParam(builder, "yearFrom", filters.getYearFrom());
+        addQueryParam(builder, "yearTo", filters.getYearTo());
+        addQueryParam(builder, "minPrice", filters.getMinPrice());
+        addQueryParam(builder, "maxPrice", filters.getMaxPrice());
+        addQueryParam(builder, "color", filters.getColor());
+        addQueryParam(builder, "colorCode", filters.getColorCode());
+        addQueryParam(builder, "fuelTypes", filters.getFuelTypes());
+        addQueryParam(builder, "transmissions", filters.getTransmissions());
+        addQueryParam(builder, "bodyTypes", filters.getBodyTypes());
+        addQueryParam(builder, "refinedFuelType", filters.getRefinedFuelType() != null ? filters.getRefinedFuelType().name() : null);
+        addQueryParam(builder, "minMileage", filters.getMinMileage());
+        addQueryParam(builder, "maxMileage", filters.getMaxMileage());
+        addQueryParam(builder, "origins", filters.getOrigins());
+        addQueryParam(builder, "nearbyRadiusKm", filters.getNearbyRadiusKm());
+        addQueryParam(builder, "referenceLatitude", filters.getReferenceLatitude());
+        addQueryParam(builder, "referenceLongitude", filters.getReferenceLongitude());
+        addQueryParam(builder, "registrationAvailable", filters.getRegistrationAvailable() != null ? filters.getRegistrationAvailable().name() : null);
+        addQueryParam(builder, "awaitingVerification", Boolean.TRUE.equals(filters.getAwaitingVerification()) ? true : null);
+        addQueryParam(builder, "fullInstructionBooklet", filters.getFullInstructionBooklet() != null ? filters.getFullInstructionBooklet().name() : null);
+        addQueryParam(builder, "allKeysAvailable", filters.getAllKeysAvailable() != null ? filters.getAllKeysAvailable().name() : null);
+        addQueryParam(builder, "engineDamage", filters.getEngineDamage() != null ? filters.getEngineDamage().name() : null);
+        addQueryParam(builder, "lowerDamage", filters.getLowerDamage() != null ? filters.getLowerDamage().name() : null);
+        addQueryParam(builder, "drivable", filters.getDrivable() != null ? filters.getDrivable().name() : null);
+        addQueryParam(builder, "movable", filters.getMovable() != null ? filters.getMovable().name() : null);
+        addQueryParam(builder, "engineRuns", filters.getEngineRuns() != null ? filters.getEngineRuns().name() : null);
+        addQueryParam(builder, "airbagsIntact", filters.getAirbagsIntact() != null ? filters.getAirbagsIntact().name() : null);
+        addQueryParam(builder, "conditions", filters.getConditions() != null ? filters.getConditions().stream().map(Enum::name).toList() : null);
+        addQueryParam(builder, "categories", filters.getCategories() != null ? filters.getCategories().stream().map(Enum::name).toList() : null);
+        addQueryParam(builder, "searchText", filters.getSearchText());
+        addQueryParam(builder, "searchQuery", filters.getSearchQuery());
+        addQueryParam(builder, "locale", filters.getLocale());
+        return builder.toUriString();
+    }
+
+    private void addQueryParam(UriComponentsBuilder builder, String key, Object value) {
+        if (value == null) {
+            return;
+        }
+        if (value instanceof List<?> values) {
+            values.stream()
+                .filter(item -> item != null && !item.toString().isBlank())
+                .forEach(item -> builder.queryParam(key, item));
+            return;
+        }
+        if (!value.toString().isBlank()) {
+            builder.queryParam(key, value);
         }
     }
 }
