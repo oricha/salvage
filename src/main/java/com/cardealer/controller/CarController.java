@@ -18,6 +18,7 @@ import com.cardealer.service.RecentlyViewedService;
 import com.cardealer.service.SEOService;
 import com.cardealer.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -126,13 +127,14 @@ public class CarController {
      * Car detail page
      */
     @GetMapping("/{id}")
-    public String carDetail(@PathVariable Long id, Model model, Authentication authentication, HttpSession session, HttpServletRequest request) {
+    public String carDetail(@PathVariable Long id, Model model, Authentication authentication, HttpSession session, HttpServletRequest request, HttpServletResponse response) {
         // Get car and increment views
         Car car = carService.getCarById(id);
         var currentUser = authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getName())
             ? userService.getUserByEmail(authentication.getName())
             : null;
         recentlyViewedService.addToRecentlyViewed(id, session, currentUser, request);
+        recentlyViewedService.persistRecentlyViewedCookie(session, response);
         model.addAttribute("car", car);
         model.addAttribute("breadcrumbItems", List.of(
             new BreadcrumbItem("Inicio", "/", false),

@@ -114,6 +114,9 @@ public class FavoriteController {
             
             model.addAttribute("user", user);
             model.addAttribute("favoriteCars", favoriteCars);
+            model.addAttribute("pageDescription", "Gestiona tu parking de vehículos guardados y revisa tus últimos vistos.");
+            model.addAttribute("pageKeywords", "favoritos, parking, últimos vistos, coches guardados");
+            model.addAttribute("ogTitle", "Parking de vehículos");
             
             return "profile-favorite";
             

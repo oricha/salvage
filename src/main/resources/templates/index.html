@@ -9,9 +9,9 @@
         <div class="container">
             <div class="home-salvage-shell">
                 <div class="hero-heading">
-                    <span class="hero-kicker">Professional salvage marketplace</span>
-                    <h1>Damaged, salvage and occasion vehicles in one structured marketplace</h1>
-                    <p>Only professional companies advertise here. Search export-ready stock, dismantling inventory and occasion vehicles while keeping the original blue and orange visual identity of the platform.</p>
+                    <span class="hero-kicker">Schadeautos marketplace</span>
+                    <h1>Un coche dañado puede ser la solución cuando está buscando un coche usado a buen precio</h1>
+                    <p>Schadeautos.nl reúne coches dañados, stock siniestrado y vehículos de ocasión de empresas profesionales en una sola plataforma clara, económica y orientada a calidad.</p>
                 </div>
 
                 <div class="hero-tabs">
@@ -184,6 +184,58 @@
                         </div>
                     </div>
                 </form>
+
+                <div class="hero-visual-grid">
+                    <article class="hero-visual-card hero-visual-card--feature">
+                        <img loading="lazy" src="/img/car/01.jpg" alt="Coche dañado destacado">
+                        <div class="hero-visual-copy">
+                            <span>Marketplace visual principal</span>
+                            <strong>Coches dañados y oportunidades reales a mejor precio</strong>
+                        </div>
+                    </article>
+                    <article class="hero-visual-card">
+                        <img loading="lazy" src="/img/car/04.jpg" alt="Verificación profesional">
+                        <div class="hero-visual-copy">
+                            <span>Verificación</span>
+                            <strong>Empresas profesionales revisadas personalmente</strong>
+                        </div>
+                    </article>
+                    <article class="hero-visual-card">
+                        <img loading="lazy" src="/img/car/05.jpg" alt="Ahorro ecológico">
+                        <div class="hero-visual-copy">
+                            <span>Enfoque ecológico</span>
+                            <strong>Compra más eficiente, circular y rentable</strong>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="home-stats-strip">
+        <div class="container">
+            <div class="home-stats-grid">
+                <article th:each="stat : ${homepageStats}" class="home-stat-card">
+                    <strong th:text="${stat.value}">10.000+</strong>
+                    <span th:text="${stat.label}">coches dañados disponibles</span>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <section class="home-section value-proposition-section">
+        <div class="container">
+            <div class="section-head">
+                <div>
+                    <span class="section-kicker">Propuesta de valor</span>
+                    <h2>One-Stop-Shop para coches dañados y accesorios</h2>
+                </div>
+            </div>
+            <div class="value-props-grid">
+                <article th:each="prop : ${homepageValueProps}" class="value-prop-card">
+                    <h3 th:text="${prop.title}">One-Stop-Shop</h3>
+                    <p th:text="${prop.description}">Encuentra coches dañados, siniestrados y vehiculos de ocasion dentro de un unico marketplace profesional.</p>
+                </article>
             </div>
         </div>
     </section>
@@ -298,11 +350,12 @@
                     <img loading="lazy" src="/img/car/05.jpg" alt="Export ready salvage">
                 </div>
                 <div class="about-home-copy">
-                    <span class="section-kicker">Why choose us</span>
-                    <h2>Only professional companies advertise on schadeautos.nl</h2>
-                    <p>We focus on quality over quantity. Buyers get structured listings, consistent salvage information, dealer transparency and better export-ready search tools. Sellers get a professional environment built around damaged stock, dismantling opportunities and controlled lead quality.</p>
-                    <p>The result is a cleaner marketplace where serious inventory is easier to find, compare and contact.</p>
-                    <a th:href="@{/about}" class="theme-btn">Read more</a>
+                    <span class="section-kicker">Acerca de Schadeautos</span>
+                    <h2>Modelo de negocio, verificación y garantía de calidad en un solo portal</h2>
+                    <p>Schadeautos.nl funciona como un punto de encuentro único para coches dañados, vehículos siniestrados y stock de ocasión. El objetivo es reunir oferta profesional, información clara y capacidad de comparación dentro de una plataforma unificada.</p>
+                    <p>Visitamos personalmente a las empresas participantes para validar su perfil, su forma de publicar y la calidad general de su oferta. Esto aporta transparencia, confianza y un estándar más alto para el comprador.</p>
+                    <p>Además, el marketplace impulsa una lógica ecológica y económica: recuperar, reparar o reutilizar vehículos y accesorios puede ser una alternativa más inteligente que comprar nuevo.</p>
+                    <a th:href="@{/about}" class="theme-btn">Leer más</a>
                 </div>
             </div>
         </div>

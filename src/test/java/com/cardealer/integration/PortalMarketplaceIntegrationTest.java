@@ -7,6 +7,7 @@ import com.cardealer.controller.CarController;
 import com.cardealer.controller.ContactController;
 import com.cardealer.controller.DashboardController;
 import com.cardealer.controller.DealerController;
+import com.cardealer.controller.FavoriteController;
 import com.cardealer.controller.GlobalModelAttributesController;
 import com.cardealer.controller.HomeController;
 import com.cardealer.dto.CarFilterDTO;
@@ -66,7 +67,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-@WebMvcTest(controllers = {DashboardController.class, HomeController.class, CarController.class, ContactController.class, DealerController.class})
+@WebMvcTest(controllers = {DashboardController.class, HomeController.class, CarController.class, ContactController.class, DealerController.class, FavoriteController.class})
 @AutoConfigureMockMvc(addFilters = false)
 @Import({GlobalModelAttributesController.class, LocaleConfig.class, LocaleInterceptor.class, WebConfig.class})
 class PortalMarketplaceIntegrationTest {
@@ -131,7 +132,10 @@ class PortalMarketplaceIntegrationTest {
             1
         ));
         when(userService.getUserByEmail(SELLER_EMAIL)).thenReturn(sampleUser(1L, SELLER_EMAIL, UserRole.VENDEDOR));
+        when(userService.getUserByEmail("buyer@example.com")).thenReturn(sampleUser(2L, "buyer@example.com", UserRole.COMPRADOR));
         when(dealerService.getDealerByUserId(1L)).thenReturn(sampleDealer(1L, SELLER_EMAIL));
+        when(favoriteService.getUserFavorites(2L)).thenReturn(List.of(sampleCar(31L, VehicleCategory.PASSENGER_CAR, CarCondition.OCASION)));
+        when(favoriteService.countUserFavorites(2L)).thenReturn(1L);
         when(dealerService.getDealerSearchOptions()).thenReturn(sampleDealerSearchOptions());
         when(dealerService.getDealerRegions()).thenReturn(List.of("Madrid", "Catalunya", "Andalucia"));
         when(dealerService.getDealerDirectoryEntries(any(), any())).thenReturn(sampleDealerDirectory());
@@ -433,6 +437,19 @@ class PortalMarketplaceIntegrationTest {
     }
 
     @Test
+    void homepageShowsValuePropositionStatsAndAboutContent() throws Exception {
+        mockMvc.perform(get("/"))
+            .andExpect(status().isOk())
+            .andExpect(content().string(containsString("Un coche dañado puede ser la solución cuando está buscando un coche usado a buen precio")))
+            .andExpect(content().string(containsString("10.000+")))
+            .andExpect(content().string(containsString("3.000.000")))
+            .andExpect(content().string(containsString("One-Stop-Shop para coches dañados y accesorios")))
+            .andExpect(content().string(containsString("Acerca de Schadeautos")))
+            .andExpect(content().string(containsString("Visitamos personalmente a las empresas participantes")))
+            .andExpect(content().string(containsString(">Leer más<")));
+    }
+
+    @Test
     void dealerDirectoryShowsSearchRegionAndAlphabeticalGrouping() throws Exception {
         mockMvc.perform(get("/dealers").param("query", "Atlas").param("region", "Madrid"))
             .andExpect(status().isOk())
@@ -450,6 +467,22 @@ class PortalMarketplaceIntegrationTest {
             .andExpect(content().string(containsString("Motex")))
             .andExpect(content().string(containsString("Madrid")))
             .andExpect(content().string(containsString("Vehículos de este Concesionario")));
+    }
+
+    @Test
+    void favoritesPageShowsParkingAndRecentlyViewedForAuthenticatedUser() throws Exception {
+        when(recentlyViewedService.getRecentlyViewedCars(any(), eq(5))).thenReturn(List.of(sampleCar(41L, VehicleCategory.DAMAGED, CarCondition.ACCIDENTADO)));
+
+        mockMvc.perform(get("/favorites").principal(new UsernamePasswordAuthenticationToken(
+                "buyer@example.com",
+                "password",
+                List.of(new SimpleGrantedAuthority("ROLE_COMPRADOR"))
+            )))
+            .andExpect(status().isOk())
+            .andExpect(content().string(containsString("Parking de vehículos")))
+            .andExpect(content().string(containsString("Vehículos guardados")))
+            .andExpect(content().string(containsString("Retoma tu búsqueda reciente")))
+            .andExpect(content().string(containsString("¿Seguro que quieres eliminar este vehículo del parking?")));
     }
 
     private Car sampleCar(Long id, VehicleCategory category, CarCondition condition) {

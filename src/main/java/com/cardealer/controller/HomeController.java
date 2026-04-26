@@ -47,6 +47,27 @@ public class HomeController {
             Map.of("label", "Desguace", "description", "Salvage stock ready for export or dismantling", "url", "/cars?categories=SALVAGE"),
             Map.of("label", "Occasion", "description", "Occasion cars from professional sellers", "url", "/cars?categories=PASSENGER_CAR")
         ));
+        model.addAttribute("homepageStats", List.of(
+            Map.of("value", "10.000+", "label", "coches dañados disponibles"),
+            Map.of("value", "20.000+", "label", "coches de desguace"),
+            Map.of("value", "3.000.000", "label", "piezas usadas catalogadas"),
+            Map.of("value", "~2.000", "label", "vehiculos de ocasion"),
+            Map.of("value", "250+", "label", "empresas participantes")
+        ));
+        model.addAttribute("homepageValueProps", List.of(
+            Map.of(
+                "title", "One-Stop-Shop",
+                "description", "Encuentra coches dañados, siniestrados y vehiculos de ocasion dentro de un unico marketplace profesional."
+            ),
+            Map.of(
+                "title", "Plataforma unificada",
+                "description", "Trabajamos con multiples categorias, distribuidores y regiones para simplificar la busqueda y comparacion."
+            ),
+            Map.of(
+                "title", "Transparencia y calidad",
+                "description", "Las fichas y distribuidores se presentan con estructura clara, trazabilidad y foco en calidad profesional."
+            )
+        ));
         model.addAttribute("primaryVehicleTypes", VehicleCategoryCatalog.primaryCategories());
         model.addAttribute("extraVehicleTypes", VehicleCategoryCatalog.secondaryCategories());
         model.addAttribute("searchBrands", buildSearchBrands());

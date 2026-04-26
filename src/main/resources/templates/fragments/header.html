@@ -98,6 +98,10 @@
                             <i class="far fa-envelope"></i>
                             <span th:if="${unreadMessageCount > 0}" class="badge bg-danger position-absolute top-0 start-100 translate-middle rounded-pill" th:text="${unreadMessageCount}">0</span>
                         </a>
+                        <a th:href="@{/favorites}" class="nav-right-link position-relative" sec:authorize="isAuthenticated()">
+                            <i class="far fa-heart"></i>
+                            <span th:if="${favoriteCount > 0}" class="badge bg-danger position-absolute top-0 start-100 translate-middle rounded-pill" th:text="${favoriteCount}">0</span>
+                        </a>
                         <div class="nav-right-account" sec:authorize="isAuthenticated()">
                             <div class="dropdown">
                                 <div data-bs-toggle="dropdown" aria-expanded="false">

@@ -1,6 +1,7 @@
 package com.cardealer.controller;
 
 import com.cardealer.model.User;
+import com.cardealer.service.FavoriteService;
 import com.cardealer.service.LocalizationService;
 import com.cardealer.service.MessageService;
 import com.cardealer.service.RecentlyViewedService;
@@ -21,6 +22,7 @@ import java.util.Locale;
 public class GlobalModelAttributesController {
 
     private final UserService userService;
+    private final FavoriteService favoriteService;
     private final MessageService messageService;
     private final LocalizationService localizationService;
     private final RecentlyViewedService recentlyViewedService;
@@ -61,7 +63,24 @@ public class GlobalModelAttributesController {
         if (attributes == null || attributes.getRequest().getSession(false) == null) {
             return List.of();
         }
+        recentlyViewedService.hydrateSessionFromCookie(attributes.getRequest().getSession(false), attributes.getRequest());
         return recentlyViewedService.getRecentlyViewedCars(attributes.getRequest().getSession(false), 5);
+    }
+
+    @ModelAttribute("favoriteCount")
+    public long favoriteCount(Authentication authentication) {
+        if (authentication == null
+                || !authentication.isAuthenticated()
+                || "anonymousUser".equals(authentication.getName())) {
+            return 0L;
+        }
+
+        try {
+            User user = userService.getUserByEmail(authentication.getName());
+            return favoriteService.countUserFavorites(user.getId());
+        } catch (Exception ignored) {
+            return 0L;
+        }
     }
 
     @ModelAttribute("currentUrl")

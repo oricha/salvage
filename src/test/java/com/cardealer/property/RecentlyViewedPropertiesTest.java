@@ -8,13 +8,17 @@ import net.jqwik.api.ForAll;
 import net.jqwik.api.Property;
 import net.jqwik.api.constraints.Size;
 import net.jqwik.api.constraints.UniqueElements;
+import org.junit.jupiter.api.Test;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.junit.jupiter.api.Tag;
 import org.springframework.mock.web.MockHttpSession;
+import jakarta.servlet.http.Cookie;
 
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -39,6 +43,20 @@ class RecentlyViewedPropertiesTest {
         List<Long> expected = viewedCarIds.subList(Math.max(0, viewedCarIds.size() - 10), viewedCarIds.size()).reversed();
         assertEquals(expected, recentlyViewed);
         assertEquals(Math.min(5, expected.size()), service.getRecentlyViewedCars(session, 5).size());
+    }
+
+    @Test
+    void recentlyViewedCanBeRestoredFromCookie() {
+        CarRepository carRepository = mock(CarRepository.class);
+        ViewHistoryRepository viewHistoryRepository = mock(ViewHistoryRepository.class);
+        RecentlyViewedService service = new RecentlyViewedService(carRepository, viewHistoryRepository);
+        MockHttpSession session = new MockHttpSession();
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setCookies(new Cookie(RecentlyViewedService.RECENTLY_VIEWED_COOKIE, "9,7,5"));
+
+        service.hydrateSessionFromCookie(session, request);
+
+        assertIterableEquals(List.of(9L, 7L, 5L), service.getRecentlyViewed(session, 10));
     }
 
     private Car carWithId(Long id) {
